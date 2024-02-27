@@ -6,36 +6,23 @@ from src.website.utils import get_timestamp_path
 
 # Create your models here.
 
+
 class WhyChooseUs(models.Model):
+    icon = models.ImageField(upload_to=get_timestamp_path, null=True)
+    title = models.CharField(max_length=25,null=True)
+    description = models.TextField(null=True)
+
     class Meta:
         verbose_name = 'WhyChooseUs'
         verbose_name_plural = 'WhyChooseUs'
 
 
-class WhyChooseUsItem(models.Model):
-    icon = models.ImageField(upload_to=get_timestamp_path, null=True)
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    parent = models.ForeignKey('WhyChooseUs', on_delete=models.CASCADE, related_name='items', null=True)
-
-    class Meta:
-        verbose_name = 'WhyChooseUs Item'
-        verbose_name_plural = 'WhyChooseUs Items'
-
-
 class Insta(models.Model):
+    img = models.ImageField(upload_to=get_timestamp_path, null=True)
+
     class Meta:
         verbose_name = 'Insta'
         verbose_name_plural = 'Insta'
-
-
-class InstaImg(models.Model):
-    img = models.ImageField(upload_to=get_timestamp_path, null=True)
-    parent = models.ForeignKey('Insta', on_delete=models.CASCADE, related_name='imgs', null=True)
-
-    class Meta:
-        verbose_name = 'Insta Imgs'
-        verbose_name_plural = 'Insta Imgs'
 
 
 class News(models.Model):
@@ -53,7 +40,7 @@ class News(models.Model):
 class Review(models.Model):
     author = models.CharField(max_length=255)
     comment = models.TextField()
-    stars_count = models.PositiveSmallIntegerField()
+    stars_count = models.FloatField()
     source_of_review = models.CharField(max_length=255)
     date_published = models.DateField()
 

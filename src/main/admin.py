@@ -1,6 +1,8 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin, TabularInline
-from src.main.models import News, WhyChooseUsItem, WhyChooseUs
+from src.main.models import News, WhyChooseUs, Review, Insta
+
+
 # Register your models here.
 
 
@@ -9,13 +11,16 @@ class NewsAdminClass(ModelAdmin):
     pass
 
 
-class WhyChooseUsItemsInline(TabularInline):
-    model = WhyChooseUsItem
+@admin.register(Review)
+class ReviewAdminClass(ModelAdmin):
+    pass
 
 
 @admin.register(WhyChooseUs)
 class WhyChooseUsAdminClass(ModelAdmin):
-    inlines = [
-        WhyChooseUsItemsInline,
-    ]
+    pass
 
+
+@admin.register(Insta)
+class InstaAdminClass(ModelAdmin):
+    pass

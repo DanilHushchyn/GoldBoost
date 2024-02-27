@@ -62,8 +62,8 @@ INSTALLED_APPS = [
 ]
 AUTH_USER_MODEL = 'users.User'
 UNFOLD = {
-    "SITE_TITLE": None,
-    "SITE_HEADER": None,
+    "SITE_TITLE": 'GoldBoost',
+    "SITE_HEADER": 'GoldBoost',
     "SITE_URL": "/",
     # "SITE_ICON": lambda request: static("logo.svg"),
     # "DASHBOARD_CALLBACK": "sample_app.dashboard_callback",
@@ -71,12 +71,16 @@ UNFOLD = {
     #     "image": lambda r: static("sample/login-bg.jpg"),
     #     "redirect_after": lambda r: reverse_lazy("admin:APP_MODEL_changelist"),
     # },
-    # "STYLES": [
-    #     lambda request: static("css/style.css"),
-    # ],
-    # "SCRIPTS": [
-    #     lambda request: static("js/script.js"),
-    # ],
+    "STYLES": [
+        # lambda request: static("games/css/bootstrap.css"),
+        lambda request: static("games/css/summernote-lite.css"),
+    ],
+    "SCRIPTS": [
+        # lambda request: static("games/js/bootstrap.js"),
+        lambda request: static("games/js/jquery-3.7.1.js"),
+        lambda request: static("games/js/summernote-lite.js"),
+        lambda request: static("games/js/summernote-client.js"),
+    ],
     "COLORS": {
         "primary": {
             "50": "250 245 255",

@@ -22,6 +22,7 @@ class CatalogPage(ModelMeta, models.Model):
     tab = models.ForeignKey('Tab', on_delete=models.SET_NULL, blank=True, null=True, related_query_name='tab_content')
     game = models.ForeignKey('Game', on_delete=models.CASCADE, null=True, related_query_name='game',
                              related_name='catalog_pages')
+    calendar = models.ForeignKey('Calendar', on_delete=models.CASCADE, null=True,blank=True)
 
     def __str__(self):
         return self.title
@@ -66,11 +67,11 @@ class Tab(models.Model):
 class Calendar(models.Model):
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255)
-    catalog_page = models.ForeignKey('CatalogPage', on_delete=models.CASCADE, null=True)
 
     class Meta:
         verbose_name = 'Calendars'
         verbose_name_plural = 'Calendars'
+
 
 
 class CalendarItem(models.Model):
