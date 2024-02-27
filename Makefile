@@ -14,7 +14,7 @@ superuser:
 	$(MANAGE) createsuperuser
 
 worker:
-	celery -A SwipeAPI worker -l info
+	celery -A GoldBoost worker -l info
 
 dumpdata:
 	$(MANAGE) dumpdata  -e contenttypes -e auth.Permission > db.json
@@ -23,7 +23,7 @@ startapp:
 	$(MANAGE) migrate --no-input
 	$(MANAGE) loaddata db.json
 	$(MANAGE) collectstatic --no-input
-	gunicorn SwipeAPI.wsgi:application --bind 0.0.0.0:8000
+	gunicorn GoldBoost.wsgi:application --bind 0.0.0.0:8000
 
 createapp_example:
 	$(MANAGE) startapp website ./src/website/

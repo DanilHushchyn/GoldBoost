@@ -16,6 +16,8 @@ django-ninja-extra = "^0.20.4"
 django-meta = "^2.4.2"
 instagram-private-api = "^1.6.0.0"
 instaloader = "^4.10.3"
+gunicorn = "^21.2.0"
+django-cors-headers = "^4.3.1"
 
 
 [build-system]
