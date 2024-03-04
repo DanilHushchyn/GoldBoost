@@ -14,7 +14,7 @@ superuser:
 	$(MANAGE) createsuperuser
 
 worker:
-	celery -A GoldBoost worker -l info
+	celery -A config worker -l info
 
 dumpdata:
 	$(MANAGE) dumpdata  -e contenttypes -e auth.Permission > db.json

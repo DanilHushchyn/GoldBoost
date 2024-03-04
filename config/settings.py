@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # django-environ
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, '.env.prod'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -51,9 +51,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'ninja_jwt',
     'src.website',
     'src.users',
-    'src.core',
     'src.main',
     'src.products',
     'src.orders',
@@ -66,18 +66,10 @@ UNFOLD = {
     "SITE_TITLE": 'GoldBoost',
     "SITE_HEADER": 'GoldBoost',
     "SITE_URL": "/",
-    # "SITE_ICON": lambda request: static("logo.svg"),
-    # "DASHBOARD_CALLBACK": "sample_app.dashboard_callback",
-    # "LOGIN": {
-    #     "image": lambda r: static("sample/login-bg.jpg"),
-    #     "redirect_after": lambda r: reverse_lazy("admin:APP_MODEL_changelist"),
-    # },
     "STYLES": [
-        # lambda request: static("games/css/bootstrap.css"),
         lambda request: static("games/css/summernote-lite.css"),
     ],
     "SCRIPTS": [
-        # lambda request: static("games/js/bootstrap.js"),
         lambda request: static("games/js/jquery-3.7.1.js"),
         lambda request: static("games/js/summernote-lite.js"),
         lambda request: static("games/js/summernote-client.js"),
@@ -96,42 +88,6 @@ UNFOLD = {
             "900": "88 28 135",
         },
     },
-    # "SIDEBAR": {
-    #     "show_search": False,  # Search in applications and models names
-    #     "show_all_applications": False,  # Dropdown with all applications and models
-    #     "navigation": [
-    #         {
-    #             "title": "Navigation",
-    #             "separator": True,  # Top border
-    #             "items": [
-    #                 {
-    #                     "title": "Dashboard",
-    #                     "icon": "dashboard",  # Supported icon set: https://fonts.google.com/icons
-    #                     "link": reverse_lazy("admin:index"),
-    #                     "badge": "sample_app.badge_callback",
-    #                 },
-    #                 {
-    #                     "title": "Users",
-    #                     "icon": "people",
-    #                     "link": reverse_lazy("admin:user_changelist"),
-    #                 },
-    #             ],
-    #         },
-    #     ],
-    # },
-    # "TABS": [
-    #     {
-    #         "models": [
-    #             "app_label.model_name_in_lowercase",
-    #         ],
-    #         "items": [
-    #             {
-    #                 "title": "Your custom title",
-    #                 "link": reverse_lazy("admin:app_label_model_name_changelist"),
-    #             },
-    #         ],
-    #     },
-    # ],
 }
 
 MIDDLEWARE = [
@@ -145,10 +101,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 CORS_ALLOWED_ORIGINS = [
-    "http://0.0.0.0:1337",
+    "http://127.0.0.1:1337",'http://127.0.0.1'
 ]
 CSRF_TRUSTED_ORIGINS = [
-    'http://0.0.0.0:1337',
+    'http://127.0.0.1:1337','http://127.0.0.1'
 ]
 ROOT_URLCONF = 'config.urls'
 
@@ -160,6 +116,14 @@ EMAIL_PORT = env("EMAIL_PORT")
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+FRONTEND_URL = env("FRONTEND_URL")
 
 TEMPLATES = [
     {
@@ -217,7 +181,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kiev'
 
 USE_I18N = True
 

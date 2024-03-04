@@ -15,14 +15,30 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from django.conf.urls.static import static
+from ninja_extra import NinjaExtraAPI
+from ninja_jwt.controller import NinjaJWTDefaultController
 
 from config import settings
-from src import website
+from src.games.api import GamesController
+from src.main.api import MainController
+from src.users.api import UsersController
+from src.website.api import api
+from src.products.api import ProductController
+
+main_api = NinjaExtraAPI()
+# main_api.add_router('', api)
+main_api.register_controllers(NinjaJWTDefaultController)
+
+main_api.register_controllers(ProductController)
+main_api.register_controllers(UsersController)
+main_api.register_controllers(GamesController)
+main_api.register_controllers(MainController)
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('src.website.urls')),
+    path('api/', main_api.urls),
+
 ]
 if settings.DEBUG:
     urlpatterns += static(

@@ -1,9 +1,9 @@
 from django.core.files.storage.filesystem import FileSystemStorage
-from ninja import Schema,Form
-from ninja_extra import NinjaExtraAPI, api_controller, http_get
+from ninja import Schema, Form
+from ninja_extra import NinjaExtraAPI, api_controller, http_get,Router
 from typing import List
 
-api = NinjaExtraAPI()
+api = Router()
 
 
 # function based definition
@@ -12,30 +12,31 @@ def add(request, a: int, b: int):
     return {"result": a + b}
 
 
-# class based definition
-@api_controller('/', tags=['Math'], permissions=[])
-class MathAPI:
-
-    @http_get('/subtract', )
-    def subtract(self, a: int, b: int):
-        """Subtracts a from b"""
-        return {"result": a - b}
-
-    @http_get('/divide', )
-    def divide(self, a: int, b: int):
-        """Divides a by b"""
-        return {"result": a / b}
-
-    @http_get('/multiple', )
-    def multiple(self, a: int, b: int):
-        """Multiples a with b"""
-        return {"result": a * b}
-
-
-api.register_controllers(
-    MathAPI
-)
-
+#
+# # class based definition
+# @api_controller('/', tags=['Math'], permissions=[])
+# class MathAPI:
+#
+#     @http_get('/subtract', )
+#     def subtract(self, a: int, b: int):
+#         """Subtracts a from b"""
+#         return {"result": a - b}
+#
+#     @http_get('/divide', )
+#     def divide(self, a: int, b: int):
+#         """Divides a by b"""
+#         return {"result": a / b}
+#
+#     @http_get('/multiple', )
+#     def multiple(self, a: int, b: int):
+#         """Multiples a with b"""
+#         return {"result": a * b}
+#
+#
+# api.register_controllers(
+#     MathAPI
+# )
+#
 
 class UserSchema(Schema):
     username: str
@@ -101,7 +102,6 @@ def search_weapons(request, q: str, offset: int = 0):
     return results[offset: offset + 10]
 
 
-
 from pydantic import Field
 
 from ninja import Query, Schema
@@ -122,6 +122,8 @@ def events(request, filters: Query[Filters]):
 @api.post("/upload-many")
 def upload_many(request, files: List[UploadedFile] = File(...), files2: List[UploadedFile] = File(...)):
     return [f.name for f in files]
+
+
 class UserDetails(Schema):
     first_name: str
     last_name: str
