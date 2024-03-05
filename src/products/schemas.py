@@ -1,9 +1,9 @@
 from datetime import timedelta
 
-from src.games.models import TabItem, Game, Tab
+from src.games.models import TabItem, Game, Tab, CatalogPage
 from src.products.models import Product, SubFilter, Filter, Tag
 from ninja import Schema, Form
-from ninja import ModelSchema
+from ninja import ModelSchema, Field
 from typing import List
 
 
@@ -16,6 +16,8 @@ class TagOutSchema(ModelSchema):
 
 class ProductSchema(ModelSchema):
     tag: TagOutSchema | None
+    # первый вариант как вернуть картинку игры
+    game_logo: str = Field(None, alias="catalog_page.game.logo_product")
     price_from: float | None
     price_to: float | None
     sale_price_from: float | None
@@ -24,27 +26,17 @@ class ProductSchema(ModelSchema):
     sale_period: str | None
     sale_active: bool
 
+    # @staticmethod
+    # def resolve_game_logo(obj):
+    # второй вариант как вернуть картинку игры
+    #     return f"{obj.catalog_page.game.logo_product.url}"
+    #
     class Meta:
         model = Product
         fields = '__all__'
         exclude = ('bought_count', 'tab')
 
 
-# class CarouselProductsSchema(ModelSchema):
-#     tag: TagOutSchema | None
-#     game_logo: str
-#     price_from: float | None
-#     price_to: float | None
-#     sale_price_from: float | None
-#     sale_price_to: float | None
-#     sale_price: float | None
-#     sale_period: str | None
-#     sale_active: bool
-#
-#     class Meta:
-#         model = Product
-#         fields = ['title', 'subtitle', 'card_img', 'price', 'price_type', 'sale_percent']
-#
 
 class ProductsSectionSchema(Schema):
     items: List[ProductSchema]
@@ -96,9 +88,9 @@ class FilterItemSchema(ModelSchema):
         fields = '__all__'
         exclude = ('id', 'product')
 
+
 class ProductCardSchema(ModelSchema):
     filters: List[FilterItemSchema] | None
-    # tab: TabSchema | None
     price_from: float | None
     price_to: float | None
     sale_price_from: float | None
@@ -111,12 +103,6 @@ class ProductCardSchema(ModelSchema):
         model = Product
         fields = '__all__'
         exclude = ('bought_count', 'tag')
-
-
-# class ProductCardOutSchema(Schema):
-#     product: ProductCardSchema
-# tabs: List[TabItemSchema] | None
-# filters: List[FilterItemSchema] | None
 
 
 class ProductCountPriceIn(Schema):
@@ -134,4 +120,4 @@ class GameCarouselsMainSchema(Schema):
 class TabContentSchema(ModelSchema):
     class Meta:
         model = TabItem
-        exclude = ['id', 'title', 'tab','order']
+        exclude = ['id', 'title', 'tab', 'order']

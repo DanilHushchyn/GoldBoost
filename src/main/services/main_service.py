@@ -7,45 +7,51 @@ from src.products.utils import paginate
 
 
 class MainService:
+    """
+    A service class for managing common entities on the site.
+    This class provides methods for ordering, filtering,
+    paginating and common entities on the site.
+    """
 
     @staticmethod
-    def get_why_choose_us():
+    def get_why_choose_us() -> WhyChooseUs:
+        """
+        Getting data for section WhyChooseUs
+        on main page of the site
+        """
         objects = WhyChooseUs.objects.all()
         return objects
 
     @staticmethod
-    def get_instagram():
+    def get_instagram() -> Insta:
+        """
+        Getting data for section instagram
+        on main page of the site
+        """
         objects = Insta.objects.all()
         return objects
 
     @staticmethod
-    def get_reviews(page: int, page_size: int):
+    def get_reviews(page: int, page_size: int) -> dict:
+        """
+        Getting data for section Reviews
+        on main page of the site
+        """
         items = Review.objects.all()
         return paginate(items=items, page=page, page_size=page_size)
 
     @staticmethod
-    def get_settings():
+    def get_settings() -> Setting:
+        """
+        Getting data for footer and header of the site
+        """
         return Setting.objects.first()
 
     @staticmethod
-    def get_news(page: int, page_size: int):
+    def get_news(page: int, page_size: int) -> dict:
+        """
+        Getting data for section News
+        on main page of the site
+        """
         items = News.objects.all()
         return paginate(items=items, page=page, page_size=page_size)
-
-    # def get_main(self):
-    #     reviews = self.get_reviews()
-    #     news = self.get_news()
-    #     insta = Insta.objects.all()
-    #     insta_imgs = [obj.img.url for obj in insta]
-    #     return {
-    #         'why_choose_us': WhyChooseUs.objects.all(),
-    #         'reviews': {
-    #             'items': reviews[:self._reviews_count],
-    #             'count': pages_count(queryset_len=reviews.count(), page_size=self._reviews_count)
-    #         },
-    #         'news': {
-    #             'items': news[:self._news_count],
-    #             'count': pages_count(queryset_len=news.count(), page_size=self._news_count)
-    #         },
-    #         'instagram': insta_imgs,
-    #     }

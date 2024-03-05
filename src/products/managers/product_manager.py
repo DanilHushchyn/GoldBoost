@@ -6,18 +6,22 @@ from django.db.models import Value, CharField, F, Sum
 
 
 class ProductManager(models.Manager):
-
+    """
+    A Manager class for managing products.
+    This class provides methods for ordering and filtering products with db queries.
+    """
     def hot_all(self, game_id=None):
         if game_id:
-            objects = self.get_queryset().filter(tag__name__iexact='hot', catalog_page__game=game_id)
+            objects = (self.get_queryset()
+                       .select_related('catalog_page__game')
+                       .filter(tag__name__iexact='hot',
+                               catalog_page__game=game_id))
         else:
-            objects = self.get_queryset().filter(tag__name__iexact='hot')
-        for obj in objects:
-            obj.game_logo = obj.catalog_page.game.logo_product.url
+            objects = (self.get_queryset()
+                       .select_related('catalog_page__game')
+                       .filter(tag__name__iexact='hot'))
         return objects
 
     def bestsellers(self):
         objects = self.get_queryset().order_by('-bought_count')
-        for obj in objects:
-            obj.game_logo = obj.catalog_page.game.logo_product.url
         return objects

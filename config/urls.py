@@ -23,7 +23,7 @@ from ninja_jwt.controller import NinjaJWTDefaultController
 from config import settings
 from src.games.api import GamesController
 from src.main.api import MainController
-from src.users.api import UsersController
+from src.users.api import UsersController, AuthController
 from src.website.api import api
 from src.products.api import ProductController
 
@@ -33,6 +33,7 @@ main_api.register_controllers(NinjaJWTDefaultController)
 
 main_api.register_controllers(ProductController)
 main_api.register_controllers(UsersController)
+main_api.register_controllers(AuthController)
 main_api.register_controllers(GamesController)
 main_api.register_controllers(MainController)
 urlpatterns = [

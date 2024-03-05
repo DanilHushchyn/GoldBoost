@@ -12,8 +12,8 @@ class UserOutSchema(ModelSchema):
         fields = ('email', 'first_name', 'last_name')
 
 
-class SubscribeInSchema(Schema):
-    email: EmailStr
+class MessageOutSchema(Schema):
+    message: str | None
 
 
 class RegisterSchema(Schema):

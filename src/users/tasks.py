@@ -11,7 +11,13 @@ from src.users.models import User, PasswordResetToken
 
 
 @shared_task
-def email_verification(user_id: int):
+def email_verification(user_id: int) -> dict:
+    """
+    Send letter to user and ask him to confirm registration
+    In letter he will find link which redirects him to the site
+    for confirmation
+    :param user_id: stores user id
+    """
     user = User.objects.get(id=user_id)
     # Send confirmation email
     uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -30,6 +36,12 @@ def email_verification(user_id: int):
 
 @shared_task
 def reset_password_confirm(user_id: int):
+    """
+    Send letter to user and ask him to confirm reset password
+    In letter he will find link which redirects him to the site
+    where he can change his password
+    :param user_id: stores user id
+    """
     user = User.objects.get(id=user_id)
 
     # Генерация токена сброса пароля
