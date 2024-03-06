@@ -27,4 +27,3 @@ startapp:
 
 createapp_example:
 	$(MANAGE) startapp website ./src/website/
-

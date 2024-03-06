@@ -1,15 +1,16 @@
+# -*- coding: utf-8 -*-
 from typing import List
 
 from ninja import ModelSchema
 
-from src.games.models import Game, CatalogPage
+from src.games.models import CatalogPage, Game
 from src.products.models import Product
 
 
 class CatalogPageSchema(ModelSchema):
     class Meta:
         model = CatalogPage
-        fields = ['id', 'title']
+        fields = ["id", "title"]
 
 
 class ProductPageSchema(ModelSchema):
@@ -24,7 +25,7 @@ class ProductPageSchema(ModelSchema):
 
     class Meta:
         model = Product
-        fields = ['id', 'title', 'subtitle', 'card_img', 'price', 'price_type', 'sale_percent']
+        fields = ["id", "title", "subtitle", "card_img", "price", "price_type", "sale_percent"]
 
 
 class GameSchema(ModelSchema):
@@ -34,19 +35,19 @@ class GameSchema(ModelSchema):
 
     class Meta:
         model = Game
-        fields = '__all__'
+        fields = "__all__"
 
 
 class GameLogosFilterSchema(ModelSchema):
     class Meta:
         model = Game
-        fields = ['id', 'logo_filter']
+        fields = ["id", "logo_filter"]
 
 
 class GameLogosProductSchema(ModelSchema):
     class Meta:
         model = Game
-        fields = ['name', 'logo_product']
+        fields = ["name", "logo_product"]
 
 
 class GamesSchema(ModelSchema):
@@ -54,5 +55,7 @@ class GamesSchema(ModelSchema):
 
     class Meta:
         model = Game
-        fields = '__all__'
-        exclude = ['order',]
+        fields = "__all__"
+        exclude = [
+            "order",
+        ]

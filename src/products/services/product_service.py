@@ -1,10 +1,13 @@
-from django.core.paginator import Paginator, EmptyPage
-from django.db.models import Sum, Prefetch, QuerySet
+# -*- coding: utf-8 -*-
+"""
+    Module contains class for managing products on site
+"""
+# -*- coding: utf-8 -*-
+from django.db.models import Prefetch, QuerySet
 from django.shortcuts import get_object_or_404
 
 from src.games.models import TabItem
-from src.products.models import Product, SubFilter, Filter
-from src.products.schemas import ProductCountPriceIn
+from src.products.models import Filter, Product
 from src.products.utils import paginate
 
 
@@ -14,14 +17,18 @@ class ProductService:
     This class provides methods for ordering, filtering,
     paginating and getting related entities of products.
     """
+
     @staticmethod
     def get_product_by_id(product_id: int) -> Product:
         """
-        This function for getting info product's card page.
+        Gets info for product's card page.
         :param product_id: id of Product model's instance
         :return: Product model's instance with related filters
         """
-        pr_filters = Prefetch('filters', queryset=Filter.objects.all(), )
+        pr_filters = Prefetch(
+            "filters",
+            queryset=Filter.objects.all(),
+        )
         product = Product.objects.prefetch_related(pr_filters).get(id=product_id)
         return product
 

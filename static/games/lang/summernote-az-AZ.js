@@ -1,14 +1,14 @@
 /*!
- * 
+ *
  * Super simple wysiwyg editor v0.8.18
  * https://summernote.org
- * 
- * 
+ *
+ *
  * Copyright 2013- Alan Hong. and other contributors
  * summernote may be freely distributed under the MIT license.
- * 
+ *
  * Date: 2020-05-20T18:09Z
- * 
+ *
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -116,7 +116,7 @@ return /******/ (function(modules) { // webpackBootstrap
 //Tarix: 20.07.2019
 //Baki Azerbaycan
 //Website: https://ramilaliyev.com
-//Azerbaijan language for Summernote WYSIWYG 
+//Azerbaijan language for Summernote WYSIWYG
 //Translated by: RAMIL ALIYEV
 //Date: 20.07.2019
 //Baku Azerbaijan

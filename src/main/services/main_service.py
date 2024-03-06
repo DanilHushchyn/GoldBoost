@@ -1,8 +1,5 @@
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.shortcuts import get_object_or_404
-
-from src.main.models import WhyChooseUs, Review, News, Insta, Setting
-from src.products.models import Product
+# -*- coding: utf-8 -*-
+from src.main.models import Insta, News, Review, Setting, WhyChooseUs
 from src.products.utils import paginate
 
 
@@ -16,8 +13,10 @@ class MainService:
     @staticmethod
     def get_why_choose_us() -> WhyChooseUs:
         """
-        Getting data for section WhyChooseUs
+        Gets data for section WhyChooseUs
         on main page of the site
+        :return: WhyChooseUs model queryset
+        :rtype: WhyChooseUs
         """
         objects = WhyChooseUs.objects.all()
         return objects
@@ -25,8 +24,10 @@ class MainService:
     @staticmethod
     def get_instagram() -> Insta:
         """
-        Getting data for section instagram
+        Gets data for section instagram
         on main page of the site
+        :return: Insta model queryset
+        :rtype: Insta
         """
         objects = Insta.objects.all()
         return objects
@@ -34,8 +35,12 @@ class MainService:
     @staticmethod
     def get_reviews(page: int, page_size: int) -> dict:
         """
-        Getting data for section Reviews
+        Gets data for section Reviews
         on main page of the site
+        :param page: the page number we want to get
+        :param page_size: length of queryset per page
+        :return: dict which contains parameters for pagination
+        :rtype: dict
         """
         items = Review.objects.all()
         return paginate(items=items, page=page, page_size=page_size)
@@ -43,15 +48,21 @@ class MainService:
     @staticmethod
     def get_settings() -> Setting:
         """
-        Getting data for footer and header of the site
+        Gets data for footer and header of the site
+        :return: Setting model instance
+        :rtype: Setting
         """
         return Setting.objects.first()
 
     @staticmethod
     def get_news(page: int, page_size: int) -> dict:
         """
-        Getting data for section News
+        Gets data for section News
         on main page of the site
+        :param page: the page number we want to get
+        :param page_size: length of queryset per page
+        :return: dict which contains parameters for pagination
+        :rtype: dict
         """
         items = News.objects.all()
         return paginate(items=items, page=page, page_size=page_size)

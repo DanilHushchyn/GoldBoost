@@ -1,17 +1,23 @@
-from datetime import timedelta
-
-from src.games.models import TabItem, Game, Tab, CatalogPage
-from src.products.models import Product, SubFilter, Filter, Tag
-from ninja import Schema, Form
-from ninja import ModelSchema, Field
+# -*- coding: utf-8 -*-
+"""
+This module contains pydantic schemas for app "products"
+implement logic for encoding and decoding data into python
+object and json
+"""
 from typing import List
+from ninja import Field, ModelSchema, Schema
+from src.games.models import Tab, TabItem
+from src.products.models import Filter, Product, SubFilter, Tag
 
 
 class TagOutSchema(ModelSchema):
+    """
+
+    """
     class Meta:
         model = Tag
-        fields = '__all__'
-        exclude = ('id',)
+        fields = "__all__"
+        exclude = ("id",)
 
 
 class ProductSchema(ModelSchema):
@@ -33,9 +39,8 @@ class ProductSchema(ModelSchema):
     #
     class Meta:
         model = Product
-        fields = '__all__'
-        exclude = ('bought_count', 'tab')
-
+        fields = "__all__"
+        exclude = ("bought_count", "tab")
 
 
 class ProductsSectionSchema(Schema):
@@ -60,8 +65,8 @@ class BestSellersSchema(Schema):
 class TabItemSchema(ModelSchema):
     class Meta:
         model = TabItem
-        fields = '__all__'
-        exclude = ('tab', 'content', 'order')
+        fields = "__all__"
+        exclude = ("tab", "content", "order")
 
 
 class TabSchema(ModelSchema):
@@ -69,15 +74,15 @@ class TabSchema(ModelSchema):
 
     class Meta:
         model = Tab
-        fields = '__all__'
-        exclude = ('id',)
+        fields = "__all__"
+        exclude = ("id",)
 
 
 class SubFilterItemSchema(ModelSchema):
     class Meta:
         model = SubFilter
-        fields = '__all__'
-        exclude = ('filter',)
+        fields = "__all__"
+        exclude = ("filter",)
 
 
 class FilterItemSchema(ModelSchema):
@@ -85,8 +90,8 @@ class FilterItemSchema(ModelSchema):
 
     class Meta:
         model = Filter
-        fields = '__all__'
-        exclude = ('id', 'product')
+        fields = "__all__"
+        exclude = ("id", "product")
 
 
 class ProductCardSchema(ModelSchema):
@@ -101,8 +106,8 @@ class ProductCardSchema(ModelSchema):
 
     class Meta:
         model = Product
-        fields = '__all__'
-        exclude = ('bought_count', 'tag')
+        fields = "__all__"
+        exclude = ("bought_count", "tag")
 
 
 class ProductCountPriceIn(Schema):
@@ -120,4 +125,4 @@ class GameCarouselsMainSchema(Schema):
 class TabContentSchema(ModelSchema):
     class Meta:
         model = TabItem
-        exclude = ['id', 'title', 'tab', 'order']
+        exclude = ["id", "title", "tab", "order"]

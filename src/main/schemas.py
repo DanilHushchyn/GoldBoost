@@ -1,22 +1,23 @@
+# -*- coding: utf-8 -*-
 from typing import List
 
 from ninja import ModelSchema, Schema
 
-from src.main.models import WhyChooseUs, Review, News, Insta, Setting
 import src.games.schemas as game_schemas
+from src.main.models import Insta, News, Review, Setting, WhyChooseUs
 
 
 class WhyChooseUsSchema(ModelSchema):
     class Meta:
         model = WhyChooseUs
-        fields = '__all__'
-        exclude = ('id',)
+        fields = "__all__"
+        exclude = ("id",)
 
 
 class ReviewsSchema(ModelSchema):
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = "__all__"
 
 
 class NewsSchema(ModelSchema):
@@ -24,20 +25,22 @@ class NewsSchema(ModelSchema):
 
     class Meta:
         model = News
-        fields = '__all__'
+        fields = "__all__"
 
 
 class InstaSchema(ModelSchema):
     class Meta:
         model = Insta
-        fields = ['img', ]
+        fields = [
+            "img",
+        ]
 
 
 class SettingsOutSchema(ModelSchema):
     class Meta:
         model = Setting
-        fields = '__all__'
-        exclude = ['subscribe_sale', 'id']
+        fields = "__all__"
+        exclude = ["subscribe_sale", "id"]
 
 
 # class HotOfferSectionSchema(Schema):

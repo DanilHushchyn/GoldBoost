@@ -1,14 +1,16 @@
+# -*- coding: utf-8 -*-
 from http.client import HTTPException
 
-from django.shortcuts import get_object_or_404
-from ninja.errors import HttpError
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from src.users.models import User, PasswordResetToken
-from src.users.schemas import RegisterSchema, MessageOutSchema
-from src.users.tasks import email_verification, reset_password_confirm
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from ninja.errors import HttpError
+
+from src.users.models import PasswordResetToken, User
+from src.users.schemas import MessageOutSchema, RegisterSchema
+from src.users.tasks import email_verification, reset_password_confirm
 
 
 class AuthService:
@@ -28,7 +30,7 @@ class AuthService:
             raise HttpError(403, "This email already in use ☹")
         user = User.objects.create_user(email=user.email, password=user.password, notify_me=user.notify_me)
         email_verification.delay(user_id=user.id)
-        return MessageOutSchema(message='Please confirm your registration. We have send letter to your email')
+        return MessageOutSchema(message="Please confirm your registration. We have send letter to your email")
 
     @staticmethod
     def confirm_email(uidb64: str, token: str) -> MessageOutSchema:
@@ -50,7 +52,7 @@ class AuthService:
         if user is not None and default_token_generator.check_token(user, token):
             user.is_active = True
             user.save()
-            return MessageOutSchema(message='Email confirmed successfully')
+            return MessageOutSchema(message="Email confirmed successfully")
         else:
             raise HttpError(400, "Invalid confirmation link")
 
@@ -69,7 +71,7 @@ class AuthService:
             raise HttpError(403, "There is not user registered with that email ☹")
         reset_password_confirm.delay(user.id)
 
-        return MessageOutSchema(message='Please confirm reset password. We have send instructions to your email')
+        return MessageOutSchema(message="Please confirm reset password. We have send instructions to your email")
 
     @staticmethod
     def change_password(uidb64: str, token: str, password1: str, password2: str) -> MessageOutSchema:
@@ -102,4 +104,4 @@ class AuthService:
         # Delete user's token for password reset
         PasswordResetToken.objects.filter(user=user).delete()
 
-        return MessageOutSchema(message='Password reset successfully.')
+        return MessageOutSchema(message="Password reset successfully.")

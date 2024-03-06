@@ -1,37 +1,49 @@
+# -*- coding: utf-8 -*-
+"""
+    In this module described models for application main
+    Their purpose is storing data for common entities in our site
+    Models:
+       WhyChooseUs
+       Insta
+       News
+       Review
+       Setting
+       PromoCode
+       Subscriber
+"""
 from django.db import models
 
 from src.games.models import Game
+from src.products.utils import get_timestamp_path
 from src.users.models import User
-from src.website.utils import get_timestamp_path
-
 
 # Create your models here.
 
 
 class WhyChooseUs(models.Model):
     icon = models.ImageField(upload_to=get_timestamp_path, null=True)
-    icon_alt = models.CharField(max_length=255,null=True)
+    icon_alt = models.CharField(max_length=255, null=True)
     title = models.CharField(max_length=25, null=True)
     description = models.TextField(null=True)
 
     class Meta:
-        verbose_name = 'WhyChooseUs'
-        verbose_name_plural = 'WhyChooseUs'
+        verbose_name = "WhyChooseUs"
+        verbose_name_plural = "WhyChooseUs"
 
 
 class Insta(models.Model):
     img = models.ImageField(upload_to=get_timestamp_path, null=True)
 
     class Meta:
-        verbose_name = 'Insta'
-        verbose_name_plural = 'Insta'
+        verbose_name = "Insta"
+        verbose_name_plural = "Insta"
 
 
 class News(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE, null=True)
-    title = models.CharField(max_length=255, default='')
+    title = models.CharField(max_length=255, default="")
     image = models.ImageField(upload_to=get_timestamp_path, null=True)
-    image_alt = models.CharField(max_length=255,null=True)
+    image_alt = models.CharField(max_length=255, null=True)
     description = models.TextField()
     date_published = models.DateField(auto_now_add=True)
 
@@ -39,9 +51,9 @@ class News(models.Model):
         return self.title
 
     class Meta:
-        verbose_name = 'News'
-        verbose_name_plural = 'News'
-        ordering = ['-date_published']
+        verbose_name = "News"
+        verbose_name_plural = "News"
+        ordering = ["-date_published"]
 
 
 class Review(models.Model):
@@ -52,9 +64,9 @@ class Review(models.Model):
     date_published = models.DateField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-date_published']
-        verbose_name = 'Review'
-        verbose_name_plural = 'Reviews'
+        ordering = ["-date_published"]
+        verbose_name = "Review"
+        verbose_name_plural = "Reviews"
 
 
 # Create your models here.
@@ -87,8 +99,8 @@ class Setting(models.Model):
         return super(Setting, self).save(*args, **kwargs)
 
     class Meta:
-        verbose_name = 'Settings'
-        verbose_name_plural = 'Settings'
+        verbose_name = "Settings"
+        verbose_name_plural = "Settings"
 
 
 class Subscriber(models.Model):
@@ -97,8 +109,8 @@ class Subscriber(models.Model):
 
 class PromoCode(models.Model):
     code = models.CharField(max_length=215)
-    from_date = models.DateField(help_text='Example: 12/12/2023')
-    until_date = models.DateField(help_text='Example: 12/12/2023')
+    from_date = models.DateField(help_text="Example: 12/12/2023")
+    until_date = models.DateField(help_text="Example: 12/12/2023")
     discount = models.IntegerField(default=0)
     users = models.ManyToManyField(User)
 
@@ -106,5 +118,5 @@ class PromoCode(models.Model):
         return self.code
 
     class Meta:
-        verbose_name = 'Promo codes'
-        verbose_name_plural = 'Promo codes'
+        verbose_name = "Promo codes"
+        verbose_name_plural = "Promo codes"

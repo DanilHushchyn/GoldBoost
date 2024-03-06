@@ -1,13 +1,19 @@
+# -*- coding: utf-8 -*-
+
+"""
+In this module described all celery task for implementing
+asynchronous logic in application users
+"""
 from celery.app import shared_task
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
 
 from config import settings
 from config.celery import app
-from src.users.models import User, PasswordResetToken
+from src.users.models import PasswordResetToken, User
 
 
 @shared_task
@@ -54,8 +60,8 @@ def reset_password_confirm(user_id: int):
 
     # Отправка электронного письма с ссылкой для подтверждения сброса пароля
     send_mail(
-        'Password reset',
-        f'Click the following link to reset your password: {reset_url}',
+        "Password reset",
+        f"Click the following link to reset your password: {reset_url}",
         settings.DEFAULT_FROM_EMAIL,
         [user.email],
         fail_silently=False,

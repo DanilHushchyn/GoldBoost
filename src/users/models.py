@@ -1,7 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+    In this module described models for application users
+    Their purpose is storing data for users
+    and access control system in our site
+    Models:
+       User
+       PasswordResetToken
+"""
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
-from django.apps import apps
-from django.contrib.auth.hashers import make_password
 
 
 class CustomUserManager(UserManager):
@@ -39,61 +47,61 @@ class CustomUserManager(UserManager):
 
 
 class User(AbstractUser):
-    username = None,
+    username = (None,)
     email = models.EmailField(max_length=255, unique=True)
     notify_me = models.BooleanField(default=False)
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
 
     class Meta:
-        verbose_name = 'Users'
-        verbose_name_plural = 'Users'
+        verbose_name = "Users"
+        verbose_name_plural = "Users"
 
 
 class Character(models.Model):
     FACTION_CHOICES = (
-        ('Alliance', 'Alliance'),
-        ('Horde', 'Horde'),
+        ("Alliance", "Alliance"),
+        ("Horde", "Horde"),
     )
 
     CLASS_SPEC_CHOICES = (
-        ('Warrior - Arms', 'Warrior - Arms'),
-        ('Warrior - Fury', 'Warrior - Fury'),
-        ('Warrior - Protection', 'Warrior - Protection'),
-        ('Paladin - Holy', 'Paladin - Holy'),
-        ('Paladin - Protection', 'Paladin - Protection'),
-        ('Paladin - Retribution', 'Paladin - Retribution'),
-        ('Hunter - Beast Mastery', 'Hunter - Beast Mastery'),
-        ('Hunter - Marksmanship', 'Hunter - Marksmanship'),
-        ('Hunter - Survival', 'Hunter - Survival'),
-        ('Rogue - Assassination', 'Rogue - Assassination'),
-        ('Rogue - Outlaw', 'Rogue - Outlaw'),
-        ('Rogue - Subtlety', 'Rogue - Subtlety'),
-        ('Priest - Discipline', 'Priest - Discipline'),
-        ('Priest - Holy', 'Priest - Holy'),
-        ('Priest - Shadow', 'Priest - Shadow'),
-        ('Death Knight - Blood', 'Death Knight - Blood'),
-        ('Death Knight - Frost', 'Death Knight - Frost'),
-        ('Death Knight - Unholy', 'Death Knight - Unholy'),
-        ('Shaman - Elemental', 'Shaman - Elemental'),
-        ('Shaman - Enhancement', 'Shaman - Enhancement'),
-        ('Shaman - Restoration', 'Shaman - Restoration'),
-        ('Mage - Arcane', 'Mage - Arcane'),
-        ('Mage - Fire', 'Mage - Fire'),
-        ('Mage - Frost', 'Mage - Frost'),
-        ('Warlock - Affliction', 'Warlock - Affliction'),
-        ('Warlock - Demonology', 'Warlock - Demonology'),
-        ('Warlock - Destruction', 'Warlock - Destruction'),
-        ('Monk - Brewmaster', 'Monk - Brewmaster'),
-        ('Monk - Mistweaver', 'Monk - Mistweaver'),
-        ('Monk - Windwalker', 'Monk - Windwalker'),
-        ('Druid - Balance', 'Druid - Balance'),
-        ('Druid - Feral', 'Druid - Feral'),
-        ('Druid - Guardian', 'Druid - Guardian'),
-        ('Druid - Restoration', 'Druid - Restoration'),
-        ('Demon Hunter - Havoc', 'Demon Hunter - Havoc'),
-        ('Demon Hunter - Vengeance', 'Demon Hunter - Vengeance'),
+        ("Warrior - Arms", "Warrior - Arms"),
+        ("Warrior - Fury", "Warrior - Fury"),
+        ("Warrior - Protection", "Warrior - Protection"),
+        ("Paladin - Holy", "Paladin - Holy"),
+        ("Paladin - Protection", "Paladin - Protection"),
+        ("Paladin - Retribution", "Paladin - Retribution"),
+        ("Hunter - Beast Mastery", "Hunter - Beast Mastery"),
+        ("Hunter - Marksmanship", "Hunter - Marksmanship"),
+        ("Hunter - Survival", "Hunter - Survival"),
+        ("Rogue - Assassination", "Rogue - Assassination"),
+        ("Rogue - Outlaw", "Rogue - Outlaw"),
+        ("Rogue - Subtlety", "Rogue - Subtlety"),
+        ("Priest - Discipline", "Priest - Discipline"),
+        ("Priest - Holy", "Priest - Holy"),
+        ("Priest - Shadow", "Priest - Shadow"),
+        ("Death Knight - Blood", "Death Knight - Blood"),
+        ("Death Knight - Frost", "Death Knight - Frost"),
+        ("Death Knight - Unholy", "Death Knight - Unholy"),
+        ("Shaman - Elemental", "Shaman - Elemental"),
+        ("Shaman - Enhancement", "Shaman - Enhancement"),
+        ("Shaman - Restoration", "Shaman - Restoration"),
+        ("Mage - Arcane", "Mage - Arcane"),
+        ("Mage - Fire", "Mage - Fire"),
+        ("Mage - Frost", "Mage - Frost"),
+        ("Warlock - Affliction", "Warlock - Affliction"),
+        ("Warlock - Demonology", "Warlock - Demonology"),
+        ("Warlock - Destruction", "Warlock - Destruction"),
+        ("Monk - Brewmaster", "Monk - Brewmaster"),
+        ("Monk - Mistweaver", "Monk - Mistweaver"),
+        ("Monk - Windwalker", "Monk - Windwalker"),
+        ("Druid - Balance", "Druid - Balance"),
+        ("Druid - Feral", "Druid - Feral"),
+        ("Druid - Guardian", "Druid - Guardian"),
+        ("Druid - Restoration", "Druid - Restoration"),
+        ("Demon Hunter - Havoc", "Demon Hunter - Havoc"),
+        ("Demon Hunter - Vengeance", "Demon Hunter - Vengeance"),
     )
 
     battle_tag = models.CharField(max_length=255)
@@ -102,13 +110,12 @@ class Character(models.Model):
     additional_info = models.TextField()
     class_and_spec = models.CharField(max_length=255, choices=CLASS_SPEC_CHOICES)
     realm = models.CharField(max_length=255)
-    user = models.ForeignKey('User', on_delete=models.CASCADE, null=True)  # Assuming User model exists
+    user = models.ForeignKey("User", on_delete=models.CASCADE, null=True)  # Assuming User model exists
 
 
 class PasswordResetToken(models.Model):
-    user = models.ForeignKey('User', null=True, on_delete=models.CASCADE)
+    user = models.ForeignKey("User", null=True, on_delete=models.CASCADE)
     token = models.CharField(max_length=255, null=True)
 
     class Meta:
-        db_table = 'password_reset_token'
-
+        db_table = "password_reset_token"

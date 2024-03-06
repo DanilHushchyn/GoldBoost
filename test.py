@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # import instaloader
 #
 # # Initialize Instaloader
@@ -15,7 +16,18 @@
 # # Print the URLs of the recent photos
 # for post in recent_posts:
 #     print(post.url)
-number = 100
-percentage = 20
-result = (number * percentage) / 100
-print(result)  # Output: 20.0
+import httpx
+httpx_client = httpx.Client()
+
+url = 'http://134.209.230.39/api/registration/'
+data = {'email': 'user10@example.com', 'password': 'sword123', 'notify_me': True}
+
+response = httpx_client.post(url, data=data)
+print(response.content)
+
+if response.status_code == 200:
+    print(response.json())
+    # Process the data
+    print(response)
+else:
+    print(f"Failed to fetch data: {response.status_code} - {response.reason_phrase}")

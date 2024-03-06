@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+    In this module described models for application games
+    The main model here is Main and also initialized related to it models
+"""
 from django.db import models
 from meta.models import ModelMeta
 
-from src.website.utils import get_timestamp_path
-
-from django.db import models
+from src.products.utils import get_timestamp_path
 
 
 class Game(models.Model):
@@ -18,31 +21,32 @@ class Game(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['order']
-        verbose_name = 'Games'
-        verbose_name_plural = 'Games'
+        ordering = ["order"]
+        verbose_name = "Games"
+        verbose_name_plural = "Games"
 
 
 class CatalogPage(ModelMeta, models.Model):
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, related_name='children')
+    parent = models.ForeignKey("self", on_delete=models.SET_NULL, blank=True, null=True, related_name="children")
     title = models.CharField()
     description = models.TextField()
-    tab = models.ForeignKey('Tab', on_delete=models.SET_NULL, blank=True, null=True, related_query_name='tab_content')
-    game = models.ForeignKey('Game', on_delete=models.CASCADE, null=True, related_query_name='game',
-                             related_name='catalog_pages')
-    calendar = models.ForeignKey('Calendar', on_delete=models.CASCADE, null=True, blank=True)
+    tab = models.ForeignKey("Tab", on_delete=models.SET_NULL, blank=True, null=True, related_query_name="tab_content")
+    game = models.ForeignKey(
+        "Game", on_delete=models.CASCADE, null=True, related_query_name="game", related_name="catalog_pages"
+    )
+    calendar = models.ForeignKey("Calendar", on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.title
 
     _metadata = {
-        'title': 'title',
-        'description': 'description',
+        "title": "title",
+        "description": "description",
     }
 
     class Meta:
-        verbose_name = 'Catalog Page'
-        verbose_name_plural = 'Catalog Pages'
+        verbose_name = "Catalog Page"
+        verbose_name_plural = "Catalog Pages"
 
 
 class WorthLookCarouselItem(models.Model):
@@ -50,29 +54,29 @@ class WorthLookCarouselItem(models.Model):
     image_alt = models.CharField(max_length=255, null=True)
     title = models.CharField()
     link = models.URLField()
-    catalog_page = models.ForeignKey('CatalogPage', on_delete=models.CASCADE, related_name='worth_items', null=True)
+    catalog_page = models.ForeignKey("CatalogPage", on_delete=models.CASCADE, related_name="worth_items", null=True)
 
     class Meta:
-        verbose_name = 'Worth look carousel'
-        verbose_name_plural = 'Worth look carousel'
+        verbose_name = "Worth look carousel"
+        verbose_name_plural = "Worth look carousel"
 
 
 class TabItem(models.Model):
     title = models.CharField()
     content = models.TextField()
     order = models.PositiveIntegerField(null=True)
-    tab = models.ForeignKey('Tab', on_delete=models.CASCADE, related_name='tab_items', null=True)
+    tab = models.ForeignKey("Tab", on_delete=models.CASCADE, related_name="tab_items", null=True)
 
     class Meta:
-        ordering = ['order']
-        verbose_name = 'Tab Item'
-        verbose_name_plural = 'Tab Items'
+        ordering = ["order"]
+        verbose_name = "Tab Item"
+        verbose_name_plural = "Tab Items"
 
 
 class Tab(models.Model):
     class Meta:
-        verbose_name = 'Tab'
-        verbose_name_plural = 'Tabs'
+        verbose_name = "Tab"
+        verbose_name_plural = "Tabs"
 
 
 class Calendar(models.Model):
@@ -80,8 +84,8 @@ class Calendar(models.Model):
     subtitle = models.CharField(max_length=255)
 
     class Meta:
-        verbose_name = 'Calendars'
-        verbose_name_plural = 'Calendars'
+        verbose_name = "Calendars"
+        verbose_name_plural = "Calendars"
 
 
 class CalendarItem(models.Model):
@@ -94,4 +98,4 @@ class CalendarItem(models.Model):
     team2_img_alt = models.CharField(max_length=255, null=True)
     team2_from = models.TimeField()
     team2_until = models.TimeField()
-    calendar = models.ForeignKey('Calendar', on_delete=models.CASCADE, null=True)
+    calendar = models.ForeignKey("Calendar", on_delete=models.CASCADE, null=True)
