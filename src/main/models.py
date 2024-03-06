@@ -21,6 +21,12 @@ from src.users.models import User
 
 
 class WhyChooseUs(models.Model):
+    """
+    Model is storing content for
+    section WhyChooseUs on the main page
+    in the site
+    """
+
     icon = models.ImageField(upload_to=get_timestamp_path, null=True)
     icon_alt = models.CharField(max_length=255, null=True)
     title = models.CharField(max_length=25, null=True)
@@ -32,6 +38,12 @@ class WhyChooseUs(models.Model):
 
 
 class Insta(models.Model):
+    """
+    Model is storing content for
+    section Instagram on the main page
+    in the site
+    """
+
     img = models.ImageField(upload_to=get_timestamp_path, null=True)
 
     class Meta:
@@ -40,6 +52,12 @@ class Insta(models.Model):
 
 
 class News(models.Model):
+    """
+    Model is storing content for
+    section News on the main page
+    in the site
+    """
+
     game = models.ForeignKey(Game, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=255, default="")
     image = models.ImageField(upload_to=get_timestamp_path, null=True)
@@ -48,6 +66,10 @@ class News(models.Model):
     date_published = models.DateField(auto_now_add=True)
 
     def __str__(self):
+        """
+        String format for News models instance
+        :return: str
+        """
         return self.title
 
     class Meta:
@@ -57,6 +79,12 @@ class News(models.Model):
 
 
 class Review(models.Model):
+    """
+    Model is storing content for
+    section Review on the main page
+    in the site
+    """
+
     author = models.CharField(max_length=255, null=True)
     comment = models.TextField()
     stars_count = models.FloatField()
@@ -71,6 +99,11 @@ class Review(models.Model):
 
 # Create your models here.
 class Setting(models.Model):
+    """
+    Model is storing content for
+    header and footer in the site
+    """
+
     instagram_nickname = models.CharField(max_length=255)
     instagram_link = models.URLField()
     facebook_link = models.URLField()
@@ -90,9 +123,17 @@ class Setting(models.Model):
     subscribe_sale = models.PositiveSmallIntegerField(null=True)
 
     def __str__(self):
+        """
+        String format for Setting models instance
+        :return: str
+        """
         return "Configure settings"
 
     def save(self, *args, **kwargs):
+        """
+        Purpose of this method to make constraint
+        (not more than 1 Setting model instance in the site)
+        """
         if Setting.objects.exists() and not self.pk:
             # If an instance already exists, prevent creation of another instance
             raise ValueError("Settings instance already exists")
@@ -104,10 +145,21 @@ class Setting(models.Model):
 
 
 class Subscriber(models.Model):
+    """
+    Model is storing data
+    about users who want to get news
+    from the site
+    """
+
     email = models.EmailField()
 
 
 class PromoCode(models.Model):
+    """
+    Model is storing data
+    about all promo codes in the site
+    """
+
     code = models.CharField(max_length=215)
     from_date = models.DateField(help_text="Example: 12/12/2023")
     until_date = models.DateField(help_text="Example: 12/12/2023")
@@ -115,6 +167,10 @@ class PromoCode(models.Model):
     users = models.ManyToManyField(User)
 
     def __str__(self):
+        """
+        String format for Setting models instance
+        :return: code of promo code
+        """
         return self.code
 
     class Meta:

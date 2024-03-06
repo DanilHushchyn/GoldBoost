@@ -17,6 +17,10 @@ from src.users.models import User
 
 # Create your models here.
 class Order(models.Model):
+    """
+    Model is storing order of users in the site
+    """
+
     # Foreign Key to User model
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     # Status Choices
@@ -36,6 +40,10 @@ class Order(models.Model):
 
 
 class Cart(models.Model):
+    """
+    Model is order items before buying them by users
+    """
+
     # OneToOneField to User model
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
     # Session Key
@@ -43,6 +51,10 @@ class Cart(models.Model):
 
 
 class OrderItem(models.Model):
+    """
+    Model represents ordered products in the site
+    """
+
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
@@ -54,6 +66,11 @@ class OrderItem(models.Model):
 
 
 class Attribute(models.Model):
+    """
+    Model is storing additional attributes
+    for ordered product
+    """
+
     # Fields
     sub_filter = models.ForeignKey(SubFilter, on_delete=models.CASCADE, null=True)
     order_item = models.ForeignKey("OrderItem", on_delete=models.CASCADE, null=True)

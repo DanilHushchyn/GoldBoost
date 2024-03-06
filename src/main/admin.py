@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """Django Admin Configuration
 
-This module defines the admin site configuration for the Django project. It registers
-Django models with the admin site to allow for easy management and viewing of data
-through the Django admin interface.
+This module defines the admin site
+configuration for the Django project. It registers
+Django models with the admin site to allow for
+easy management and viewing of data through the Django admin interface.
 
 Usage:
-    To register a model with the admin site, use the `@admin.register()` decorator:
+    To register a model with the admin site,
+    use the `@admin.register()` decorator:
 
     ```
     @admin.register(ModelName)
@@ -40,26 +42,56 @@ from src.main.models import Insta, News, PromoCode, Review, Setting, Subscriber,
 
 @admin.register(News)
 class NewsAdminClass(ModelAdmin):
+    """
+    Admin configuration for model News.
+    This class defines the behavior of the News admin interface,
+    For more information on Django admin customization,
+    """
+
     pass
 
 
 @admin.register(Review)
 class ReviewAdminClass(ModelAdmin):
+    """
+    Admin configuration for model Review.
+    This class defines the behavior of the Review admin interface,
+    For more information on Django admin customization,
+    """
+
     pass
 
 
 @admin.register(WhyChooseUs)
 class WhyChooseUsAdminClass(ModelAdmin):
+    """
+    Admin configuration for model WhyChooseUs.
+    This class defines the behavior of the WhyChooseUs admin interface,
+    For more information on Django admin customization,
+    """
+
     pass
 
 
 @admin.register(Insta)
 class InstaAdminClass(ModelAdmin):
+    """
+    Admin configuration for model Insta.
+    This class defines the behavior of the Insta admin interface,
+    For more information on Django admin customization,
+    """
+
     pass
 
 
 # Register your models here.
 class SettingsForm(forms.ModelForm):
+    """
+    ModelForm configuration for the model Setting.
+    This class defines the appearance for form in
+    admin panel django
+    """
+
     class Meta:
         model = Setting
         fields = "__all__"
@@ -86,6 +118,13 @@ class SettingsForm(forms.ModelForm):
 
 @admin.register(Setting)
 class SettingAdmin(admin.ModelAdmin):
+    """
+    Admin configuration for model Setting.
+
+    This class defines the behavior of the Setting admin interface,
+    For more information on Django admin customization,
+    """
+
     form = SettingsForm
 
     def has_delete_permission(self, request, obj=None):
@@ -95,7 +134,8 @@ class SettingAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         # Check if any instance already exists
         if Setting.objects.exists():
-            # If an instance already exists, prevent creation of another instance
+            # If an instance already exists,
+            # prevent creation of another instance
             return False
         else:
             # Allow creation of the first instance
@@ -103,6 +143,12 @@ class SettingAdmin(admin.ModelAdmin):
 
 
 class PromoCodeForm(forms.ModelForm):
+    """
+    ModelForm configuration for the model PromoCode.
+    This class defines the appearance for form in
+    admin panel django
+    """
+
     class Meta:
         model = PromoCode
         fields = "__all__"
@@ -117,4 +163,10 @@ class PromoCodeForm(forms.ModelForm):
 
 @admin.register(PromoCode)
 class PromoCodeAdmin(admin.ModelAdmin):
+    """
+    Admin configuration for model PromoCode.
+    This class defines the behavior of the PromoCode admin interface,
+    For more information on Django admin customization,
+    """
+
     form = PromoCodeForm

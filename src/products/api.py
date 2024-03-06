@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+    Module contains class(set of endpoints) for managing products in the site
+"""
 from typing import List
 
 from django.db.models import QuerySet
@@ -47,7 +50,7 @@ class ProductController(ControllerBase):
         :rtype: dict
         :param page: the page number we want to get
         :param page_size: length of queryset per page
-        :param game_id: filter(not required) additionally hot products by game id
+        :param game_id: filter(not required) additionally by game id
         :return: dict which contains all parameters for pagination
         """
         result = self.product_service.get_hot_products(game_id=game_id, page=page, page_size=page_size)

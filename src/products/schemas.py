@@ -13,7 +13,11 @@ from src.products.models import Filter, Product, SubFilter, Tag
 
 
 class TagOutSchema(ModelSchema):
-    """ """
+    """
+    Pydantic schema for Tag.
+    Purpose of this schema to return info about tag(name,color)
+    to client side
+    """
 
     class Meta:
         model = Tag
@@ -22,6 +26,12 @@ class TagOutSchema(ModelSchema):
 
 
 class ProductSchema(ModelSchema):
+    """
+    Pydantic schema for Product.
+    Purpose of this schema to return info about product
+    for product element in carousel in client side
+    """
+
     tag: TagOutSchema | None
     # первый вариант как вернуть картинку игры
     game_logo: str = Field(None, alias="catalog_page.game.logo_product")
@@ -50,6 +60,12 @@ class ProductsSectionSchema(Schema):
 
 
 class HotSectionSchema(Schema):
+    """
+    Pydantic schema for Section "Hot Carousel" .
+    Purpose of this schema to return info about product
+    which filtered be tag hot
+    """
+
     items: List[ProductSchema]
     count: int
     next: bool
@@ -57,6 +73,12 @@ class HotSectionSchema(Schema):
 
 
 class BestSellersSchema(Schema):
+    """
+    Pydantic schema for BestSellers.
+    Purpose of this schema to return info about product
+    which ordered be parameter bought_count
+    """
+
     items: List[ProductSchema]
     count: int
     next: bool
@@ -64,6 +86,12 @@ class BestSellersSchema(Schema):
 
 
 class TabItemSchema(ModelSchema):
+    """
+    Pydantic schema for TabItem
+    Purpose of this schema to return id
+    for future requests from client side
+    """
+
     class Meta:
         model = TabItem
         fields = "__all__"
@@ -71,6 +99,13 @@ class TabItemSchema(ModelSchema):
 
 
 class TabSchema(ModelSchema):
+    """
+    Pydantic schema for Tab
+    Purpose of this schema to return
+    Tab model instance and related TabItem
+    queryset
+    """
+
     tab_items: List[TabItemSchema] | None
 
     class Meta:
@@ -80,6 +115,12 @@ class TabSchema(ModelSchema):
 
 
 class SubFilterItemSchema(ModelSchema):
+    """
+    Pydantic schema for SubFilter
+    Purpose of this schema to return
+    Subfilter model instance
+    """
+
     class Meta:
         model = SubFilter
         fields = "__all__"
@@ -87,6 +128,13 @@ class SubFilterItemSchema(ModelSchema):
 
 
 class FilterItemSchema(ModelSchema):
+    """
+    Pydantic schema for Filter
+    Purpose of this schema to return
+    Filter model instance and related SubFilter
+    queryset
+    """
+
     subfilters: List[SubFilterItemSchema]
 
     class Meta:
@@ -96,6 +144,13 @@ class FilterItemSchema(ModelSchema):
 
 
 class ProductCardSchema(ModelSchema):
+    """
+    Pydantic schema for Product
+    Purpose of this schema to return
+    Product model instance and related
+    Filter queryset
+    """
+
     filters: List[FilterItemSchema] | None
     price_from: float | None
     price_to: float | None
@@ -111,12 +166,13 @@ class ProductCardSchema(ModelSchema):
         exclude = ("bought_count", "tag")
 
 
-class ProductCountPriceIn(Schema):
-    attributes: List[int]
-    product_id: int
-
-
 class GameCarouselsMainSchema(Schema):
+    """
+    Pydantic schema for Game Carousel
+    Purpose of this schema to return
+    paginated queryset of products
+    """
+
     items: List[ProductSchema]
     count: int
     next: bool
@@ -124,6 +180,12 @@ class GameCarouselsMainSchema(Schema):
 
 
 class TabContentSchema(ModelSchema):
+    """
+    Pydantic schema for model TabItem
+    Purpose of this schema to return
+    content for tab to client side
+    """
+
     class Meta:
         model = TabItem
         exclude = ["id", "title", "tab", "order"]

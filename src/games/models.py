@@ -10,6 +10,10 @@ from src.products.utils import get_timestamp_path
 
 
 class Game(models.Model):
+    """
+    Model for storing data about all games in the site
+    """
+
     name = models.CharField(max_length=255)
     logo_filter = models.ImageField(upload_to=get_timestamp_path, null=True)
     logo_product = models.ImageField(upload_to=get_timestamp_path, null=True)
@@ -27,6 +31,10 @@ class Game(models.Model):
 
 
 class CatalogPage(ModelMeta, models.Model):
+    """
+    Model for storing data about related to game page in catalog
+    """
+
     parent = models.ForeignKey("self", on_delete=models.SET_NULL, blank=True, null=True, related_name="children")
     title = models.CharField()
     description = models.TextField()
@@ -50,6 +58,12 @@ class CatalogPage(ModelMeta, models.Model):
 
 
 class WorthLookCarouselItem(models.Model):
+    """
+    Related to CatalogPage models it
+    implements section in the site with
+    links to others pages of catalog
+    """
+
     image = models.ImageField(upload_to=get_timestamp_path, null=True)
     image_alt = models.CharField(max_length=255, null=True)
     title = models.CharField()
@@ -62,6 +76,10 @@ class WorthLookCarouselItem(models.Model):
 
 
 class TabItem(models.Model):
+    """
+    Model is storing content for particular tab in the site
+    """
+
     title = models.CharField()
     content = models.TextField()
     order = models.PositiveIntegerField(null=True)
@@ -74,12 +92,21 @@ class TabItem(models.Model):
 
 
 class Tab(models.Model):
+    """
+    Model helps to make tabs universe tool in the site
+    """
+
     class Meta:
         verbose_name = "Tab"
         verbose_name_plural = "Tabs"
 
 
 class Calendar(models.Model):
+    """
+    Model helps make calendar in the site
+    This model related to CatalogPage
+    """
+
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255)
 
@@ -89,6 +116,10 @@ class Calendar(models.Model):
 
 
 class CalendarItem(models.Model):
+    """
+    Model is storing specific event in calendar
+    """
+
     date = models.DateField()
     team1_img = models.ImageField()
     team1_img_alt = models.CharField(max_length=255, null=True)

@@ -37,8 +37,7 @@ from src.products.models import Filter, Product, SubFilter, Tag
 
 
 class ProductForm(forms.ModelForm):
-    """
-    ModelForm configuration for the model Product.
+    """ModelForm configuration for the model Product.
     This class defines the appearance for form in
     admin panel django
     """

@@ -5,9 +5,6 @@ These Managers implement most frequently used methods
 for selecting data in models
 """
 from django.db import models
-from django.db.models import CharField, F, Sum, Value
-from django.db.models.functions.text import Concat
-from django.forms import CharField
 
 
 class ProductManager(models.Manager):

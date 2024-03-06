@@ -13,9 +13,20 @@ from django.db import models
 
 
 class CustomUserManager(UserManager):
-    def _create_user(self, email, password, **extra_fields):
+    """
+    Custom user manager it's manager for making request to User model
+    here is redefined some methods for saving
+    user and superuser with email instead of username
+    """
+
+    def _create_user(self, email: str, password: str, **extra_fields) -> object:
         """
         Create and save a user with the given username, email, and password.
+        :rtype: User
+        :param email: email for new user
+        :param password: password for new user
+        :param extra_fields: others extra
+        :return: User model instance
         """
         if not email:
             raise ValueError("The given email must be set")
@@ -28,13 +39,30 @@ class CustomUserManager(UserManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(self, email, password=None, **extra_fields) -> object:
+        """
+        Create and save a user with the given username, email, and password.
+        :rtype: User
+        :param email: email for new user
+        :param password: password for new user
+        :param extra_fields: others extra fields
+        :return: User model instance
+        """
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         extra_fields.setdefault("is_active", False)
         return self._create_user(email, password, **extra_fields)
 
-    def create_superuser(self, email=None, password=None, **extra_fields):
+    def create_superuser(self, email: str = None, password: str = None, **extra_fields) -> object:
+        """
+        Create and save a superuser with the given email,
+        password and extra fields.
+        :rtype: User
+        :param email: email for new user
+        :param password: password for new user
+        :param extra_fields: others extra fields
+        :return: User model instance
+        """
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -47,6 +75,12 @@ class CustomUserManager(UserManager):
 
 
 class User(AbstractUser):
+    """
+    This is our Auth Model in the site
+    It's stores all data about users and provides
+    some methods for creating users
+    """
+
     username = (None,)
     email = models.EmailField(max_length=255, unique=True)
     notify_me = models.BooleanField(default=False)
@@ -60,6 +94,12 @@ class User(AbstractUser):
 
 
 class Character(models.Model):
+    """
+    Model for storing characters,
+    this entity exist in user's cabinet and
+    has purely symbolic meaning
+    """
+
     FACTION_CHOICES = (
         ("Alliance", "Alliance"),
         ("Horde", "Horde"),
@@ -114,6 +154,11 @@ class Character(models.Model):
 
 
 class PasswordResetToken(models.Model):
+    """
+    Model for storing tokens created for users who want to reset
+    their passwords
+    """
+
     user = models.ForeignKey("User", null=True, on_delete=models.CASCADE)
     token = models.CharField(max_length=255, null=True)
 

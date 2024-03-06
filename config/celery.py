@@ -1,19 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-Celery Configuration
-This module contains configuration settings for Celery, a distributed task queue.
-Celery uses this configuration file to set up the Celery application and define
-settings such as the message broker, result backend, task serialization format,
+Celery Configuration.
+
+This module contains configuration settings
+for Celery, a distributed task queue.
+Celery uses this configuration file to set up
+the Celery application and define
+settings such as the message broker,
+result backend, task serialization format,
 and other options.
 Example:
-    To configure Celery with these settings, pass the path to this module to the
-    Celery application:
+    To configure Celery with these settings, pass the path
+    to this module to the Celery application:
 
     celery_app = Celery('config')
     celery_app.config_from_object("django.conf:settings", namespace="CELERY")
 
 
-For more information on Celery configuration options, see the Celery documentation:
+For more information on Celery configuration options,
+see the Celery documentation:
 https://docs.celeryproject.org/en/stable/userguide/configuration.html
 """
 import os

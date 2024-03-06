@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """Django Admin Configuration
 
-This module defines the admin site configuration for the Django project. It registers
-Django models with the admin site to allow for easy management and viewing of data
+This module defines the admin site configuration for
+the Django project. It registers Django models with
+ the admin site to allow for easy management and viewing of data
 through the Django admin interface.
 
 Usage:
@@ -27,13 +28,20 @@ from src.users.models import User
 
 # Register your models here.
 class CustomUserAdmin(UserAdmin):
+    """
+    Admin configuration for model User.
+    This class defines the behavior of the User admin interface,
+    including the displayed fields, list filters, search fields, and action.
+    For more information on Django admin customization,
+    see the Django documentation:
+    https://docs.djangoproject.com/en/stable/ref/contrib/admin/
+    """
+
     model = User
     fieldsets = (
         (None, {"fields": ("email", "password")}),
         ("Personal Info", {"fields": ("first_name", "last_name")}),
-        # ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ("Important dates", {"fields": ("last_login", "date_joined")}),
-        # ('Additional Info', {'fields': ('additional_field',)}),  # Add your additional field here
     )
     add_fieldsets = (
         (

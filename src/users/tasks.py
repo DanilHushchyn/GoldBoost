@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 In this module described all celery task for implementing
 asynchronous logic in application users
@@ -28,6 +27,8 @@ def email_verification(user_id: int) -> dict:
     # Send confirmation email
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
+    print(uid)
+    print(token)
     confirmation_url = f"{settings.FRONTEND_URL}/confirm-email/{uid}/{token}"
     send_mail(
         "Confirm Your Email for site GoldBoost",
@@ -43,22 +44,22 @@ def email_verification(user_id: int) -> dict:
 @shared_task
 def reset_password_confirm(user_id: int):
     """
-    Send letter to user and ask him to confirm reset password
-    In letter he will find link which redirects him to the site
+    Send letter to user and ask him to confirm reset password.
+    In the letter he will find link which redirects him to the site
     where he can change his password
     :param user_id: stores user id
     """
     user = User.objects.get(id=user_id)
 
-    # Генерация токена сброса пароля
+    # Generating a password reset token
     token = default_token_generator.make_token(user)
     PasswordResetToken.objects.create(user=user, token=token)
 
-    # Создание ссылки для подтверждения сброса пароля
+    # Create a password reset confirmation link
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     reset_url = f"{settings.FRONTEND_URL}/change-password/{uid}/{token}"
 
-    # Отправка электронного письма с ссылкой для подтверждения сброса пароля
+    # Send an email with a link to confirm your password reset
     send_mail(
         "Password reset",
         f"Click the following link to reset your password: {reset_url}",

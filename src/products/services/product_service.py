@@ -14,6 +14,7 @@ from src.products.utils import paginate
 class ProductService:
     """
     A service class for managing products.
+
     This class provides methods for ordering, filtering,
     paginating and getting related entities of products.
     """
@@ -22,6 +23,7 @@ class ProductService:
     def get_product_by_id(product_id: int) -> Product:
         """
         Gets info for product's card page.
+
         :param product_id: id of Product model's instance
         :return: Product model's instance with related filters
         """
@@ -35,12 +37,13 @@ class ProductService:
     @staticmethod
     def get_hot_products(page: int, page_size: int, game_id: int = None) -> dict:
         """
-        Gets all products with Tag(related models) value hot
-        and make pagination of related queryset
+        Gets all products with Tag(related models) value hot.
+
+        Also makes pagination of related queryset
         :rtype: dict
         :param page: the page number we want to get
         :param page_size: length of queryset per page
-        :param game_id: filter(not required) additionally hot products by game id
+        :param game_id: filter(not required) additionally by game id
         :return: dict which contains all parameters for pagination
         """
         items = Product.objects.hot_all(game_id)
@@ -49,8 +52,9 @@ class ProductService:
     @staticmethod
     def best_sellers(page: int, page_size: int) -> dict:
         """
-        Gets all products ordered by bought_count field in
-        model Product (return frequently bought products on site)
+        Gets all products ordered by bought_count field.
+
+        (return frequently bought products on site)
         :rtype: object
         :param page: the page number we want to get
         :param page_size: length of queryset per page
@@ -62,7 +66,8 @@ class ProductService:
     @staticmethod
     def get_tab_content(tab_id: int) -> TabItem:
         """
-        Returns specific TabItem model instance
+        Returns specific TabItem model instance.
+
         :rtype: TabItem()
         :param tab_id: id of TabItem model's instance we want to get
         :return: return TabItem() model instance
@@ -73,8 +78,9 @@ class ProductService:
     @staticmethod
     def get_tabs(product_id: int) -> QuerySet:
         """
-        Returns TabItem's queryset filtered
-        by id of related Product model's instance
+        Returns TabItem's queryset.
+
+        Filtered by id of related Product model's instance
         :rtype: QuerySet
         :param product_id: id of Product model instance
         :return: TabItem's queryset
