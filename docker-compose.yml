@@ -27,6 +27,8 @@ services:
     restart: always
     build:
       context: .
+    volumes:
+      - .:/usr/src/GoldBoost/web
     command: celery -A config worker -l info
     depends_on:
       - db

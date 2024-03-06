@@ -16,20 +16,19 @@ from src.users.models import PasswordResetToken, User
 
 
 @shared_task
-def email_verification(user_id: int) -> dict:
+def email_verification(user_id: int, token) -> dict:
     """
     Send letter to user and ask him to confirm registration
     In letter he will find link which redirects him to the site
     for confirmation
+    :param token:
     :param user_id: stores user id
     """
     user = User.objects.get(id=user_id)
     # Send confirmation email
     uid = urlsafe_base64_encode(force_bytes(user.pk))
-    token = default_token_generator.make_token(user)
-    print(uid)
-    print(token)
-    confirmation_url = f"{settings.FRONTEND_URL}/confirm-email/{uid}/{token}"
+
+    confirmation_url = f"{settings.FRONTEND_URL}/Confirm_Email/{uid}/{token}"
     send_mail(
         "Confirm Your Email for site GoldBoost",
         f"Click the link to confirm your email: {confirmation_url}",
@@ -42,22 +41,22 @@ def email_verification(user_id: int) -> dict:
 
 
 @shared_task
-def reset_password_confirm(user_id: int):
+def reset_password_confirm(user_id: int, token):
     """
     Send letter to user and ask him to confirm reset password.
     In the letter he will find link which redirects him to the site
     where he can change his password
+    :param token:
     :param user_id: stores user id
     """
     user = User.objects.get(id=user_id)
 
     # Generating a password reset token
-    token = default_token_generator.make_token(user)
     PasswordResetToken.objects.create(user=user, token=token)
 
     # Create a password reset confirmation link
     uid = urlsafe_base64_encode(force_bytes(user.pk))
-    reset_url = f"{settings.FRONTEND_URL}/change-password/{uid}/{token}"
+    reset_url = f"{settings.FRONTEND_URL}/Confirm_Reset/{uid}/{token}"
 
     # Send an email with a link to confirm your password reset
     send_mail(

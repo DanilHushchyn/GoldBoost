@@ -2,11 +2,15 @@
 """
     Module contains class for managing access control system in the site
 """
+from datetime import datetime
+
 from django.contrib.auth.tokens import default_token_generator
+from django.utils.crypto import constant_time_compare
 from django.utils.encoding import force_str
-from django.utils.http import urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_decode, base36_to_int
 from ninja.errors import HttpError
 
+from config import settings
 from src.users.models import PasswordResetToken, User
 from src.users.schemas import MessageOutSchema, RegisterSchema
 from src.users.tasks import email_verification, reset_password_confirm
@@ -28,7 +32,9 @@ class AuthService:
         if User.objects.filter(email=user.email).exists():
             raise HttpError(403, "This email already in use ☹")
         user = User.objects.create_user(email=user.email, password=user.password, notify_me=user.notify_me)
-        email_verification.delay(user_id=user.id)
+        token = default_token_generator.make_token(user)
+
+        email_verification.delay(user_id=user.id, token=token)
         return MessageOutSchema(message="Please confirm your registration. We have send letter to your email")
 
     @staticmethod
@@ -47,9 +53,6 @@ class AuthService:
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
-        print(user)
-        print(token)
-        print(default_token_generator.check_token(user, token))
         if user is not None and default_token_generator.check_token(user, token):
             if user.is_active:
                 return MessageOutSchema(message="Email already confirmed")
@@ -72,8 +75,8 @@ class AuthService:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             raise HttpError(403, "There is not user registered with that email ☹")
-        reset_password_confirm.delay(user.id)
-
+        token = default_token_generator.make_token(user)
+        reset_password_confirm.delay(user.id, token)
         return MessageOutSchema(message="Please confirm reset password. We have send instructions to your email")
 
     @staticmethod

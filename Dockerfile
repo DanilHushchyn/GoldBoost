@@ -1,12 +1,6 @@
 # pull official base image
 FROM python:3.10
 
-# set work directoryapk update \
-                    #    && apk add postgresql-dev gcc python3-dev musl-dev
-#RUN mkdir /usr/src/app
-#RUN mkdir /usr/src/app/static
-#RUN mkdir /usr/src/app/media
-#WORKDIR /usr/src/app
 
 ENV APP_HOME=/usr/src/GoldBoost
 RUN mkdir $APP_HOME
@@ -34,7 +28,6 @@ RUN poetry config virtualenvs.create false --local
 RUN poetry install --no-dev --no-root
 COPY ./ $APP_HOME
 COPY ./docker-entrypoint.sh .
-
 
 RUN ["chmod", "+x", "/usr/src/GoldBoost/docker-entrypoint.sh"]
 RUN sed -i 's/\r$//g'  $APP_HOME/docker-entrypoint.sh

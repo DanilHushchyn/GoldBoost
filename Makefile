@@ -19,6 +19,17 @@ worker:
 dumpdata:
 	$(MANAGE) dumpdata  -e contenttypes -e auth.Permission > db.json
 
+dock-build:
+	sudo docker-compose -f docker-compose.yml build
+
+dock-up:
+	sudo docker-compose -f docker-compose.yml up
+
+down:
+	sudo docker compose down -v
+prune:
+	sudo docker  system prune -a
+
 startapp:
 	$(MANAGE) migrate --no-input
 	$(MANAGE) loaddata db.json
