@@ -16,6 +16,7 @@ class UserOutSchema(ModelSchema):
     Purpose of this schema to return user's
     personal data(except password) to client side
     """
+
     class Meta:
         model = User
         fields = ("email", "first_name", "last_name")
@@ -27,6 +28,7 @@ class MessageOutSchema(Schema):
     Purpose of this schema just say that operation
     has been successful
     """
+
     message: str | None
 
 
@@ -35,6 +37,7 @@ class RegisterSchema(Schema):
     Pydantic schema for registration new users in the site.
     Purpose of this schema to give data in endpoint for registration
     """
+
     email: EmailStr
     password: str
     notify_me: bool

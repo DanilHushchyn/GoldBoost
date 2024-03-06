@@ -32,6 +32,7 @@ from unfold.widgets import (
     UnfoldAdminTextInputWidget,
     UnfoldBooleanWidget,
 )
+
 from src.products.models import Filter, Product, SubFilter, Tag
 
 
@@ -41,6 +42,7 @@ class ProductForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+
     class Meta:
         model = Product
         fields = "__all__"
@@ -71,6 +73,7 @@ class TagForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+
     class Meta:
         model = Tag
         fields = "__all__"
@@ -90,6 +93,7 @@ class TagAdmin(admin.ModelAdmin):
     see the Django documentation:
     https://docs.djangoproject.com/en/stable/ref/contrib/admin/
     """
+
     form = TagForm
 
 
@@ -99,6 +103,7 @@ class FilterForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+
     class Meta:
         model = Filter
         fields = "__all__"
@@ -115,6 +120,7 @@ class SubFilterForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+
     class Meta:
         model = SubFilter
         fields = "__all__"
@@ -130,6 +136,7 @@ class SubFilterInline(TabularInline):
     This class defines behaviour for setting multiple
     model instance on one page in django admin
     """
+
     model = SubFilter
     extra = 1
     form = SubFilterForm
@@ -145,6 +152,7 @@ class FilterAdmin(admin.ModelAdmin):
     see the Django documentation:
     https://docs.djangoproject.com/en/stable/ref/contrib/admin/
     """
+
     form = FilterForm
     inlines = [
         SubFilterInline,
@@ -161,4 +169,5 @@ class ProductAdmin(admin.ModelAdmin):
     see the Django documentation:
     https://docs.djangoproject.com/en/stable/ref/contrib/admin/
     """
+
     form = ProductForm

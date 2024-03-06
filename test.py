@@ -17,10 +17,11 @@
 # for post in recent_posts:
 #     print(post.url)
 import httpx
+
 httpx_client = httpx.Client()
 
-url = 'http://134.209.230.39/api/registration/'
-data = {'email': 'user10@example.com', 'password': 'sword123', 'notify_me': True}
+url = "http://134.209.230.39/api/registration/"
+data = {"email": "user10@example.com", "password": "sword123", "notify_me": True}
 
 response = httpx_client.post(url, data=data)
 print(response.content)

@@ -5,15 +5,16 @@ implement logic for encoding and decoding data into python
 object and json
 """
 from typing import List
+
 from ninja import Field, ModelSchema, Schema
+
 from src.games.models import Tab, TabItem
 from src.products.models import Filter, Product, SubFilter, Tag
 
 
 class TagOutSchema(ModelSchema):
-    """
+    """ """
 
-    """
     class Meta:
         model = Tag
         fields = "__all__"
