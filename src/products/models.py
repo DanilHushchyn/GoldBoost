@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     In this module described models for application products
-    Their purpose is storing data for products and related to products data
+    Their purpose is storing data for products and related to products
     Models:
        Product
        Tag
@@ -26,13 +26,17 @@ class Product(models.Model):
     Additional info about the model, its purpose and use.
 
     Mysterious fields:
-    :param image (ImageField): image for banner of product's page in our site.
-    :param card_img (ImageField): image for card of product (for carousels).
-    :param tab (ForeignKey): on product's page we can have tabs with content
-           so this field related to Model which implements this logic.
-    :param tag (ForeignKey): products can have specific status(new,limited,hot)
-           which sites admin want to emphasize
-    :param catalog_page (ForeignKey): products in system are related to specific catalog's page
+    :param image (ImageField): image for banner of product's
+           page in our site.
+    :param card_img (ImageField): image for card of product
+           (for carousels).
+    :param tab (ForeignKey): on product's page we can have tabs with
+           content so this field related to Model which
+           implements this logic.
+    :param tag (ForeignKey): products can have specific
+           status(new,limited,hot) which sites admin want to emphasize
+    :param catalog_page (ForeignKey): products in system
+           are related to specific catalog's page
             Catalog model implement logic of catalog's on site
     """
 
@@ -50,10 +54,18 @@ class Product(models.Model):
     sale_percent = models.PositiveSmallIntegerField(blank=True, null=True)
     sale_from = models.DateTimeField(blank=True, null=True)
     sale_until = models.DateTimeField(blank=True, null=True)
-    tab = models.ForeignKey(Tab, on_delete=models.CASCADE, null=True, blank=True)
+    tab = models.ForeignKey(Tab,
+                            on_delete=models.CASCADE,
+                            null=True, blank=True)
     bought_count = models.IntegerField(default=0)
-    catalog_page = models.ForeignKey(CatalogPage, on_delete=models.CASCADE, related_name="products", null=True)
-    tag = models.ForeignKey("Tag", on_delete=models.CASCADE, null=True, blank=True)
+    catalog_page = models.ForeignKey(CatalogPage,
+                                     on_delete=models.CASCADE,
+                                     related_name="products",
+                                     null=True)
+    tag = models.ForeignKey("Tag",
+                            on_delete=models.CASCADE,
+                            null=True,
+                            blank=True)
 
     objects = ProductManager()
 
@@ -69,9 +81,17 @@ class Product(models.Model):
         if self.filters.count():
             for item in self.filters.prefetch_related("subfilters").all():
                 if item.type == "CheckBox":
-                    price_to = price_to + item.subfilters.aggregate(Sum("price", default=0))["price__sum"]
+                    price_to = (price_to +
+                                item.subfilters.aggregate(
+                                    Sum("price", default=0)
+                                )["price__sum"]
+                                )
                 else:
-                    price_to = price_to + item.subfilters.aggregate(Max("price", default=0))["price__max"]
+                    price_to = (price_to +
+                                item.subfilters.aggregate(
+                                    Max("price", default=0)
+                                )["price__max"]
+                                )
             return price_to
         return None
 
@@ -84,15 +104,19 @@ class Product(models.Model):
         if self.filters.count():
             for item in self.filters.prefetch_related("subfilters").all():
                 if item.type != "CheckBox":
-                    price_from = price_from + item.subfilters.aggregate(Min("price", default=0))["price__min"]
+                    price_from = (price_from +
+                                  item.subfilters.aggregate(
+                                      Min("price", default=0)
+                                  )["price__min"]
+                                  )
             return price_from
         return None
 
     def sale_price_to(self) -> float | None:
         """
         Method calculates max price for product with price type range
-        Calculating includes all filters, fundamental price and ability of sale
-        if sale exists
+        Calculating includes all filters, fundamental price
+        and ability of sale if sale exists
         """
         if self.sale_active():
             sale = (self.price_to() * self.sale_percent) / 100
@@ -102,8 +126,8 @@ class Product(models.Model):
     def sale_price_from(self) -> float | None:
         """
         Method calculates min price for product with price type range
-        Calculating includes all filters, fundamental price and ability of sale
-        if sale exists
+        Calculating includes all filters, fundamental price and ability
+        of sale if sale exists
         """
         if self.sale_active():
             sale = (self.price_from() * self.sale_percent) / 100
@@ -126,7 +150,8 @@ class Product(models.Model):
         of two fields, sale_from and sale_until
         """
         current_datetime = timezone.now()
-        if self.sale_until and self.sale_from and self.sale_until > current_datetime > self.sale_from:
+        if (self.sale_until and self.sale_from and
+                self.sale_until > current_datetime > self.sale_from):
             return True
         return False
 
@@ -137,14 +162,17 @@ class Product(models.Model):
         """
         if self.sale_active():
             difference = self.sale_until - timezone.now()
-            difference = difference - timedelta(microseconds=difference.microseconds)
-            return str(difference) if difference < timedelta(hours=24) else None
+            difference = (difference -
+                          timedelta(microseconds=difference.microseconds))
+            return str(difference) \
+                if difference < timedelta(hours=24) else None
         return None
 
     class Meta:
         ordering = ["-bought_count"]
         verbose_name = "Products"
         verbose_name_plural = "Products"
+        db_table = 'products'
 
 
 class Tag(models.Model):
@@ -162,6 +190,7 @@ class Tag(models.Model):
     class Meta:
         verbose_name = "Tags"
         verbose_name_plural = "Tags"
+        db_table = 'tags'
 
 
 class Filter(models.Model):
@@ -174,13 +203,23 @@ class Filter(models.Model):
     title = models.CharField(max_length=255)
     type = models.CharField(
         max_length=50,
-        choices=[("Select", "Select"), ("Radio", "Radio"), ("CheckBox", "CheckBox"), ("Slider", "Slider")],
+        choices=[("Select", "Select"),
+                 ("Radio", "Radio"),
+                 ("CheckBox", "CheckBox"),
+                 ("Slider", "Slider")],
     )
-    product = models.ForeignKey("Product", on_delete=models.CASCADE, null=True, blank=True, related_name="filters")
+    product = models.ForeignKey("Product",
+                                on_delete=models.CASCADE,
+                                null=True,
+                                blank=True,
+                                related_name="filters")
+    order = models.PositiveIntegerField(null=True)
 
     class Meta:
+        ordering = ['order',]
         verbose_name = "Filters"
         verbose_name_plural = "Filters"
+        db_table = 'filters'
 
 
 class SubFilter(models.Model):
@@ -191,4 +230,14 @@ class SubFilter(models.Model):
 
     title = models.CharField(max_length=255)
     price = models.FloatField()
-    filter = models.ForeignKey("Filter", on_delete=models.CASCADE, related_name="subfilters", null=True)
+    filter = models.ForeignKey("Filter",
+                               on_delete=models.CASCADE,
+                               related_name="subfilters",
+                               null=True)
+    order = models.PositiveIntegerField(null=True)
+
+    class Meta:
+        ordering = ['order',]
+        verbose_name = "SubFilter"
+        verbose_name_plural = "SubFilters"
+        db_table = 'sub_filters'

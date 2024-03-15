@@ -27,10 +27,11 @@ from unfold.widgets import (
     UnfoldAdminImageFieldWidget,
     UnfoldAdminSingleDateWidget,
     UnfoldAdminSingleTimeWidget,
-    UnfoldAdminTextareaWidget,
+    UnfoldAdminTextareaWidget, UnfoldAdminTextInputWidget,
 )
 
-from src.games.models import Calendar, CalendarItem, CatalogPage, Game, Tab, TabItem, WorthLookCarouselItem
+from src.games.models import CalendarBlock, CalendarBlockItem, CatalogPage, Game, Tab, TabItem, WorthLookItem, \
+    WorthLook, Calendar
 
 
 # Register your models here.
@@ -48,8 +49,16 @@ class TabItemInline(TabularInline):
     form = TabItemForm
 
 
-class WorthItemsInline(TabularInline):
-    model = WorthLookCarouselItem
+class WorthLookItemInline(TabularInline):
+    model = WorthLookItem
+
+
+@admin.register(WorthLook)
+class WorthLookCarouselItem(ModelAdmin):
+    model = WorthLook
+    inlines = [
+        WorthLookItemInline,
+    ]
 
 
 @admin.register(Tab)
@@ -66,12 +75,14 @@ class GameAdminClass(ModelAdmin):
 
 class CalendarItemForm(forms.ModelForm):
     class Meta:
-        model = CalendarItem
+        model = CalendarBlockItem
         fields = "__all__"
         widgets = {
             "date": UnfoldAdminSingleDateWidget(attrs={"style": "width: 200px;"}),
             "team1_img": UnfoldAdminImageFieldWidget(attrs={"style": "width: 10px;"}),
+            "team1_img_alt": UnfoldAdminTextInputWidget(attrs={"style": "width: 150px;"}),
             "team2_img": UnfoldAdminImageFieldWidget(attrs={"style": "width: 10px;"}),
+            "team2_img_alt": UnfoldAdminTextInputWidget(attrs={"style": "width: 150px;"}),
             "team1_from": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 200px;"}),
             "team2_from": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 200px;"}),
             "team1_until": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 200px;"}),
@@ -79,20 +90,25 @@ class CalendarItemForm(forms.ModelForm):
         }
 
 
-class CalendarInline(TabularInline):
-    model = CalendarItem
+class CalendarBlockItemInline(TabularInline):
+    model = CalendarBlockItem
     form = CalendarItemForm
+
+
+@admin.register(CalendarBlock)
+class CalendarBlockModelAdmin(ModelAdmin):
+    model = CalendarBlock
+
+    inlines = [
+        CalendarBlockItemInline,
+    ]
 
 
 @admin.register(Calendar)
 class CalendarAdminClass(ModelAdmin):
-    inlines = [
-        CalendarInline,
-    ]
+    pass
 
 
 @admin.register(CatalogPage)
 class CatalogPagesAdminClass(ModelAdmin):
-    inlines = [
-        WorthItemsInline,
-    ]
+    pass

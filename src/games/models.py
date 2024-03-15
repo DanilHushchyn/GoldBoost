@@ -28,6 +28,7 @@ class Game(models.Model):
         ordering = ["order"]
         verbose_name = "Games"
         verbose_name_plural = "Games"
+        db_table = 'games'
 
 
 class CatalogPage(ModelMeta, models.Model):
@@ -35,14 +36,16 @@ class CatalogPage(ModelMeta, models.Model):
     Model for storing data about related to game page in catalog
     """
 
-    parent = models.ForeignKey("self", on_delete=models.SET_NULL, blank=True, null=True, related_name="children")
+    parent = models.ForeignKey("self", on_delete=models.SET_NULL, blank=True, null=True, related_name="items")
     title = models.CharField()
     description = models.TextField()
-    tab = models.ForeignKey("Tab", on_delete=models.SET_NULL, blank=True, null=True, related_query_name="tab_content")
+    tab = models.ForeignKey("Tab", on_delete=models.SET_NULL, blank=True, null=True)
     game = models.ForeignKey(
         "Game", on_delete=models.CASCADE, null=True, related_query_name="game", related_name="catalog_pages"
     )
     calendar = models.ForeignKey("Calendar", on_delete=models.CASCADE, null=True, blank=True)
+    worth_look = models.ForeignKey("WorthLook", on_delete=models.CASCADE, null=True, blank=True)
+    order = models.IntegerField(null=True)
 
     def __str__(self):
         return self.title
@@ -53,11 +56,25 @@ class CatalogPage(ModelMeta, models.Model):
     }
 
     class Meta:
+        ordering = ["order"]
         verbose_name = "Catalog Page"
         verbose_name_plural = "Catalog Pages"
+        db_table = 'catalog_pages'
 
 
-class WorthLookCarouselItem(models.Model):
+class WorthLook(models.Model):
+    title = models.CharField(max_length=255, null=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = "Worth look"
+        verbose_name_plural = "Worth look"
+        db_table = 'worth_look'
+
+
+class WorthLookItem(models.Model):
     """
     Related to CatalogPage models it
     implements section in the site with
@@ -66,13 +83,16 @@ class WorthLookCarouselItem(models.Model):
 
     image = models.ImageField(upload_to=get_timestamp_path, null=True)
     image_alt = models.CharField(max_length=255, null=True)
-    title = models.CharField()
-    link = models.URLField()
-    catalog_page = models.ForeignKey("CatalogPage", on_delete=models.CASCADE, related_name="worth_items", null=True)
+    catalog_page = models.ForeignKey("CatalogPage", on_delete=models.CASCADE, null=True)
+    carousel = models.ForeignKey("WorthLook", on_delete=models.CASCADE, related_name='items', null=True)
+
+    def __str__(self):
+        return self.catalog_page.title
 
     class Meta:
-        verbose_name = "Worth look carousel"
-        verbose_name_plural = "Worth look carousel"
+        verbose_name = "Worth look item"
+        verbose_name_plural = "Worth look items"
+        db_table = 'worth_look_items'
 
 
 class TabItem(models.Model):
@@ -89,16 +109,22 @@ class TabItem(models.Model):
         ordering = ["order"]
         verbose_name = "Tab Item"
         verbose_name_plural = "Tab Items"
+        db_table = 'tab_items'
 
 
 class Tab(models.Model):
     """
     Model helps to make tabs universe tool in the site
     """
+    title = models.CharField(max_length=255, null=True)
+
+    def __str__(self):
+        return self.title
 
     class Meta:
         verbose_name = "Tab"
         verbose_name_plural = "Tabs"
+        db_table = 'tabs'
 
 
 class Calendar(models.Model):
@@ -106,16 +132,37 @@ class Calendar(models.Model):
     Model helps make calendar in the site
     This model related to CatalogPage
     """
+    title = models.CharField(max_length=255, null=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = "Calendar"
+        verbose_name_plural = "Calendars"
+        db_table = 'calendars'
+
+
+class CalendarBlock(models.Model):
+    """
+    Model helps to make sum multiple
+    calendar events in one block
+    """
 
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255)
+    calendar = models.ForeignKey("Calendar", on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.title
 
     class Meta:
-        verbose_name = "Calendars"
-        verbose_name_plural = "Calendars"
+        verbose_name = "Calendar Block"
+        verbose_name_plural = "Calendar Blocks"
+        db_table = 'calendar_blocks'
 
 
-class CalendarItem(models.Model):
+class CalendarBlockItem(models.Model):
     """
     Model is storing specific event in calendar
     """
@@ -129,4 +176,7 @@ class CalendarItem(models.Model):
     team2_img_alt = models.CharField(max_length=255, null=True)
     team2_from = models.TimeField()
     team2_until = models.TimeField()
-    calendar = models.ForeignKey("Calendar", on_delete=models.CASCADE, null=True)
+    block = models.ForeignKey("CalendarBlock", on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        db_table = 'calendar_block_items'

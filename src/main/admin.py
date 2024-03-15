@@ -32,10 +32,10 @@ from unfold.widgets import (
     UnfoldAdminSplitDateTimeWidget,
     UnfoldAdminTextareaWidget,
     UnfoldAdminTextInputWidget,
-    UnfoldBooleanWidget,
+    UnfoldBooleanWidget, UnfoldAdminSingleDateWidget,
 )
 
-from src.main.models import Insta, News, PromoCode, Review, Setting, Subscriber, WhyChooseUs
+from src.main.models import Insta, News, PromoCode, Review, Setting, WhyChooseUs
 
 # Register your models here.
 
@@ -155,8 +155,8 @@ class PromoCodeForm(forms.ModelForm):
         exclude = ("users",)
         widgets = {
             "code": UnfoldAdminTextInputWidget(attrs={}),
-            "from_date": UnfoldAdminDateWidget(attrs={}),
-            "until_date": UnfoldAdminDateWidget(attrs={}),
+            "from_date": UnfoldAdminSingleDateWidget(attrs={}),
+            "until_date": UnfoldAdminSingleDateWidget(attrs={}),
             "discount": UnfoldAdminIntegerFieldWidget(attrs={}),
         }
 

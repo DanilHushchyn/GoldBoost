@@ -9,7 +9,8 @@ from typing import List
 from ninja import ModelSchema, Schema
 
 import src.games.schemas as game_schemas
-from src.main.models import Insta, News, Review, Setting, WhyChooseUs
+from config.settings import ABSOLUTE_URL
+from src.main.models import Insta, News, Review, Setting, WhyChooseUs, PromoCode
 
 
 class WhyChooseUsSchema(ModelSchema):
@@ -18,6 +19,10 @@ class WhyChooseUsSchema(ModelSchema):
     Purpose of this schema to return WhyChooseUs
     queryset to client side
     """
+
+    @staticmethod
+    def resolve_icon(obj):
+        return ABSOLUTE_URL + obj.icon.url
 
     class Meta:
         model = WhyChooseUs
@@ -46,6 +51,10 @@ class NewsSchema(ModelSchema):
 
     game: game_schemas.GameLogosProductSchema
 
+    @staticmethod
+    def resolve_image(obj):
+        return ABSOLUTE_URL + obj.image.url
+
     class Meta:
         model = News
         fields = "__all__"
@@ -58,10 +67,14 @@ class InstaSchema(ModelSchema):
     queryset to client side
     """
 
+    @staticmethod
+    def resolve_img(obj):
+        return ABSOLUTE_URL + obj.img.url
+
     class Meta:
         model = Insta
         fields = [
-            "img",
+            "img", 'img_alt'
         ]
 
 
@@ -102,3 +115,20 @@ class NewsSectionSchema(Schema):
     count: int
     next: bool
     previous: bool
+
+
+class PromoCodeSchema(ModelSchema):
+    class Meta:
+        model = PromoCode
+        fields = ['discount']
+
+
+class OrderOutSchema(Schema):
+    """
+    Pydantic schema for return message to client side.
+    Purpose of this schema just say that operation
+    has been successful
+    """
+
+    message: str | None
+    auth_user: bool

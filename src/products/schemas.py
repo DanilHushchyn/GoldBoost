@@ -7,7 +7,9 @@ object and json
 from typing import List
 
 from ninja import Field, ModelSchema, Schema
+from pydantic.types import conint
 
+from config.settings import ABSOLUTE_URL
 from src.games.models import Tab, TabItem
 from src.products.models import Filter, Product, SubFilter, Tag
 
@@ -34,7 +36,7 @@ class ProductSchema(ModelSchema):
 
     tag: TagOutSchema | None
     # первый вариант как вернуть картинку игры
-    game_logo: str = Field(None, alias="catalog_page.game.logo_product")
+    # game_logo: str = Field(None, alias="catalog_page.game.logo_product")
     price_from: float | None
     price_to: float | None
     sale_price_from: float | None
@@ -43,11 +45,18 @@ class ProductSchema(ModelSchema):
     sale_period: str | None
     sale_active: bool
 
-    # @staticmethod
-    # def resolve_game_logo(obj):
-    # второй вариант как вернуть картинку игры
-    #     return f"{obj.catalog_page.game.logo_product.url}"
-    #
+    @staticmethod
+    def resolve_game_logo(obj):
+        return f"{ABSOLUTE_URL}{obj.catalog_page.game.logo_product.url}"
+
+    @staticmethod
+    def resolve_card_img(obj):
+        return ABSOLUTE_URL + obj.card_img.url
+
+    @staticmethod
+    def resolve_image(obj):
+        return ABSOLUTE_URL + obj.image.url
+
     class Meta:
         model = Product
         fields = "__all__"
@@ -160,6 +169,14 @@ class ProductCardSchema(ModelSchema):
     sale_period: str | None
     sale_active: bool
 
+    @staticmethod
+    def resolve_image(obj):
+        return ABSOLUTE_URL + obj.image.url
+
+    @staticmethod
+    def resolve_card_img(obj):
+        return ABSOLUTE_URL + obj.card_img.url
+
     class Meta:
         model = Product
         fields = "__all__"
@@ -189,3 +206,13 @@ class TabContentSchema(ModelSchema):
     class Meta:
         model = TabItem
         exclude = ["id", "title", "tab", "order"]
+
+
+class AddToCartSchema(Schema):
+    """
+    Pydantic schema for adding products to cart
+    Purpose of this schema, from
+    Product model instance create OrderItem model instance
+    """
+    attributes: list = []
+    quantity: conint(gt=0)

@@ -19,7 +19,8 @@ class CustomUserManager(UserManager):
     user and superuser with email instead of username
     """
 
-    def _create_user(self, email: str, password: str, **extra_fields) -> object:
+    def _create_user(self, email: str, password: str, **extra_fields) \
+            -> object:
         """
         Create and save a user with the given username, email, and password.
         :rtype: User
@@ -53,7 +54,11 @@ class CustomUserManager(UserManager):
         extra_fields.setdefault("is_active", False)
         return self._create_user(email, password, **extra_fields)
 
-    def create_superuser(self, email: str = None, password: str = None, **extra_fields) -> object:
+    def create_superuser(self,
+                         email: str = None,
+                         password: str = None,
+                         **extra_fields)\
+            -> object:
         """
         Create and save a superuser with the given email,
         password and extra fields.
@@ -80,10 +85,34 @@ class User(AbstractUser):
     It's stores all data about users and provides
     some methods for creating users
     """
+    first_name = models.CharField(max_length=255, null=True)
+    last_name = models.CharField(max_length=255, null=True)
 
     username = (None,)
     email = models.EmailField(max_length=255, unique=True)
     notify_me = models.BooleanField(default=False)
+    bonus_points = models.PositiveIntegerField(default=0)
+
+    PAYMENT_METHOD = (
+        ("PayPal", "PayPal"),
+        ("Visa", "Visa"),
+        ("MasterCard", "MasterCard"),
+        ("AmericanExpress", "AmericanExpress"),
+    )
+    COMMUNICATION_METHOD = (
+        ("Telegram", "Telegram"),
+        ("Viber", "Viber"),
+        ("Discord", "Discord"),
+        ("Skype", "Skype"),
+        ("Facebook", "Facebook"),
+        ("WhatsApp", "WhatsApp"),
+    )
+    payment_method = models.CharField(max_length=255,
+                                      choices=PAYMENT_METHOD,
+                                      default='PayPal')
+    communication = models.CharField(max_length=255,
+                                     choices=COMMUNICATION_METHOD,
+                                     default='Discord')
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
@@ -91,6 +120,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = "Users"
         verbose_name_plural = "Users"
+        db_table = 'users'
 
 
 class Character(models.Model):
@@ -106,51 +136,34 @@ class Character(models.Model):
     )
 
     CLASS_SPEC_CHOICES = (
-        ("Warrior - Arms", "Warrior - Arms"),
-        ("Warrior - Fury", "Warrior - Fury"),
-        ("Warrior - Protection", "Warrior - Protection"),
-        ("Paladin - Holy", "Paladin - Holy"),
-        ("Paladin - Protection", "Paladin - Protection"),
-        ("Paladin - Retribution", "Paladin - Retribution"),
-        ("Hunter - Beast Mastery", "Hunter - Beast Mastery"),
-        ("Hunter - Marksmanship", "Hunter - Marksmanship"),
-        ("Hunter - Survival", "Hunter - Survival"),
-        ("Rogue - Assassination", "Rogue - Assassination"),
-        ("Rogue - Outlaw", "Rogue - Outlaw"),
-        ("Rogue - Subtlety", "Rogue - Subtlety"),
-        ("Priest - Discipline", "Priest - Discipline"),
-        ("Priest - Holy", "Priest - Holy"),
-        ("Priest - Shadow", "Priest - Shadow"),
-        ("Death Knight - Blood", "Death Knight - Blood"),
-        ("Death Knight - Frost", "Death Knight - Frost"),
-        ("Death Knight - Unholy", "Death Knight - Unholy"),
-        ("Shaman - Elemental", "Shaman - Elemental"),
-        ("Shaman - Enhancement", "Shaman - Enhancement"),
-        ("Shaman - Restoration", "Shaman - Restoration"),
-        ("Mage - Arcane", "Mage - Arcane"),
-        ("Mage - Fire", "Mage - Fire"),
-        ("Mage - Frost", "Mage - Frost"),
-        ("Warlock - Affliction", "Warlock - Affliction"),
-        ("Warlock - Demonology", "Warlock - Demonology"),
-        ("Warlock - Destruction", "Warlock - Destruction"),
-        ("Monk - Brewmaster", "Monk - Brewmaster"),
-        ("Monk - Mistweaver", "Monk - Mistweaver"),
-        ("Monk - Windwalker", "Monk - Windwalker"),
-        ("Druid - Balance", "Druid - Balance"),
-        ("Druid - Feral", "Druid - Feral"),
-        ("Druid - Guardian", "Druid - Guardian"),
-        ("Druid - Restoration", "Druid - Restoration"),
-        ("Demon Hunter - Havoc", "Demon Hunter - Havoc"),
-        ("Demon Hunter - Vengeance", "Demon Hunter - Vengeance"),
+        ("Warrior", "Warrior"),
+        ("Paladin", "Paladin"),
+        ("Hunter", "Hunter"),
+        ("Rogue", "Rogue"),
+        ("Priest", "Priest"),
+        ("Shaman", "Shaman"),
+        ("Mage", "Mage"),
+        ("Warlock", "Warlock"),
+        ("Monk", "Monk"),
+        ("Druid", "Druid"),
     )
 
-    battle_tag = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
-    faction = models.CharField(max_length=10, choices=FACTION_CHOICES)
-    additional_info = models.TextField()
-    class_and_spec = models.CharField(max_length=255, choices=CLASS_SPEC_CHOICES)
-    realm = models.CharField(max_length=255)
-    user = models.ForeignKey("User", on_delete=models.CASCADE, null=True)  # Assuming User model exists
+    battle_tag = models.CharField(max_length=255, default='battle_tag')
+    name = models.CharField(max_length=255, default='name')
+    faction = models.CharField(max_length=10,
+                               choices=FACTION_CHOICES,
+                               default='Alliance')
+    additional_info = models.TextField(default='')
+    class_and_spec = models.CharField(max_length=255,
+                                      choices=CLASS_SPEC_CHOICES,
+                                      default='Warrior')
+    realm = models.CharField(max_length=255, default='')
+    user = models.ForeignKey("User", on_delete=models.CASCADE, null=True)
+    date_published = models.DateTimeField(auto_now_add=True, null=True)
+
+    class Meta:
+        db_table = "characters"
+        ordering = ['-date_published']
 
 
 class PasswordResetToken(models.Model):
@@ -164,3 +177,16 @@ class PasswordResetToken(models.Model):
 
     class Meta:
         db_table = "password_reset_token"
+
+
+class Subscriber(models.Model):
+    """
+    Model is storing data
+    about users who want to get news
+    from the site
+    """
+
+    email = models.EmailField(unique=True)
+
+    class Meta:
+        db_table = "subscribers"

@@ -63,6 +63,8 @@ class ProductForm(forms.ModelForm):
             "price_type": UnfoldAdminSelect(attrs={}),
             "runs": UnfoldBooleanWidget(attrs={}),
             "sale": UnfoldBooleanWidget(attrs={}),
+            "card_img_alt": UnfoldAdminTextInputWidget(attrs={}),
+            "image_alt": UnfoldAdminTextInputWidget(attrs={}),
         }
 
 
@@ -110,6 +112,7 @@ class FilterForm(forms.ModelForm):
             "title": UnfoldAdminTextInputWidget(attrs={}),
             "type": UnfoldAdminSelect(attrs={}),
             "product": UnfoldAdminSelect(attrs={}),
+            "order": UnfoldAdminTextInputWidget(attrs={}),
         }
 
 
@@ -126,6 +129,7 @@ class SubFilterForm(forms.ModelForm):
         widgets = {
             "title": UnfoldAdminTextInputWidget(attrs={}),
             "price": UnfoldAdminDecimalFieldWidget(attrs={}),
+            "order": UnfoldAdminTextInputWidget(attrs={}),
         }
 
 

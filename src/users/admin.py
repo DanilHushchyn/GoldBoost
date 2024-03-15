@@ -21,9 +21,30 @@ https://docs.djangoproject.com/en/stable/ref/contrib/admin/
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django import forms
+from unfold.widgets import UnfoldAdminTextInputWidget, UnfoldAdminSplitDateTimeWidget, UnfoldAdminSelect
 
 from src.users.models import User
+
+
+class UserForm(forms.ModelForm):
+    """
+    ModelForm configuration for the model Communication.
+    This class defines the appearance for form in
+    admin panel django
+    """
+
+    class Meta:
+        widgets = {
+            "email": UnfoldAdminTextInputWidget(attrs={}),
+            "first_name": UnfoldAdminTextInputWidget(attrs={}),
+            "last_name": UnfoldAdminTextInputWidget(attrs={}),
+            "password": UnfoldAdminTextInputWidget(attrs={}),
+            "payment_method": UnfoldAdminTextInputWidget(attrs={}),
+            "communication": UnfoldAdminTextInputWidget(attrs={}),
+            "last_login": UnfoldAdminSplitDateTimeWidget(attrs={}),
+            "date_joined": UnfoldAdminSplitDateTimeWidget(attrs={}),
+        }
 
 
 # Register your models here.
@@ -40,7 +61,7 @@ class CustomUserAdmin(UserAdmin):
     model = User
     fieldsets = (
         (None, {"fields": ("email", "password")}),
-        ("Personal Info", {"fields": ("first_name", "last_name")}),
+        ("Personal Info", {"fields": ("first_name", "last_name", 'payment_method', 'communication')}),
         ("Important dates", {"fields": ("last_login", "date_joined")}),
     )
     add_fieldsets = (
@@ -55,6 +76,8 @@ class CustomUserAdmin(UserAdmin):
     list_display = ["email", "first_name", "last_name", "is_active", "is_staff", "is_superuser"]
     search_fields = ["email", "first_name", "last_name"]
     ordering = ["email"]
+
+    form = UserForm
 
 
 admin.site.register(User, CustomUserAdmin)

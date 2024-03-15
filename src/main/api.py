@@ -5,12 +5,15 @@
 # -*- coding: utf-8 -*-
 from typing import List
 
+from django.http import HttpRequest
 from ninja_extra import http_get
 from ninja_extra.controllers.base import ControllerBase, api_controller
+from ninja_jwt.authentication import JWTAuth
 
 import src.main.schemas as main_schemas
 from src.main.models import Insta, Setting, WhyChooseUs
 from src.main.services.main_service import MainService
+from src.users.schemas import MessageOutSchema
 
 
 @api_controller("/main", tags=["Main"], permissions=[])
@@ -44,7 +47,8 @@ class MainController(ControllerBase):
         result = self.main_service.get_reviews(page, page_size)
         return result
 
-    @http_get("/why-choose-us/", response=List[main_schemas.WhyChooseUsSchema])
+    @http_get("/why-choose-us/",
+              response=List[main_schemas.WhyChooseUsSchema])
     def get_why_choose_us(self) -> WhyChooseUs:
         """
         Endpoint to gets data for section WhyChooseUs.
@@ -91,4 +95,20 @@ class MainController(ControllerBase):
         :rtype: Setting
         """
         result = self.main_service.get_settings()
+        return result
+
+    @http_get("/check-promo-code/{code}/",
+              response=main_schemas.PromoCodeSchema, auth=JWTAuth())
+    def check_promo_code(self, request: HttpRequest, code: str) \
+            -> MessageOutSchema:
+        """
+        Endpoint check promo codes.
+
+        :param request: HttpRequest
+        :param code: code
+        :rtype: MessageOutSchema
+        :return: sale percent
+        """
+        result = (self.main_service.
+                  check_promo_code(code=code, user=request.user))
         return result

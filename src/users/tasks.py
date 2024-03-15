@@ -4,14 +4,10 @@ In this module described all celery task for implementing
 asynchronous logic in application users
 """
 from celery.app import shared_task
-from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-
 from config import settings
-from config.celery import app
 from src.users.models import PasswordResetToken, User
 
 
@@ -28,7 +24,7 @@ def email_verification(user_id: int, token) -> dict:
     # Send confirmation email
     uid = urlsafe_base64_encode(force_bytes(user.pk))
 
-    confirmation_url = f"{settings.FRONTEND_URL}/Confirm_Email/{uid}/{token}"
+    confirmation_url = f"{settings.FRONTEND_URL}/confirm-email/{uid}/{token}"
     send_mail(
         "Confirm Your Email for site GoldBoost",
         f"Click the link to confirm your email: {confirmation_url}",
@@ -56,7 +52,7 @@ def reset_password_confirm(user_id: int, token):
 
     # Create a password reset confirmation link
     uid = urlsafe_base64_encode(force_bytes(user.pk))
-    reset_url = f"{settings.FRONTEND_URL}/Confirm_Reset/{uid}/{token}"
+    reset_url = f"{settings.FRONTEND_URL}/confirm-reset/{uid}/{token}"
 
     # Send an email with a link to confirm your password reset
     send_mail(

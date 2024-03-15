@@ -8,6 +8,8 @@
        OrderItem
        Attribute
 """
+import uuid
+
 # -*- coding: utf-8 -*-
 from django.db import models
 
@@ -20,6 +22,8 @@ class Order(models.Model):
     """
     Model is storing order of users in the site
     """
+    id = models.UUIDField(primary_key=True,
+                          default=uuid.uuid4, editable=False)
 
     # Foreign Key to User model
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -29,14 +33,17 @@ class Order(models.Model):
         ("canceled", "CANCELED"),
         ("completed", "COMPLETED"),
     )
-    status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES)
-    date_created = models.DateField()
-    order_number = models.UUIDField(unique=True)
+    status = models.CharField(max_length=20,
+                              choices=ORDER_STATUS_CHOICES,
+                              default='canceled')
+    date_created = models.DateTimeField(auto_now_add=True)
     total_price = models.FloatField()
 
     class Meta:
+        ordering = ['-date_created']
         verbose_name = "Orders"
         verbose_name_plural = "Orders"
+        db_table = 'orders'
 
 
 class Cart(models.Model):
@@ -44,15 +51,16 @@ class Cart(models.Model):
     Model is order items before buying them by users
     """
 
-    # OneToOneField to User model
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
-    # Session Key
-    session_key = models.CharField(max_length=255)
+    session_key = models.CharField(max_length=500, null=True)
+
+    class Meta:
+        db_table = 'carts'
 
 
-class OrderItem(models.Model):
+class CartItem(models.Model):
     """
-    Model represents ordered products in the site
+    Model represents cart's items in the site
     """
 
     product = models.ForeignKey(
@@ -61,8 +69,20 @@ class OrderItem(models.Model):
         null=True,
     )
     quantity = models.PositiveIntegerField()
-    cart = models.ForeignKey(Cart, null=True, on_delete=models.SET_NULL)
-    order = models.ForeignKey(Order, null=True, on_delete=models.SET_NULL)
+    cart = models.ForeignKey(Cart, null=True,
+                             on_delete=models.CASCADE,
+                             related_name='items')
+
+    def price(self):
+        total = self.product.price
+        if self.product.sale_active():
+            total = self.product.sale_price()
+        for attr in self.attributes.all():
+            total = total + attr.sub_filter.price
+        return total * self.quantity
+
+    class Meta:
+        db_table = 'cart_items'
 
 
 class Attribute(models.Model):
@@ -71,6 +91,12 @@ class Attribute(models.Model):
     for ordered product
     """
 
-    # Fields
-    sub_filter = models.ForeignKey(SubFilter, on_delete=models.CASCADE, null=True)
-    order_item = models.ForeignKey("OrderItem", on_delete=models.CASCADE, null=True)
+    sub_filter = models.ForeignKey(SubFilter,
+                                   on_delete=models.CASCADE,
+                                   null=True)
+    cart_item = models.ForeignKey("CartItem",
+                                  on_delete=models.CASCADE,
+                                  null=True, related_name='attributes')
+
+    class Meta:
+        db_table = 'attributes'

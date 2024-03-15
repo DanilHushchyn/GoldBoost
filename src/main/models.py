@@ -14,8 +14,11 @@
 from django.db import models
 
 from src.games.models import Game
+from src.orders.models import Order
+from src.products.models import Product
 from src.products.utils import get_timestamp_path
 from src.users.models import User
+
 
 # Create your models here.
 
@@ -35,6 +38,7 @@ class WhyChooseUs(models.Model):
     class Meta:
         verbose_name = "WhyChooseUs"
         verbose_name_plural = "WhyChooseUs"
+        db_table = 'why_choose_us'
 
 
 class Insta(models.Model):
@@ -45,10 +49,12 @@ class Insta(models.Model):
     """
 
     img = models.ImageField(upload_to=get_timestamp_path, null=True)
+    img_alt = models.CharField(max_length=255, null=True)
 
     class Meta:
         verbose_name = "Insta"
         verbose_name_plural = "Insta"
+        db_table = 'insta'
 
 
 class News(models.Model):
@@ -76,6 +82,7 @@ class News(models.Model):
         verbose_name = "News"
         verbose_name_plural = "News"
         ordering = ["-date_published"]
+        db_table = 'news'
 
 
 class Review(models.Model):
@@ -95,6 +102,7 @@ class Review(models.Model):
         ordering = ["-date_published"]
         verbose_name = "Review"
         verbose_name_plural = "Reviews"
+        db_table = 'reviews'
 
 
 # Create your models here.
@@ -142,16 +150,7 @@ class Setting(models.Model):
     class Meta:
         verbose_name = "Settings"
         verbose_name_plural = "Settings"
-
-
-class Subscriber(models.Model):
-    """
-    Model is storing data
-    about users who want to get news
-    from the site
-    """
-
-    email = models.EmailField()
+        db_table = 'settings'
 
 
 class PromoCode(models.Model):
@@ -161,10 +160,10 @@ class PromoCode(models.Model):
     """
 
     code = models.CharField(max_length=215)
-    from_date = models.DateField(help_text="Example: 12/12/2023")
-    until_date = models.DateField(help_text="Example: 12/12/2023")
+    from_date = models.DateField()
+    until_date = models.DateField()
     discount = models.IntegerField(default=0)
-    users = models.ManyToManyField(User)
+    users = models.ManyToManyField(User, related_name='promo_codes')
 
     def __str__(self):
         """
@@ -176,3 +175,26 @@ class PromoCode(models.Model):
     class Meta:
         verbose_name = "Promo codes"
         verbose_name_plural = "Promo codes"
+        db_table = 'promo_codes'
+
+
+class OrderItem(models.Model):
+    """
+    Model represents order's items
+    """
+    title = models.CharField(max_length=255)
+    subtitle = models.CharField(max_length=255)
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='items',
+        null=True,
+    )
+
+    class Meta:
+        db_table = 'sub_orders'
