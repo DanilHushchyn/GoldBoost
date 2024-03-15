@@ -27,7 +27,6 @@ from src.main.api import MainController
 from src.orders.api import OrderController
 from src.products.api import ProductController, tab_router
 from src.users.api import AuthController, UsersController
-from allauth.socialaccount.providers.google import views
 
 main_api = NinjaExtraAPI()
 main_api.register_controllers(NinjaJWTDefaultController)
@@ -41,11 +40,6 @@ main_api.register_controllers(MainController)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", main_api.urls),
-    path(
-        "google/login/token/",
-        views.login_by_token,
-        name="google_login_by_token",
-    ),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
