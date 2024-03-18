@@ -32,7 +32,6 @@ def email_verification(user_id: int, token) -> dict:
         [user.email],
         fail_silently=False,
     )
-
     return {"message": "Confirmation email sent"}
 
 

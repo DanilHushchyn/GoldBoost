@@ -27,26 +27,11 @@ from unfold.widgets import (
     UnfoldAdminImageFieldWidget,
     UnfoldAdminSingleDateWidget,
     UnfoldAdminSingleTimeWidget,
-    UnfoldAdminTextareaWidget, UnfoldAdminTextInputWidget,
+    UnfoldAdminTextareaWidget, UnfoldAdminTextInputWidget, UnfoldAdminIntegerFieldWidget,
 )
 
-from src.games.models import CalendarBlock, CalendarBlockItem, CatalogPage, Game, Tab, TabItem, WorthLookItem, \
-    WorthLook, Calendar
-
-
-# Register your models here.
-class TabItemForm(forms.ModelForm):
-    class Meta:
-        model = TabItem
-        fields = "__all__"
-        widgets = {
-            "content": UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
-        }
-
-
-class TabItemInline(TabularInline):
-    model = TabItem
-    form = TabItemForm
+from src.games.models import CalendarBlock, CalendarBlockItem, CatalogPage, Game, WorthLookItem, \
+    WorthLook, Calendar, CatalogTabs
 
 
 class WorthLookItemInline(TabularInline):
@@ -58,13 +43,6 @@ class WorthLookCarouselItem(ModelAdmin):
     model = WorthLook
     inlines = [
         WorthLookItemInline,
-    ]
-
-
-@admin.register(Tab)
-class TabAdminClass(ModelAdmin):
-    inlines = [
-        TabItemInline,
     ]
 
 
@@ -109,6 +87,39 @@ class CalendarAdminClass(ModelAdmin):
     pass
 
 
+class CatalogTabsForm(forms.ModelForm):
+    """
+    ModelForm configuration for the model CatalogTabs.
+
+    This class defines the appearance for form in
+    admin panel django
+    """
+
+    class Meta:
+        model = CatalogTabs
+        fields = "__all__"
+        widgets = {
+            "title": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
+            "content": UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
+            "order": UnfoldAdminIntegerFieldWidget(attrs={"style": "width: 80px;"}),
+        }
+
+
+class CatalogTabsInline(TabularInline):
+    """
+    TabularInline configuration for the model CatalogTabs.
+
+    This class defines behaviour for setting multiple
+    model instance on one page in django admin
+    """
+
+    model = CatalogTabs
+    extra = 1
+    form = CatalogTabsForm
+
+
 @admin.register(CatalogPage)
 class CatalogPagesAdminClass(ModelAdmin):
-    pass
+    inlines = [
+        CatalogTabsInline
+    ]

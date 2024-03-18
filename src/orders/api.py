@@ -14,6 +14,7 @@ from src.orders.schemas import CartOutSchema, CreateOrderInSchema
 from src.orders.services.order_service import OrderService
 from src.products.utils import get_current_user
 from src.users.schemas import MessageOutSchema, CabinetOrdersSchema
+from src.users.utils import OptionalJWTAuth
 
 
 @api_controller("/orders/", tags=["Orders"], permissions=[])
@@ -31,7 +32,9 @@ class OrderController(ControllerBase):
         """
         self.order_service = order_service
 
-    @http_get("/my-cart/", response=CartOutSchema)
+    @http_get("/my-cart/", response=CartOutSchema,
+              auth=OptionalJWTAuth(),
+              summary='Get my cart (OPTIONAL Auth)')
     def get_my_cart(self, request: HttpRequest) \
             -> Cart:
         """
@@ -49,7 +52,9 @@ class OrderController(ControllerBase):
         result = self.order_service.get_my_cart(user=user, )
         return result
 
-    @http_delete("/my-cart/items/{item_id}/", response=MessageOutSchema)
+    @http_delete("/my-cart/items/{item_id}/", response=MessageOutSchema,
+                 auth=OptionalJWTAuth(),
+                 summary="Delete cart's item (OPTIONAL Auth)")
     def delete_cart_item(self, request: HttpRequest, item_id: int) \
             -> Cart:
         """
@@ -69,13 +74,14 @@ class OrderController(ControllerBase):
                   delete_cart_item(user=user, item_id=item_id))
         return result
 
-    @http_post("/new/", response=OrderOutSchema)
-    def create_order(self, request: HttpRequest, body: CreateOrderInSchema) \
+    @http_post("/new/", response=OrderOutSchema, auth=OptionalJWTAuth(),
+               summary="Create new order (OPTIONAL Auth)")
+    def create_order(self, request: HttpRequest, promo_code: str|None = None) \
             -> OrderOutSchema:
         """
         Endpoint creates order.
 
-        :param body: list of items for order
+        :param promo_code: for order if exists
         :param request: HttpRequest()
         :return: result of operation
         """
@@ -84,7 +90,7 @@ class OrderController(ControllerBase):
         if 'Authorization' in request.headers.keys():
             token = request.headers['Authorization']
             user = get_current_user(token=token)
-        result = self.order_service.create_order(user=user, body=body)
+        result = self.order_service.create_order(user=user, promo_code=promo_code)
         return result
 
     @http_post("/{order_id}/repeat-order/",

@@ -4,27 +4,26 @@
 
 """
 from typing import List
+
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from ninja import Router
 from ninja_extra import http_get, http_post
 from ninja_extra.controllers.base import ControllerBase, api_controller
-from src.games.models import TabItem
-from src.products.models import Product
+from src.products.models import Product, ProductTabs
 from src.products.schemas import (BestSellersSchema,
                                   HotSectionSchema, ProductCardSchema,
-                                  TabContentSchema,
-                                  TabItemSchema, AddToCartSchema)
-from src.products.services.product_service import (ProductService,
-                                                   get_tab_content)
+                                  AddToCartSchema, TabContentSchema, ProductSearchSchema)
+from src.products.services.product_service import ProductService
 from src.products.utils import get_current_user
 from src.users.schemas import MessageOutSchema
+from src.users.utils import OptionalJWTAuth
 
 
 @api_controller("/products/", tags=["Product"], permissions=[])
 class ProductController(ControllerBase):
     """
     A controller class for managing products.
+
     This class provides endpoints for ordering, filtering,
     paginating and getting related entities of products.
     """
@@ -37,7 +36,9 @@ class ProductController(ControllerBase):
         """
         self.product_service = product_service
 
-    @http_post("/{product_id}/to-cart/", response=MessageOutSchema)
+    @http_post("/{product_id}/to-cart/", response=MessageOutSchema,
+               auth=OptionalJWTAuth(),
+               summary="Add product to cart (OPTIONAL Auth)")
     def add_product_to_cart(self, request: HttpRequest,
                             product_id: int,
                             body: AddToCartSchema) \
@@ -95,42 +96,45 @@ class ProductController(ControllerBase):
         result = self.product_service.best_sellers(page, page_size)
         return result
 
-    @http_get("/tabs/{product_id}/", response=List[TabItemSchema])
-    def get_product_tabs(self, product_id: int) -> QuerySet:
+    @http_get("tab-content/{tab_id}/", response=TabContentSchema)
+    def get_tab_content(self, request: HttpRequest, tab_id: int) \
+            -> ProductTabs:
         """
-        Endpoint returns TabItem's queryset filtered by id.
+        Endpoint returns specific ProductTabs model instance.
 
-        :rtype: QuerySet
-        :param product_id: id of Product model instance
-        :return: TabItem's queryset
+        :param request:
+        :rtype: ProductTabs()
+        :param tab_id: id of ProductTabs model's instance we want to get
+        :return: return ProductTabs() model instance
         """
-        result = self.product_service.get_tabs(product_id)
+        result = self.product_service.get_tab_content(tab_id=tab_id)
+        return result
+
+    @http_get("/search/", response=List[ProductSearchSchema])
+    def search_products(self, request: HttpRequest,
+                        search_line: str, game_id: int = None) \
+            -> QuerySet:
+        """
+        Endpoint returns queryset of products.
+        Search products by search_line
+        :param search_line: search by special line products
+        :param game_id: game's id
+        :param request: HttpRequest()
+        :return: Product model QuerySet
+        """
+        print(111)
+        result = (self.product_service.
+                  search_products(game_id=game_id,
+                                  search_line=search_line))
         return result
 
     @http_get("/{product_id}/", response=ProductCardSchema)
     def get_product_by_id(self, product_id: int) -> Product:
         """
         Endpoint gets info for product's card page.
+
         :param product_id: id of Product model's instance
         :return: Product model's instance with related filters
         """
         result = self.product_service.get_product_by_id(product_id)
         return result
-
-
-tab_router = Router(tags=['Tab'])
-
-
-@tab_router.get("/{tab_id}/tab-content/", response=TabContentSchema)
-def get_tab(request: HttpRequest, tab_id: int) -> TabItem:
-    """
-    Endpoint returns specific TabItem model instance.
-
-    :param request:
-    :rtype: TabItem()
-    :param tab_id: id of TabItem model's instance we want to get
-    :return: return TabItem() model instance
-    """
-
-    result = get_tab_content(tab_id)
-    return result

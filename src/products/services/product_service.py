@@ -6,9 +6,8 @@ from django.contrib.auth import get_user_model
 from django.db.models import Prefetch, QuerySet
 from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
-from src.games.models import TabItem
 from src.orders.models import Cart, CartItem, Attribute
-from src.products.models import Filter, Product, SubFilter
+from src.products.models import Filter, Product, SubFilter, ProductTabs
 from src.products.schemas import AddToCartSchema
 from src.products.utils import paginate
 from src.users.schemas import MessageOutSchema
@@ -135,29 +134,32 @@ class ProductService:
         return paginate(items=items, page=page, page_size=page_size)
 
     @staticmethod
-    def get_tabs(product_id: int) -> QuerySet:
+    def get_tab_content(tab_id: int) -> ProductTabs:
         """
-        Returns TabItem's queryset.
+        Returns specific ProductTabs model instance.
 
-        Filtered by id of related Product model's instance
-        :rtype: QuerySet
-        :param product_id: id of Product model instance
-        :return: TabItem's queryset
+        :rtype: ProductTabs()
+        :param tab_id: id of TabItem model's instance we want to get
+        :return: return ProductTabs() model instance
         """
-        tabs = TabItem.objects.filter(tab__product=product_id)
-        if not tabs:
-            raise HttpError(404,
-                            "Not found section Tabs for this product ☹")
-        return tabs
+        tab = get_object_or_404(ProductTabs, id=tab_id)
+        return tab
 
+    @staticmethod
+    def search_products(search_line: str, game_id: int = None) \
+            -> QuerySet:
+        """
+        Gets all products with Tag(related models) value hot.
 
-def get_tab_content(tab_id: int) -> TabItem:
-    """
-    Returns specific TabItem model instance.
-
-    :rtype: TabItem()
-    :param tab_id: id of TabItem model's instance we want to get
-    :return: return TabItem() model instance
-    """
-    tab = get_object_or_404(TabItem, id=tab_id)
-    return tab
+        Also makes pagination of related queryset
+        :param search_line: parameter for searching
+        :rtype: dict
+        :param game_id: filter(not required) additionally by game id
+        :return: dict which contains all parameters for pagination
+        """
+        if game_id:
+            items = Product.objects.filter(catalog_page__game_id=game_id,
+                                           title__icontains=search_line)
+        else:
+            items = Product.objects.filter(title__icontains=search_line)
+        return items[:10]

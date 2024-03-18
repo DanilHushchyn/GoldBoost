@@ -50,7 +50,6 @@ class UsersController(ControllerBase):
     def update_my_profile(self, request: HttpRequest,
                           user_body: UserInSchema):
         """
-
         :param request:
         :param user_body:
         :return: Updated User model instance
@@ -158,56 +157,61 @@ class AuthController(ControllerBase):
         result = self.auth_service.register_user(user)
         return result
 
-    @http_post("/google-login/", tags=["token"],
-               response=MessageOutSchema)
-    def google_login_by_token(self,request, token: str) -> MessageOutSchema:
-        """
-        Endpoint for registration new users.
-
-        :return: message that email send
-        """
-        credential = request.POST.get("credential")
-        identity_data = _verify_and_decode(app=self.provider.app, credential=credential)
-        login = self.provider.sociallogin_from_response(request, identity_data)
-        return result
+    # @http_post("/google-login/", tags=["token"],
+    #            response=MessageOutSchema)
+    # def google_login_by_token(self,request, token: str) -> MessageOutSchema:
+    #     """
+    #     Endpoint for registration new users.
+    #
+    #     :return: message that email send
+    #     """
+    #     credential = request.POST.get("credential")
+    #     identity_data = _verify_and_decode(app=self.provider.app, credential=credential)
+    #     login = self.provider.sociallogin_from_response(request, identity_data)
+    #     return result
 
     @http_post("/reset-password/", tags=["token"])
-    def reset_password(self, email: str) -> MessageOutSchema:
+    def reset_password(self, body: EmailSchema) -> MessageOutSchema:
         """
         Endpoint for reset password.
+
         Part 1
-        :param email: email of user who want to reset password
+        :param body: email of user who want to reset password
         :return: message that email send for reset password
         """
-        result = self.auth_service.reset_password(email)
+        result = self.auth_service.reset_password(body=body)
+        return result
+
+    @http_post("/check-change-password/", tags=["token"])
+    def check_change_password(self, body: ConfirmationSchema) \
+            -> MessageOutSchema:
+        """
+        Endpoint for checking data for reset password.
+
+        :param body: token and uidb64 for checking
+        :return:
+        """
+        result = self.auth_service.check_change_password(body=body)
         return result
 
     @http_post("/change-password/", tags=["token"])
-    def change_password(self, uidb64: str, token: str,
-                        password1: str, password2: str) \
+    def change_password(self, body: ChangePasswordSchema) \
             -> MessageOutSchema:
         """
-        Endpoint for changing user's password
-        :param uidb64: user id in format base64
-        :param token: token for reset operation
-        :param password1: new password1
-        :param password2: new password2 (confirm)
+        Endpoint for changing user's password.
+
+        :param body: uidb64,token,password1,password2
         :return:
         """
-        result = (self.auth_service.
-                  change_password(uidb64=uidb64,
-                                  token=token,
-                                  password1=password1,
-                                  password2=password2))
+        result = self.auth_service.change_password(body=body)
         return result
 
-    @http_get("/confirm-email/{uidb64}/{token}/", tags=["token"])
-    def confirm_email(self, uidb64: str, token: str) -> MessageOutSchema:
+    @http_post("/confirm-email/", tags=["token"])
+    def confirm_email(self, body: ConfirmationSchema) -> MessageOutSchema:
         """
         Endpoint for making user active in the site
-        :param uidb64: user's id encoded in base64 format
-        :param token: token for reset operation
+        :param body: token and uidb64 for checking
         :return: message that email confirmed and user is active
         """
-        result = self.auth_service.confirm_email(uidb64=uidb64, token=token)
+        result = self.auth_service.confirm_email(body=body)
         return result

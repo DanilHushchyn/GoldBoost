@@ -1,6 +1,4 @@
-import random
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
-def make_sale(price: float, sale: int):
-    sale = (price * sale) / 100
-    return price - sale
-print(make_sale(100,0))
+print(urlsafe_base64_encode(force_bytes(4)))

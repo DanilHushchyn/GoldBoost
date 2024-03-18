@@ -27,15 +27,16 @@ class Order(models.Model):
 
     # Foreign Key to User model
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    number = models.PositiveBigIntegerField(null=True,unique=True)
     # Status Choices
     ORDER_STATUS_CHOICES = (
-        ("in progress", "IN PROGRESS"),
-        ("canceled", "CANCELED"),
-        ("completed", "COMPLETED"),
+        ("IN PROGRESS", "IN PROGRESS"),
+        ("CANCELED", "CANCELED"),
+        ("COMPLETED", "COMPLETED"),
     )
     status = models.CharField(max_length=20,
                               choices=ORDER_STATUS_CHOICES,
-                              default='canceled')
+                              default='CANCELED')
     date_created = models.DateTimeField(auto_now_add=True)
     total_price = models.FloatField()
 

@@ -2,6 +2,8 @@
 """
     Module contains class for managing orders on site
 """
+import random
+
 from django.contrib.auth import get_user_model
 # -*- coding: utf-8 -*-
 from django.db.models import QuerySet
@@ -14,7 +16,7 @@ from src.main.models import OrderItem
 from src.main.schemas import OrderOutSchema
 from src.main.services.main_service import MainService
 from src.orders.models import Cart, CartItem, Order
-from src.orders.schemas import CreateOrderInSchema
+from src.orders.tasks import change_order_status
 from src.products.utils import make_sale
 from src.users.schemas import MessageOutSchema
 
@@ -58,35 +60,33 @@ class OrderService:
         item.delete()
         return MessageOutSchema(message='Cart items has been deleted successfully')
 
-    def create_order(self, user: User | str, body: CreateOrderInSchema) -> OrderOutSchema:
+    def create_order(self, user: User | str, promo_code: str | None = None) -> OrderOutSchema:
         """
         Create order for user.
 
-        :param body: all cart item's for buying
+        :param promo_code: promo code for order if exists
         :param user: User model instance or session key
         """
         cart = self.get_my_cart(user=user)
-        list_ids = cart.items.values_list('id', flat=True)
-        for item_id in body.items:
-            if item_id in list_ids:
-                continue
-            raise HttpError(404, f'Cart item with id {item_id} not found')
-
-        # if random.choice([True, False]):
+        if cart.items.count() <= 0:
+            raise HttpError(404, 'Your cart is empty ☹')
         if isinstance(user, User):
-            promo_code = None
-            if body.promo_code:
+            if promo_code:
                 promo_code = (MainService.
-                              check_promo_code(code=body.promo_code,
+                              check_promo_code(code=promo_code,
                                                user=user))
 
-            order = Order.objects.create(status='completed',
+            while True:
+                num = random.randint(100_000_000, 999_999_999)
+                if not Order.objects.filter(number=num).exists():
+                    break
+            order = Order.objects.create(status='IN PROGRESS',
                                          user_id=user.id,
+                                         number=num,
                                          total_price=0)
             total_price = 0
             total_bonuses = 0
-            instances = get_list_or_404(CartItem, id__in=body.items)
-            for inst in instances:
+            for inst in cart.items.all():
                 OrderItem.objects.create(order_id=order.id,
                                          title=inst.product.title,
                                          subtitle=inst.product.subtitle,
@@ -102,7 +102,10 @@ class OrderService:
             else:
                 order.total_price = total_price
             order.save()
-
+            # clean user's cart
+            cart.items.all().delete()
+            # TODO: надо попробовать поменять процессы на сопрограммы в таске
+            change_order_status.delay(order_id=order.id)
             return OrderOutSchema(message='Order issued successfully',
                                   auth_user=True)
         else:

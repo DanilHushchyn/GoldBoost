@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-This module contains pydantic schemas for app "products"
-implement logic for encoding and decoding data into python
+This module contains pydantic schemas for app "products".
+
+Implement logic for encoding and decoding data into python
 object and json
 """
 from typing import List
 
-from ninja import Field, ModelSchema, Schema
+from ninja import ModelSchema, Schema
 from pydantic.types import conint
 
 from config.settings import ABSOLUTE_URL
-from src.games.models import Tab, TabItem
-from src.products.models import Filter, Product, SubFilter, Tag
+from src.products.models import Filter, Product, SubFilter, Tag, ProductTabs
 
 
 class TagOutSchema(ModelSchema):
     """
     Pydantic schema for Tag.
+
     Purpose of this schema to return info about tag(name,color)
     to client side
     """
@@ -30,6 +31,7 @@ class TagOutSchema(ModelSchema):
 class ProductSchema(ModelSchema):
     """
     Pydantic schema for Product.
+
     Purpose of this schema to return info about product
     for product element in carousel in client side
     """
@@ -60,7 +62,7 @@ class ProductSchema(ModelSchema):
     class Meta:
         model = Product
         fields = "__all__"
-        exclude = ("bought_count", "tab")
+        exclude = ("bought_count",)
 
 
 class ProductsSectionSchema(Schema):
@@ -70,7 +72,8 @@ class ProductsSectionSchema(Schema):
 
 class HotSectionSchema(Schema):
     """
-    Pydantic schema for Section "Hot Carousel" .
+    Pydantic schema for Section "Hot Carousel".
+
     Purpose of this schema to return info about product
     which filtered be tag hot
     """
@@ -84,6 +87,7 @@ class HotSectionSchema(Schema):
 class BestSellersSchema(Schema):
     """
     Pydantic schema for BestSellers.
+
     Purpose of this schema to return info about product
     which ordered be parameter bought_count
     """
@@ -94,38 +98,10 @@ class BestSellersSchema(Schema):
     previous: bool
 
 
-class TabItemSchema(ModelSchema):
-    """
-    Pydantic schema for TabItem
-    Purpose of this schema to return id
-    for future requests from client side
-    """
-
-    class Meta:
-        model = TabItem
-        fields = "__all__"
-        exclude = ("tab", "content", "order")
-
-
-class TabSchema(ModelSchema):
-    """
-    Pydantic schema for Tab
-    Purpose of this schema to return
-    Tab model instance and related TabItem
-    queryset
-    """
-
-    tab_items: List[TabItemSchema] | None
-
-    class Meta:
-        model = Tab
-        fields = "__all__"
-        exclude = ("id",)
-
-
 class SubFilterItemSchema(ModelSchema):
     """
-    Pydantic schema for SubFilter
+    Pydantic schema for SubFilter.
+
     Purpose of this schema to return
     Subfilter model instance
     """
@@ -133,12 +109,13 @@ class SubFilterItemSchema(ModelSchema):
     class Meta:
         model = SubFilter
         fields = "__all__"
-        exclude = ("filter",)
+        exclude = ("filter", 'order')
 
 
 class FilterItemSchema(ModelSchema):
     """
-    Pydantic schema for Filter
+    Pydantic schema for Filter.
+
     Purpose of this schema to return
     Filter model instance and related SubFilter
     queryset
@@ -149,12 +126,28 @@ class FilterItemSchema(ModelSchema):
     class Meta:
         model = Filter
         fields = "__all__"
-        exclude = ("id", "product")
+        exclude = ("id", "product", 'order')
+
+
+class ProductTabSchema(ModelSchema):
+    """
+    Pydantic schema for ProductTabs.
+
+    Purpose of this schema to return
+    Filter model instance and related ProductTabs
+    queryset
+    """
+
+    class Meta:
+        model = ProductTabs
+        fields = "__all__"
+        exclude = ['content', 'product', 'order']
 
 
 class ProductCardSchema(ModelSchema):
     """
-    Pydantic schema for Product
+    Pydantic schema for Product.
+
     Purpose of this schema to return
     Product model instance and related
     Filter queryset
@@ -168,6 +161,7 @@ class ProductCardSchema(ModelSchema):
     sale_price: float | None
     sale_period: str | None
     sale_active: bool
+    tabs: List[ProductTabSchema]
 
     @staticmethod
     def resolve_image(obj):
@@ -185,7 +179,8 @@ class ProductCardSchema(ModelSchema):
 
 class GameCarouselsMainSchema(Schema):
     """
-    Pydantic schema for Game Carousel
+    Pydantic schema for Game Carousel.
+
     Purpose of this schema to return
     paginated queryset of products
     """
@@ -198,21 +193,29 @@ class GameCarouselsMainSchema(Schema):
 
 class TabContentSchema(ModelSchema):
     """
-    Pydantic schema for model TabItem
+    Pydantic schema for model ProductTabs.
+
     Purpose of this schema to return
     content for tab to client side
     """
 
     class Meta:
-        model = TabItem
-        exclude = ["id", "title", "tab", "order"]
+        model = ProductTabs
+        fields = ["content"]
 
 
 class AddToCartSchema(Schema):
     """
-    Pydantic schema for adding products to cart
+    Pydantic schema for adding products to cart.
+
     Purpose of this schema, from
     Product model instance create OrderItem model instance
     """
     attributes: list = []
     quantity: conint(gt=0)
+
+
+class ProductSearchSchema(ModelSchema):
+    class Meta:
+        model = Product
+        fields = ["id", 'title']

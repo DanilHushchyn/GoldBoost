@@ -9,7 +9,7 @@ from typing import List
 from ninja import ModelSchema
 
 from config.settings import ABSOLUTE_URL
-from src.games.models import CatalogPage, Game, WorthLookItem, CalendarBlockItem, CalendarBlock
+from src.games.models import CatalogPage, Game, WorthLookItem, CalendarBlockItem, CalendarBlock, CatalogTabs
 from src.products.models import Product
 
 
@@ -67,6 +67,21 @@ class GamesSchema(ModelSchema):
         ]
 
 
+class CatalogTabSchema(ModelSchema):
+    """
+    Pydantic schema for CatalogTabs.
+
+    Purpose of this schema to return
+    Filter model instance and related CatalogTabs
+    queryset
+    """
+
+    class Meta:
+        model = CatalogTabs
+        fields = "__all__"
+        exclude = ['content', 'catalog', 'order']
+
+
 class CatalogPageSchema(ModelSchema):
     """
     Pydantic schema for model CatalogPage.
@@ -75,6 +90,7 @@ class CatalogPageSchema(ModelSchema):
     info for catalog's page in the site
     """
     game_logo: str
+    tabs: List[CatalogTabSchema]
 
     @staticmethod
     def resolve_game_logo(obj):

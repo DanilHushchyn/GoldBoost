@@ -179,3 +179,25 @@ class CabinetOrdersSchema(ModelSchema):
         model = Order
         fields = '__all__'
         exclude = ['user']
+
+
+class ConfirmationSchema(Schema):
+    """
+    Pydantic schema for confirm operations in the site.
+
+    Purpose of this schema to give data in confirms endpoints
+    """
+    uidb64: str
+    token: str
+
+
+class ChangePasswordSchema(Schema):
+    """
+    Pydantic schema for change password in the site.
+
+    Purpose of this schema to give data in endpoint change-password
+    """
+    uidb64: str
+    token: str
+    password1: str
+    password2: str

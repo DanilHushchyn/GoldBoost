@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-This file contains most frequently used methods for
-app product
+This file contains most frequently used methods for app product.
+
     Methods:
         paginate - helps to paginate any queryset
         get_timestamp_path - helps to make unique name
@@ -23,7 +23,8 @@ from config import settings
 
 def paginate(page: int, items: QuerySet, page_size: int) -> dict:
     """
-    Returns paginated queryset by pages of any Model in our project
+    Returns paginated queryset by pages of any Model in our project.
+
     :param page: the page number we want to get
     :param items: queryset of models instances which have to paginated
     :param page_size: length of queryset per page
@@ -48,7 +49,8 @@ def paginate(page: int, items: QuerySet, page_size: int) -> dict:
 
 def get_timestamp_path(instance: object, filename) -> str:
     """
-    Make unique naming of files in directory media
+    Make unique naming of files in directory media.
+
     :param instance: model instance which just created
     :param filename: name of uploaded file to ImageField
     :return: unique file name
@@ -60,7 +62,9 @@ def get_timestamp_path(instance: object, filename) -> str:
 
 
 def get_current_user(token: str):
-    """ Check auth user
+    """
+    Check auth user.
+
     """
 
     try:

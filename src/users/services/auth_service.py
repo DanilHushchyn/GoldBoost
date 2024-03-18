@@ -1,113 +1,148 @@
 # -*- coding: utf-8 -*-
 """
-    Module contains class for managing access control system in the site
+    Module contains class for managing access control system in the site.
+
 """
-from datetime import datetime
-
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.crypto import constant_time_compare
 from django.utils.encoding import force_str
-from django.utils.http import urlsafe_base64_decode, base36_to_int
+from django.utils.http import urlsafe_base64_decode
 from ninja.errors import HttpError
-
-from config import settings
 from src.users.models import PasswordResetToken, User
-from src.users.schemas import MessageOutSchema, RegisterSchema
+from src.users.schemas import MessageOutSchema, RegisterSchema, ConfirmationSchema, ChangePasswordSchema, EmailSchema
 from src.users.tasks import email_verification, reset_password_confirm
 
 
 class AuthService:
     """
     A service class for managing access control system on site.
-    This class provides endpoints for registration, login, reset password and so on.
+
+    This class provides endpoints for registration, login,
+    reset password and so on.
     """
 
     @staticmethod
     def register_user(user: RegisterSchema) -> MessageOutSchema:
         """
-        Part 1 of register new users on the site
+        Part 1 of register new users on the site.
+
         :param user: stores a set of user data for registration
         :return: str message that registration successful
         """
         if User.objects.filter(email=user.email).exists():
             raise HttpError(403, "This email already in use ☹")
-        user = User.objects.create_user(email=user.email, password=user.password, notify_me=user.notify_me)
+        user = User.objects.create_user(email=user.email,
+                                        password=user.password,
+                                        notify_me=user.notify_me)
         token = default_token_generator.make_token(user)
 
         email_verification.delay(user_id=user.id, token=token)
-        return MessageOutSchema(message="Please confirm your registration. We have send letter to your email")
+        return MessageOutSchema(message="Please confirm "
+                                        "your registration. "
+                                        "We have send letter "
+                                        "to your email")
 
     @staticmethod
-    def confirm_email(uidb64: str, token: str) -> MessageOutSchema:
+    def confirm_email(body: ConfirmationSchema) -> MessageOutSchema:
         """
-        Part 2 of register new users on the site
+        Part 2 of register new users on the site.
+
         Method check that email exists in system and
         send letter with instructions for reset password Part 2
-        :param token: is used for validation registration operation
-               and identify user
-        :param uidb64: store user id in base64 format
+        :param body: token and uidb64 for checking
         :return: str message that email confirmed and user active
         """
         try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
+            uid = force_str(urlsafe_base64_decode(body.uidb64))
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
-        if user is not None and default_token_generator.check_token(user, token):
+        if (user is not None and
+                default_token_generator.check_token(user, body.token)):
             if user.is_active:
                 return MessageOutSchema(message="Email already confirmed")
             user.is_active = True
             user.save()
             return MessageOutSchema(message="Email confirmed successfully")
         else:
-            raise HttpError(400, "Invalid confirmation link")
+            raise HttpError(400, "Invalid confirmation link ☹")
 
     @staticmethod
-    def reset_password(email: str) -> MessageOutSchema:
+    def reset_password(body: EmailSchema) -> MessageOutSchema:
         """
-        Part 1 of reset user's password
-        method check that email exists in system and
+        Part 1 of reset user's password.
+
+        Method check that email exists in system and
         send letter with instructions for reset password Part 2
-        :param email: user's email helps to find him
+        :param body: user's email helps to find him
         :return: str message that reset started
         """
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(email=body.email)
         except User.DoesNotExist:
-            raise HttpError(403, "There is not user registered with that email ☹")
+            raise HttpError(403,
+                            "There is not user registered"
+                            " with that email ☹")
         token = default_token_generator.make_token(user)
         reset_password_confirm.delay(user.id, token)
-        return MessageOutSchema(message="Please confirm reset password. We have send instructions to your email")
+        return MessageOutSchema(message="Please confirm "
+                                        "reset password."
+                                        " We have send "
+                                        "instructions to your email")
 
     @staticmethod
-    def change_password(uidb64: str, token: str, password1: str, password2: str) -> MessageOutSchema:
+    def change_password(body: ChangePasswordSchema) -> MessageOutSchema:
         """
-        Part 2 of reset user's password
+        Part 2 of reset user's password.
+
         method decodes token and
         send letter with instructions for reset password Part 2
-        :param password1: new password
-        :param password2: confirm new password
-        :param token: is used for validation reset password operation
+        :param body,
+        body.password1: new password
+        body.password2: confirm new password
+        body.token: is used for validation reset password operation
                and identify user
-        :param uidb64: store user id in base64 format
+        body.uidb64: store user id in base64 format
         :return: str message that reset started
         """
         # Decode and check token
-        uid = urlsafe_base64_decode(uidb64).decode()
         try:
+            uid = urlsafe_base64_decode(body.uidb64).decode()
             user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError):
+            raise HttpError(400, "uidb64 is invalid ☹")
         except User.DoesNotExist:
             raise HttpError(404, "User not found ☹")
-        if not default_token_generator.check_token(user, token):
+        if not default_token_generator.check_token(user, body.token):
             raise HttpError(400, "Invalid token")
-        if password1 != password2:
-            raise HttpError(400, "Passwords aren't the same")
+        if body.password1 != body.password2:
+            raise HttpError(400, "Passwords aren't the same ☹")
 
         # Change user's password
-        user.set_password(password1)
+        user.set_password(body.password1)
         user.save()
 
         # Delete user's token for password reset
         PasswordResetToken.objects.filter(user=user).delete()
-
         return MessageOutSchema(message="Password reset successfully.")
+
+    @staticmethod
+    def check_change_password(body: ConfirmationSchema) \
+            -> MessageOutSchema:
+        """
+        Check tokens and uidb64 if is valid.
+
+        :param body: token and uidb64 for checking
+        :return: str message that checked
+        """
+        # Decode and check token
+        try:
+            uid = urlsafe_base64_decode(body.uidb64).decode()
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError):
+            raise HttpError(400, "uidb64 is invalid ☹")
+        except User.DoesNotExist:
+            raise HttpError(404, "User not found ☹")
+        if not default_token_generator.check_token(user, body.token):
+            raise HttpError(400, "Invalid token ☹")
+
+        return MessageOutSchema(message="Data is valid.")

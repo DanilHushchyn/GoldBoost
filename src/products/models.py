@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    In this module described models for application products
+    In this module described models for application products.
+
     Their purpose is storing data for products and related to products
     Models:
        Product
@@ -8,14 +9,12 @@
        Filter
        SubFilter
 """
-from datetime import datetime, timedelta
-
-# Create your models here.
+from datetime import timedelta
 from django.db import models
 from django.db.models import Max, Min, Sum
 from django.utils import timezone
 
-from src.games.models import CatalogPage, Tab
+from src.games.models import CatalogPage
 from src.products.managers.product_manager import ProductManager
 from src.products.utils import get_timestamp_path
 
@@ -23,8 +22,8 @@ from src.products.utils import get_timestamp_path
 class Product(models.Model):
     """
     Description model Product.
-    Additional info about the model, its purpose and use.
 
+    Additional info about the model, its purpose and use.
     Mysterious fields:
     :param image (ImageField): image for banner of product's
            page in our site.
@@ -49,14 +48,12 @@ class Product(models.Model):
     description = models.TextField()
     price = models.FloatField()
     PRICE_TYPE_CHOICES = [("fixed", "Fixed"), ("range", "Range")]
-    price_type = models.CharField(max_length=10, choices=PRICE_TYPE_CHOICES)
+    price_type = models.CharField(max_length=10,
+                                  choices=PRICE_TYPE_CHOICES)
     bonus_points = models.IntegerField(default=0)
     sale_percent = models.PositiveSmallIntegerField(blank=True, null=True)
     sale_from = models.DateTimeField(blank=True, null=True)
     sale_until = models.DateTimeField(blank=True, null=True)
-    tab = models.ForeignKey(Tab,
-                            on_delete=models.CASCADE,
-                            null=True, blank=True)
     bought_count = models.IntegerField(default=0)
     catalog_page = models.ForeignKey(CatalogPage,
                                      on_delete=models.CASCADE,
@@ -74,7 +71,8 @@ class Product(models.Model):
 
     def price_to(self) -> float | None:
         """
-        Method calculate max price for product with price type range
+        Method calculate max price for product with price type range.
+
         Calculating includes all filters and fundamental price
         """
         price_to = self.price
@@ -97,7 +95,8 @@ class Product(models.Model):
 
     def price_from(self) -> float | None:
         """
-        Method calculate min price for product with price type range
+        Method calculate min price for product with price type range.
+
         Calculating includes all filters and fundamental price
         """
         price_from = self.price
@@ -114,7 +113,8 @@ class Product(models.Model):
 
     def sale_price_to(self) -> float | None:
         """
-        Method calculates max price for product with price type range
+        Method calculates max price for product with price type range.
+
         Calculating includes all filters, fundamental price
         and ability of sale if sale exists
         """
@@ -125,7 +125,8 @@ class Product(models.Model):
 
     def sale_price_from(self) -> float | None:
         """
-        Method calculates min price for product with price type range
+        Method calculates min price for product with price type range.
+
         Calculating includes all filters, fundamental price and ability
         of sale if sale exists
         """
@@ -136,7 +137,8 @@ class Product(models.Model):
 
     def sale_price(self) -> float | None:
         """
-        Method calculates min price for product with price fixed range
+        Method calculates min price for product with price fixed range.
+
         Calculating includes  ability of sale if sale exists
         """
         if self.sale_active():
@@ -177,7 +179,8 @@ class Product(models.Model):
 
 class Tag(models.Model):
     """
-    Model for storing specific statuses for products in site
+    Model for storing specific statuses for products in site.
+
     which admin want to emphasize
     """
 
@@ -195,7 +198,8 @@ class Tag(models.Model):
 
 class Filter(models.Model):
     """
-    Model for storing filters for products in site
+    Model for storing filters for products in site.
+
     this entity helps to specify extra attributes for product
     to pay additional price
     """
@@ -216,7 +220,7 @@ class Filter(models.Model):
     order = models.PositiveIntegerField(null=True)
 
     class Meta:
-        ordering = ['order',]
+        ordering = ['order', ]
         verbose_name = "Filters"
         verbose_name_plural = "Filters"
         db_table = 'filters'
@@ -224,7 +228,8 @@ class Filter(models.Model):
 
 class SubFilter(models.Model):
     """
-    Model for storing filter inputs
+    Model for storing filter inputs.
+
     with specific title and price
     """
 
@@ -237,7 +242,28 @@ class SubFilter(models.Model):
     order = models.PositiveIntegerField(null=True)
 
     class Meta:
-        ordering = ['order',]
+        ordering = ['order', ]
         verbose_name = "SubFilter"
         verbose_name_plural = "SubFilters"
         db_table = 'sub_filters'
+
+
+class ProductTabs(models.Model):
+    """
+    Model for storing specific statuses for products in site.
+
+    which admin want to emphasize
+    """
+
+    title = models.CharField()
+    content = models.TextField()
+    order = models.PositiveIntegerField(null=True)
+    product = models.ForeignKey("Product",
+                                on_delete=models.CASCADE,
+                                null=True, related_name='tabs')
+
+    class Meta:
+        ordering = ['order', ]
+        verbose_name = "Product Tab"
+        verbose_name_plural = "Product Tabs"
+        db_table = 'product_tabs'

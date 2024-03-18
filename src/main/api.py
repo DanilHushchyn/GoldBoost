@@ -5,12 +5,15 @@
 # -*- coding: utf-8 -*-
 from typing import List
 
+from django.contrib.auth.models import AnonymousUser
 from django.http import HttpRequest
+from ninja.security import HttpBearer
 from ninja_extra import http_get
 from ninja_extra.controllers.base import ControllerBase, api_controller
-from ninja_jwt.authentication import JWTAuth
+from ninja_jwt.authentication import JWTAuth, JWTBaseAuthentication
 
 import src.main.schemas as main_schemas
+from config import settings
 from src.main.models import Insta, Setting, WhyChooseUs
 from src.main.services.main_service import MainService
 from src.users.schemas import MessageOutSchema

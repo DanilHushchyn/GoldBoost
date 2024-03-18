@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Django Admin Configuration
+"""
+Django Admin Configuration.
 
 This module defines the admin site configuration
 for the Django project. It registers Django models
@@ -33,11 +34,12 @@ from unfold.widgets import (
     UnfoldBooleanWidget,
 )
 
-from src.products.models import Filter, Product, SubFilter, Tag
+from src.products.models import Filter, Product, SubFilter, Tag, ProductTabs
 
 
 class ProductForm(forms.ModelForm):
     """ModelForm configuration for the model Product.
+
     This class defines the appearance for form in
     admin panel django
     """
@@ -71,6 +73,7 @@ class ProductForm(forms.ModelForm):
 class TagForm(forms.ModelForm):
     """
     ModelForm configuration for the model Tag.
+
     This class defines the appearance for form in
     admin panel django
     """
@@ -88,6 +91,7 @@ class TagForm(forms.ModelForm):
 class TagAdmin(admin.ModelAdmin):
     """
     Admin configuration for model Tag.
+
     This class defines the behavior of the Tag admin interface,
     including the displayed fields, list filters, search fields, and action.
     For more information on Django admin customization,
@@ -101,6 +105,7 @@ class TagAdmin(admin.ModelAdmin):
 class FilterForm(forms.ModelForm):
     """
     ModelForm configuration for the model Filter.
+
     This class defines the appearance for form in
     admin panel django
     """
@@ -119,6 +124,7 @@ class FilterForm(forms.ModelForm):
 class SubFilterForm(forms.ModelForm):
     """
     ModelForm configuration for the model SubFilter.
+
     This class defines the appearance for form in
     admin panel django
     """
@@ -136,6 +142,7 @@ class SubFilterForm(forms.ModelForm):
 class SubFilterInline(TabularInline):
     """
     TabularInline configuration for the model SubFilter.
+
     This class defines behaviour for setting multiple
     model instance on one page in django admin
     """
@@ -149,6 +156,7 @@ class SubFilterInline(TabularInline):
 class FilterAdmin(admin.ModelAdmin):
     """
     Admin configuration for model Filter.
+
     This class defines the behavior of the Filter admin interface,
     including the displayed fields, list filters, search fields, and action.
     For more information on Django admin customization,
@@ -162,15 +170,49 @@ class FilterAdmin(admin.ModelAdmin):
     ]
 
 
+class ProductTabsForm(forms.ModelForm):
+    """
+    ModelForm configuration for the model ProductTabs.
+
+    This class defines the appearance for form in
+    admin panel django
+    """
+
+    class Meta:
+        model = ProductTabs
+        fields = "__all__"
+        widgets = {
+            "title": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
+            "content": UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
+            "order": UnfoldAdminIntegerFieldWidget(attrs={"style": "width: 80px;"}),
+        }
+
+
+class ProductTabsInline(TabularInline):
+    """
+    TabularInline configuration for the model ProductTabs.
+
+    This class defines behaviour for setting multiple
+    model instance on one page in django admin
+    """
+
+    model = ProductTabs
+    extra = 1
+    form = ProductTabsForm
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     """
     Admin configuration for model Product.
+
     This class defines the behavior of the Product admin interface,
     including the displayed fields, list filters, search fields, and action.
     For more information on Django admin customization,
     see the Django documentation:
     https://docs.djangoproject.com/en/stable/ref/contrib/admin/
     """
-
+    inlines = [
+        ProductTabsInline,
+    ]
     form = ProductForm

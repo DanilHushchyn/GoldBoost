@@ -9,7 +9,7 @@ from django.db.models import Prefetch, QuerySet
 from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 
-from src.games.models import CatalogPage, Game, TabItem, CalendarBlockItem, CalendarBlock
+from src.games.models import CatalogPage, Game, CalendarBlockItem, CalendarBlock, CatalogTabs
 from src.products.models import Product
 from src.products.utils import paginate
 
@@ -101,21 +101,6 @@ class GameService:
                         " for this catalog's page ☹")
 
     @staticmethod
-    def get_tabs(page_id: int) -> QuerySet:
-        """
-        Returns TabItem's queryset.
-
-        Filtered by id of related Product model's instance
-        :param page_id: id of CatalogPage model instance
-        :rtype: QuerySet
-        :return: TabItem's queryset
-        """
-        tabs = TabItem.objects.filter(tab__catalogpage=page_id)
-        if not tabs:
-            raise HttpError(404, "Not found section Tabs for this page ☹")
-        return tabs
-
-    @staticmethod
     def get_calendar(page_id: int) -> QuerySet:
         """
         Returns Calendar blocks.
@@ -148,3 +133,15 @@ class GameService:
             raise HttpError(404,
                             "Not found Calendar's items for this page ☹")
         return items
+
+    @staticmethod
+    def get_tab_content(tab_id: int) -> CatalogTabs:
+        """
+        Returns specific ProductTabs model instance.
+
+        :rtype: ProductTabs()
+        :param tab_id: id of TabItem model's instance we want to get
+        :return: return ProductTabs() model instance
+        """
+        tab = get_object_or_404(CatalogTabs, id=tab_id)
+        return tab

@@ -6,11 +6,12 @@
 from typing import List
 
 from django.db.models import QuerySet
+from django.http import HttpRequest
 from ninja_extra import http_get
 from ninja_extra.controllers.base import ControllerBase, api_controller
 
 import src.products.schemas as product_schemas
-from src.games.models import Game
+from src.games.models import Game, CatalogTabs
 from src.games.schemas import GamesSchema, SidebarSchema, CatalogPageSchema, WorthLookItemSchema, \
     CalendarBlockItemSchema, CalendarBlockSchema
 from src.games.services.games_service import GameService
@@ -53,58 +54,6 @@ class GamesController(ControllerBase):
         )
         return result
 
-    @http_get("/catalog-page/{page_id}/", response=CatalogPageSchema)
-    def get_catalog_page(self, page_id: int) -> QuerySet:
-        """
-        Endpoint gets catalog's page content by page id.
-
-        :return: dict
-        """
-        result = self.game_service.get_catalog_page(page_id=page_id)
-        return result
-
-    @http_get("/catalog-page/{page_id}/worth-look/", response=List[WorthLookItemSchema])
-    def get_worth_look(self, page_id: int) -> QuerySet:
-        """
-        Endpoint gets catalog's page content by page id.
-
-        :return: dict
-        """
-        result = self.game_service.get_worth_look(page_id=page_id)
-        return result
-
-    @http_get("/catalog-page/{page_id}/tabs/", response=List[product_schemas.TabItemSchema])
-    def get_tabs(self, page_id: int) -> QuerySet:
-        """
-        Endpoint gets catalog's page content by page id.
-
-        :return: dict
-        """
-        result = self.game_service.get_tabs(page_id=page_id)
-        return result
-
-    @http_get("/catalog-page/{page_id}/calendar/",
-              response=List[CalendarBlockSchema])
-    def get_calendar(self, page_id: int) -> QuerySet:
-        """
-        Endpoint gets catalog's calendar by page id.
-
-        :return: dict
-        """
-        result = self.game_service.get_calendar(page_id=page_id)
-        return result
-
-    @http_get("/catalog-page/{block_id}/calendar-items/",
-              response=List[CalendarBlockItemSchema])
-    def get_calendar_items(self, block_id: int) -> QuerySet:
-        """
-        Endpoint gets calendar's content by block id.
-
-        :return: dict
-        """
-        result = self.game_service.get_calendar_items(block_id=block_id)
-        return result
-
     @http_get("/{game_id}/catalog-pages/", response=List[SidebarSchema])
     def get_game_pages(self, game_id: int) -> QuerySet:
         """
@@ -123,4 +72,78 @@ class GamesController(ControllerBase):
         :return:
         """
         result = self.game_service.get_games()
+        return result
+
+
+@api_controller("/catalog-page", tags=["Catalog"], permissions=[])
+class CatalogController(ControllerBase):
+    """
+    A controller class for managing catalog.
+
+    This class provides endpoints for ordering, filtering,
+    paginating and getting games and related entities of catalog's pages.
+    """
+
+    def __init__(self, game_service: GameService):
+        """
+        Use this method to inject services to endpoints of CatalogController
+
+        :param game_service: variable for managing games and related entities
+        """
+        self.game_service = game_service
+
+    @http_get("/{page_id}/", response=CatalogPageSchema)
+    def get_catalog_page(self, page_id: int) -> QuerySet:
+        """
+        Endpoint gets catalog's page content by page id.
+
+        :return: dict
+        """
+        result = self.game_service.get_catalog_page(page_id=page_id)
+        return result
+
+    @http_get("/{page_id}/worth-look/", response=List[WorthLookItemSchema])
+    def get_worth_look(self, page_id: int) -> QuerySet:
+        """
+        Endpoint gets catalog's page content by page id.
+
+        :return: dict
+        """
+        result = self.game_service.get_worth_look(page_id=page_id)
+        return result
+
+    @http_get("/{page_id}/calendar/",
+              response=List[CalendarBlockSchema])
+    def get_calendar(self, page_id: int) -> QuerySet:
+        """
+        Endpoint gets catalog's calendar by page id.
+
+        :return: dict
+        """
+        result = self.game_service.get_calendar(page_id=page_id)
+        return result
+
+    @http_get("/{block_id}/calendar-items/",
+              response=List[CalendarBlockItemSchema])
+    def get_calendar_items(self, block_id: int) -> QuerySet:
+        """
+        Endpoint gets calendar's content by block id.
+
+        :return: dict
+        """
+        result = self.game_service.get_calendar_items(block_id=block_id)
+        return result
+
+    @http_get("/tab-content/{tab_id}/", response=product_schemas.TabContentSchema)
+    def get_tab_content(self, request: HttpRequest, tab_id: int) \
+            -> CatalogTabs:
+        """
+        Endpoint returns specific CatalogTabs model instance.
+
+        :param request:
+        :rtype: CatalogTabs()
+        :param tab_id: id of CatalogTabs model's instance we want to get
+        :return: return CatalogTabs() model instance
+        """
+        result = self.game_service.get_tab_content(tab_id=tab_id)
         return result
