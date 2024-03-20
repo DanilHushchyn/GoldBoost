@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    In this module described models for application main
+    In this module described models for application main.
+
     Their purpose is storing data for common entities in our site
     Models:
        WhyChooseUs
@@ -19,15 +20,13 @@ from src.products.models import Product
 from src.products.utils import get_timestamp_path
 from src.users.models import User
 
-
 # Create your models here.
 
 
 class WhyChooseUs(models.Model):
     """
-    Model is storing content for
-    section WhyChooseUs on the main page
-    in the site
+    Model is storing content for section WhyChooseUs on the main page.
+
     """
 
     icon = models.ImageField(upload_to=get_timestamp_path, null=True)
@@ -41,14 +40,13 @@ class WhyChooseUs(models.Model):
     class Meta:
         verbose_name = "WhyChooseUs"
         verbose_name_plural = "WhyChooseUs"
-        db_table = 'why_choose_us'
+        db_table = "why_choose_us"
 
 
 class Insta(models.Model):
     """
-    Model is storing content for
-    section Instagram on the main page
-    in the site
+    Model is storing content for section Instagram on the main page.
+
     """
 
     img = models.ImageField(upload_to=get_timestamp_path, null=True)
@@ -60,14 +58,13 @@ class Insta(models.Model):
     class Meta:
         verbose_name = "Insta"
         verbose_name_plural = "Insta"
-        db_table = 'insta'
+        db_table = "insta"
 
 
 class News(models.Model):
     """
-    Model is storing content for
-    section News on the main page
-    in the site
+    Model is storing content for section News on the main page.
+
     """
 
     game = models.ForeignKey(Game, on_delete=models.CASCADE, null=True)
@@ -79,7 +76,8 @@ class News(models.Model):
 
     def __str__(self):
         """
-        String format for News models instance
+        String format for News models instance.
+
         :return: str
         """
         return self.title
@@ -88,14 +86,13 @@ class News(models.Model):
         verbose_name = "News"
         verbose_name_plural = "News"
         ordering = ["-date_published"]
-        db_table = 'news'
+        db_table = "news"
 
 
 class Review(models.Model):
     """
-    Model is storing content for
-    section Review on the main page
-    in the site
+    Model is storing content for section Review on the main page.
+
     """
 
     author = models.CharField(max_length=255, null=True)
@@ -112,7 +109,7 @@ class Review(models.Model):
         ordering = ["-date_published"]
         verbose_name = "Review"
         verbose_name_plural = "Reviews"
-        db_table = 'reviews'
+        db_table = "reviews"
 
 
 # Create your models here.
@@ -142,7 +139,8 @@ class Setting(models.Model):
 
     def __str__(self):
         """
-        String format for Setting models instance
+        String format for Setting models instance.
+
         :return: str
         """
         return "Configure settings"
@@ -160,7 +158,7 @@ class Setting(models.Model):
     class Meta:
         verbose_name = "Settings"
         verbose_name_plural = "Settings"
-        db_table = 'settings'
+        db_table = "settings"
 
 
 class PromoCode(models.Model):
@@ -173,7 +171,7 @@ class PromoCode(models.Model):
     from_date = models.DateField()
     until_date = models.DateField()
     discount = models.IntegerField(default=0)
-    users = models.ManyToManyField(User, related_name='promo_codes')
+    users = models.ManyToManyField(User, related_name="promo_codes")
 
     def __str__(self):
         """
@@ -185,13 +183,14 @@ class PromoCode(models.Model):
     class Meta:
         verbose_name = "Promo codes"
         verbose_name_plural = "Promo codes"
-        db_table = 'promo_codes'
+        db_table = "promo_codes"
 
 
 class OrderItem(models.Model):
     """
     Model represents order's items
     """
+
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255)
     product = models.ForeignKey(
@@ -202,9 +201,9 @@ class OrderItem(models.Model):
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
-        related_name='items',
+        related_name="items",
         null=True,
     )
 
     class Meta:
-        db_table = 'sub_orders'
+        db_table = "sub_orders"

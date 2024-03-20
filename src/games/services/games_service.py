@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    Module contains class for managing games
-    and related entities in the site
+    Module contains class for managing games and related entities.
+
 """
 from calendar import Calendar
 
@@ -9,7 +9,7 @@ from django.db.models import Prefetch, QuerySet
 from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 
-from src.games.models import CatalogPage, Game, CalendarBlockItem, CalendarBlock, CatalogTabs
+from src.games.models import CalendarBlock, CalendarBlockItem, CatalogPage, CatalogTabs, Game
 from src.products.models import Product
 from src.products.utils import paginate
 
@@ -17,20 +17,22 @@ from src.products.utils import paginate
 class GameService:
     """
     A service class for managing games and related entities in the site.
+
     This class provides methods for ordering, filtering,
     paginating and getting games and related entities.
     """
 
     @staticmethod
     def get_games_carousel(
-            game_id: int,
-            page: int,
-            page_size: int,
-            catalog_id: int = None,
+        game_id: int,
+        page: int,
+        page_size: int,
+        catalog_id: int = None,
     ) -> dict:
         """
-        Gets all products for game carousel
-        and make pagination of result queryset
+        Gets all products for game carousel.
+
+        Make pagination of result queryset
 
         :param game_id: filter by game id
         :param page: the page number we want to get
@@ -55,9 +57,7 @@ class GameService:
         also related queryset of filters(root catalog_pages)
         :return: Game queryset
         """
-        pr2 = Prefetch("catalog_pages",
-                       queryset=CatalogPage.objects.filter(parent=None),
-                       to_attr="filters")
+        pr2 = Prefetch("catalog_pages", queryset=CatalogPage.objects.filter(parent=None), to_attr="filters")
         objects = Game.objects.prefetch_related(pr2).all()
         return objects
 
@@ -70,7 +70,7 @@ class GameService:
         :return: QuerySet of root pages related to game
         """
         get_object_or_404(Game, id=game_id)
-        pages = CatalogPage.objects.prefetch_related('items').filter(game_id=game_id, parent=None)
+        pages = CatalogPage.objects.prefetch_related("items").filter(game_id=game_id, parent=None)
         return pages
 
     @staticmethod
@@ -96,9 +96,7 @@ class GameService:
         worth_look = page.worth_look
         if worth_look:
             return worth_look.items
-        raise HttpError(404,
-                        "Not found section WorthLook"
-                        " for this catalog's page ☹")
+        raise HttpError(404, "Not found section WorthLook" " for this catalog's page ☹")
 
     @staticmethod
     def get_calendar(page_id: int) -> QuerySet:
@@ -110,8 +108,7 @@ class GameService:
         :rtype: QuerySet
         :return: TabItem's queryset
         """
-        items = (CalendarBlock.objects.
-                 filter(calendar__catalogpage=page_id))
+        items = CalendarBlock.objects.filter(calendar__catalogpage=page_id)
         # if not items:
         #     raise HttpError(404,
         #                     "Not found Calendar's blocks for this page ☹")
@@ -127,8 +124,7 @@ class GameService:
         :rtype: QuerySet
         :return: TabItem's queryset
         """
-        items = (CalendarBlockItem.objects.
-                 filter(block=block_id))
+        items = CalendarBlockItem.objects.filter(block=block_id)
         # if not items:
         #     raise HttpError(404,
         #                     "Not found Calendar's items for this page ☹")

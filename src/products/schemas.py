@@ -11,7 +11,7 @@ from ninja import ModelSchema, Schema
 from pydantic.types import conint
 
 from config.settings import ABSOLUTE_URL
-from src.products.models import Filter, Product, SubFilter, Tag, ProductTabs
+from src.products.models import Filter, Product, ProductTabs, SubFilter, Tag
 
 
 class TagOutSchema(ModelSchema):
@@ -109,7 +109,7 @@ class SubFilterItemSchema(ModelSchema):
     class Meta:
         model = SubFilter
         fields = "__all__"
-        exclude = ("filter", 'order')
+        exclude = ("filter", "order")
 
 
 class FilterItemSchema(ModelSchema):
@@ -126,7 +126,7 @@ class FilterItemSchema(ModelSchema):
     class Meta:
         model = Filter
         fields = "__all__"
-        exclude = ("id", "product", 'order')
+        exclude = ("id", "product", "order")
 
 
 class ProductTabSchema(ModelSchema):
@@ -141,7 +141,7 @@ class ProductTabSchema(ModelSchema):
     class Meta:
         model = ProductTabs
         fields = "__all__"
-        exclude = ['content', 'product', 'order']
+        exclude = ["content", "product", "order"]
 
 
 class ProductCardSchema(ModelSchema):
@@ -213,6 +213,7 @@ class AddToCartSchema(Schema):
       if needed(only for product with range price)
       - **quantity**: number of products we want to add to cart
     """
+
     attributes: list[int] = []
     quantity: conint(gt=0)
 
@@ -220,4 +221,4 @@ class AddToCartSchema(Schema):
 class ProductSearchSchema(ModelSchema):
     class Meta:
         model = Product
-        fields = ["id", 'title']
+        fields = ["id", "title"]

@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-    Module contains class for managing users data in the site
+    Module contains class for managing users data in the site.
+
 """
 from django.db import IntegrityError
 from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 
-from src.users.models import User, Subscriber, Character
-from src.users.schemas import MessageOutSchema, UserOutSchema, UserInSchema, CharacterInSchema
+from src.users.models import Character, Subscriber, User
+from src.users.schemas import CharacterInSchema, MessageOutSchema, UserInSchema, UserOutSchema
 
 
 class UserService:
@@ -29,10 +30,10 @@ class UserService:
         return user
 
     @staticmethod
-    def update_my_profile(user_id: int, user_body: UserInSchema) \
-            -> User:
+    def update_my_profile(user_id: int, user_body: UserInSchema) -> User:
         """
         Get user personal data by id.
+
         :param user_body: here fields that have to be updated
         :param user_id: user id
         :return: User model instance
@@ -48,6 +49,7 @@ class UserService:
     def get_my_profile(user_id: int) -> User:
         """
         Get user personal data by id.
+
         :param user_id: user id
         :return: User model instance
         """
@@ -92,7 +94,7 @@ class UserService:
         """
         obj = get_object_or_404(Character, id=character_id)
         obj.delete()
-        return MessageOutSchema(message='Character deleted successfully')
+        return MessageOutSchema(message="Character deleted successfully")
 
     @staticmethod
     def create_character(user_id: int) -> Character:
@@ -101,22 +103,24 @@ class UserService:
 
         :return: Character model instance
         """
-        if Character.objects.filter(user_id=user_id).count() >=3:
+        if Character.objects.filter(user_id=user_id).count() >= 3:
             raise HttpError(409,
-                            'Not more than 3 characters '
-                            'are possible to create ☹')
+                            "Not more than 3 characters "
+                            "are possible to create ☹")
         character = Character.objects.create(user_id=user_id)
         return character
 
     @staticmethod
     def subscribe(email: str) -> MessageOutSchema:
         """
-        Subscribe user's email to get news
+        Subscribe user's email to get news.
+
         :param email: user's email
         :return: message that user subscribed
         """
         try:
             Subscriber.objects.create(email=email)
         except IntegrityError:
-            raise HttpError(409, 'This email has been already subscribed ☹')
+            raise HttpError(409,
+                            "This email has been already subscribed ☹")
         return MessageOutSchema(message="You are successfully subscribed")

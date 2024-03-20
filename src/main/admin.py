@@ -23,27 +23,16 @@ https://docs.djangoproject.com/en/stable/ref/contrib/admin/
 
 from django import forms
 from django.contrib import admin
-from django.db.models import Model
-from django.forms import Form
-from django.http import HttpRequest
-from ninja.errors import HttpError
-from typing_extensions import Any
-from unfold.admin import ModelAdmin, TabularInline
-from unfold.exceptions import UnfoldException
+from unfold.admin import ModelAdmin
 from unfold.widgets import (
-    UnfoldAdminDateWidget,
-    UnfoldAdminDecimalFieldWidget,
     UnfoldAdminEmailInputWidget,
     UnfoldAdminIntegerFieldWidget,
-    UnfoldAdminSelect,
-    UnfoldAdminSplitDateTimeWidget,
+    UnfoldAdminSingleDateWidget,
     UnfoldAdminTextareaWidget,
     UnfoldAdminTextInputWidget,
-    UnfoldBooleanWidget, UnfoldAdminSingleDateWidget,
 )
 
 from src.main.models import Insta, News, PromoCode, Review, Setting, WhyChooseUs
-
 
 # Register your models here.
 
@@ -80,6 +69,7 @@ class WhyChooseUsAdminClass(ModelAdmin):
     This class defines the behavior of the WhyChooseUs admin interface,
     For more information on Django admin customization,
     """
+
     def has_delete_permission(self, request, obj=None):
         # Disable delete permission for all instances
         if WhyChooseUs.objects.count() <= 3:
@@ -105,6 +95,7 @@ class WhyChooseUsAdminClass(ModelAdmin):
 class InstaAdminClass(ModelAdmin):
     """
     Admin configuration for model Insta.
+
     This class defines the behavior of the Insta admin interface,
     For more information on Django admin customization,
     """
@@ -134,6 +125,7 @@ class InstaAdminClass(ModelAdmin):
 class SettingsForm(forms.ModelForm):
     """
     ModelForm configuration for the model Setting.
+
     This class defines the appearance for form in
     admin panel django
     """
@@ -191,6 +183,7 @@ class SettingAdmin(admin.ModelAdmin):
 class PromoCodeForm(forms.ModelForm):
     """
     ModelForm configuration for the model PromoCode.
+
     This class defines the appearance for form in
     admin panel django
     """
@@ -211,6 +204,7 @@ class PromoCodeForm(forms.ModelForm):
 class PromoCodeAdmin(admin.ModelAdmin):
     """
     Admin configuration for model PromoCode.
+
     This class defines the behavior of the PromoCode admin interface,
     For more information on Django admin customization,
     """

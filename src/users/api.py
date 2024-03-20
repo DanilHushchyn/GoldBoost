@@ -2,27 +2,19 @@
 """
     Module contains class for managing users in the site
 """
-from typing import List, Tuple
 
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from ninja_extra import http_get, http_post, http_patch, http_put, http_delete
+from ninja_extra import http_delete, http_get, http_patch, http_post, http_put
 from ninja_extra.controllers.base import ControllerBase, api_controller
 from ninja_extra.permissions.common import AllowAny
-from ninja_jwt.authentication import JWTAuth, JWTBaseAuthentication
-from ninja_jwt.controller import TokenObtainPairController
-
-from config import settings
-from src.users.models import User
+from ninja_jwt.authentication import JWTAuth
+from ninja_jwt.schema_control import SchemaControl
+from ninja_jwt.settings import api_settings
 from src.users.schemas import *
 from src.users.schemas import MessageOutSchema
 from src.users.services.auth_service import AuthService
 from src.users.services.user_service import UserService
-import jwt
-from jwt.exceptions import DecodeError
-
-from ninja_jwt.schema_control import SchemaControl
-from ninja_jwt.settings import api_settings
 
 
 @api_controller("/users")
@@ -41,65 +33,61 @@ class UsersController(ControllerBase):
         """
         self.user_service = user_service
 
-    @http_post("/subscribe/{email}/", response=MessageOutSchema,
-               openapi_extra={
-                   "responses": {
-
-                       200: {
-                           "description": "OK",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "message": {
-                                               "type": "string",
-                                               "default": "You are "
-                                                          "successfully "
-                                                          "subscribed",
-                                           }
-                                       },
-                                   }
-                               }
-                           },
-                       },
-                       409: {
-                           "description": "Error: Conflict",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                               "default": "This email"
-                                                          " has been "
-                                                          "already "
-                                                          "subscribed ☹",
-                                           }
-                                       },
-                                   }
-                               }
-                           },
-                       },
-                       422: {
-                           "description": "Error: Unprocessable Entity",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                   }
-                               }
-                           },
-                       },
-                       500: {
-                           "description": "Internal server error if"
-                                          " an unexpected error occurs.",
-                       }
-                   },
-               })
+    @http_post(
+        "/subscribe/{email}/",
+        response=MessageOutSchema,
+        openapi_extra={
+            "responses": {
+                200: {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "default": "You are " "successfully " "subscribed",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                409: {
+                    "description": "Error: Conflict",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                        "default": "This email" " has been " "already " "subscribed ☹",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                422: {
+                    "description": "Error: Unprocessable Entity",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
     def subscribe(self, email: str):
         """
         Subscribe user to news by user's email
@@ -116,51 +104,48 @@ class UsersController(ControllerBase):
         result = self.user_service.subscribe(email)
         return result
 
-    @http_patch("/my-profile/", response=UserOutSchema, auth=JWTAuth(),
-                openapi_extra={
-                    "responses": {
-                        401: {
-                            "description": "Unauthorized",
-                            "content": {
-                                "application/json": {
-                                    "schema": {
-                                        "properties": {
-                                            "detail": {
-                                                "type": "string",
-                                            }
-                                        },
-                                        "example": {
-                                            "detail": "Unauthorized"
-                                        }
-
+    @http_patch(
+        "/my-profile/",
+        response=UserOutSchema,
+        auth=JWTAuth(),
+        openapi_extra={
+            "responses": {
+                401: {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
                                     }
-                                }
-                            },
-
-                        },
-                        422: {
-                            "description": "Error: Unprocessable Entity",
-                            "content": {
-                                "application/json": {
-                                    "schema": {
-                                        "properties": {
-                                            "detail": {
-                                                "type": "string",
-                                            }
-                                        },
-                                    }
-                                }
-                            },
-                        },
-
-                        500: {
-                            "description": "Internal server error if"
-                                           " an unexpected error occurs.",
+                                },
+                                "example": {"detail": "Unauthorized"},
+                            }
                         }
                     },
-                })
-    def update_my_profile(self, request: HttpRequest,
-                          user_body: UserInSchema):
+                },
+                422: {
+                    "description": "Error: Unprocessable Entity",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
+    def update_my_profile(self, request: HttpRequest, user_body: UserInSchema):
         """
         Update user's personal data.
         Please provide:
@@ -172,38 +157,36 @@ class UsersController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        result = (self.user_service.
-                  update_my_profile(request.user.id, user_body))
+        result = self.user_service.update_my_profile(request.user.id, user_body)
         return result
 
-    @http_get("/my-profile/", response=UserOutSchema, auth=JWTAuth(),
-              openapi_extra={
-                  "responses": {
-                      401: {
-                          "description": "Unauthorized",
-                          "content": {
-                              "application/json": {
-                                  "schema": {
-                                      "properties": {
-                                          "detail": {
-                                              "type": "string",
-                                          }
-                                      },
-                                      "example": {
-                                          "detail": "Unauthorized"
-                                      }
-
-                                  }
-                              }
-                          },
-
-                      },
-                      500: {
-                          "description": "Internal server error if"
-                                         " an unexpected error occurs.",
-                      }
-                  },
-              })
+    @http_get(
+        "/my-profile/",
+        response=UserOutSchema,
+        auth=JWTAuth(),
+        openapi_extra={
+            "responses": {
+                401: {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Unauthorized"},
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
     def get_my_profile(self, request: HttpRequest) -> User:
         """
         Get user's personal data for cabinet.
@@ -216,55 +199,48 @@ class UsersController(ControllerBase):
         result = self.user_service.get_my_profile(request.user.id)
         return result
 
-    @http_post("/create-default-character/",
-               response=CharacterOutSchema,
-               auth=JWTAuth(),
-               openapi_extra={
-                   "responses": {
-                       401: {
-                           "description": "Unauthorized",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                       "example": {
-                                           "detail": "Unauthorized"
-                                       }
-
-                                   }
-                               }
-                           },
-
-                       },
-                       409: {
-                           "description": "Error: Conflict",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                               "default": "Not more "
-                                                          "than 3 "
-                                                          "characters "
-                                                          "are possible "
-                                                          "to create ☹",
-                                           }
-                                       },
-                                   }
-                               }
-                           },
-                       },
-                       500: {
-                           "description": "Internal server error if"
-                                          " an unexpected error occurs.",
-                       }
-                   },
-               })
+    @http_post(
+        "/create-default-character/",
+        response=CharacterOutSchema,
+        auth=JWTAuth(),
+        openapi_extra={
+            "responses": {
+                401: {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Unauthorized"},
+                            }
+                        }
+                    },
+                },
+                409: {
+                    "description": "Error: Conflict",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                        "default": "Not more " "than 3 " "characters " "are possible " "to create ☹",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
     def create_default_character(self, request: HttpRequest) -> Character:
         """
         Create default user's characters.
@@ -278,159 +254,137 @@ class UsersController(ControllerBase):
         result = self.user_service.create_character(request.user.id)
         return result
 
-    @http_delete("/my-character/{character_id}",
-                 response=MessageOutSchema,
-                 auth=JWTAuth(),
-                 openapi_extra={
-                     "responses": {
-                         401: {
-                             "description": "Unauthorized",
-                             "content": {
-                                 "application/json": {
-                                     "schema": {
-                                         "properties": {
-                                             "detail": {
-                                                 "type": "string",
-                                             }
-                                         },
-                                         "example": {
-                                             "detail": "Unauthorized"
-                                         }
-
-                                     }
-                                 }
-                             },
-
-                         },
-                         404: {
-                             "description": "Error: Not Found",
-                             "content": {
-                                 "application/json": {
-                                     "schema": {
-                                         "properties": {
-                                             "detail": {
-                                                 "type": "string",
-                                             }
-                                         },
-                                         "example": {
-                                             "detail": "Not Found: "
-                                                       "No Character "
-                                                       "matches the "
-                                                       "given query."
-                                         }
-
-                                     }
-                                 }
-                             },
-
-                         },
-                         422: {
-                             "description": "Error: Unprocessable Entity",
-                             "content": {
-                                 "application/json": {
-                                     "schema": {
-                                         "properties": {
-                                             "detail": {
-                                                 "type": "string",
-                                             }
-                                         },
-                                     }
-                                 }
-                             },
-                         },
-                         500: {
-                             "description": "Internal server error if"
-                                            " an unexpected error occurs.",
-                         }
-                     },
-                 })
-    def delete_character_by_id(self,
-                               character_id: int,
-                               ) -> MessageOutSchema:
+    @http_delete(
+        "/my-character/{character_id}",
+        response=MessageOutSchema,
+        auth=JWTAuth(),
+        openapi_extra={
+            "responses": {
+                401: {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Unauthorized"},
+                            }
+                        }
+                    },
+                },
+                404: {
+                    "description": "Error: Not Found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Not Found: " "No Character " "matches the " "given query."},
+                            }
+                        }
+                    },
+                },
+                422: {
+                    "description": "Error: Unprocessable Entity",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
+    def delete_character_by_id(
+        self,
+        character_id: int,
+    ) -> MessageOutSchema:
         """
-          Delete user's character by id.
-          Please provide:
-            - **character_id**  id of character for deleting
+        Delete user's character by id.
+        Please provide:
+          - **character_id**  id of character for deleting
 
-          Returns:
-            - **200**: Success response with the data.
-            - **401**: Unauthorized.
-            - **422**: Error: Unprocessable Entity.
-            - **500**: Internal server error if an unexpected error occurs.
-          """
+        Returns:
+          - **200**: Success response with the data.
+          - **401**: Unauthorized.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
+        """
         result = self.user_service.delete_character_by_id(character_id)
         return result
 
-    @http_patch("/my-character/{character_id}",
-                response=CharacterOutSchema,
-                auth=JWTAuth(),
-                openapi_extra={
-                    "responses": {
-                        401: {
-                            "description": "Unauthorized",
-                            "content": {
-                                "application/json": {
-                                    "schema": {
-                                        "properties": {
-                                            "detail": {
-                                                "type": "string",
-                                            }
-                                        },
-                                        "example": {
-                                            "detail": "Unauthorized"
-                                        }
-
+    @http_patch(
+        "/my-character/{character_id}",
+        response=CharacterOutSchema,
+        auth=JWTAuth(),
+        openapi_extra={
+            "responses": {
+                401: {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
                                     }
-                                }
-                            },
-
-                        },
-                        404: {
-                            "description": "Error: Not Found",
-                            "content": {
-                                "application/json": {
-                                    "schema": {
-                                        "properties": {
-                                            "detail": {
-                                                "type": "string",
-                                            }
-                                        },
-                                        "example": {
-                                            "detail": "Not Found: "
-                                                      "No Character "
-                                                      "matches the "
-                                                      "given query."
-                                        }
-
-                                    }
-                                }
-                            },
-
-                        },
-                        422: {
-                            "description": "Error: Unprocessable Entity",
-                            "content": {
-                                "application/json": {
-                                    "schema": {
-                                        "properties": {
-                                            "detail": {
-                                                "type": "string",
-                                            }
-                                        },
-                                    }
-                                }
-                            },
-                        },
-                        500: {
-                            "description": "Internal server error if"
-                                           " an unexpected error occurs.",
+                                },
+                                "example": {"detail": "Unauthorized"},
+                            }
                         }
                     },
-                })
-    def update_character_by_id(self,
-                               character_id: int,
-                               character: CharacterInSchema) \
-            -> Character:
+                },
+                404: {
+                    "description": "Error: Not Found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Not Found: " "No Character " "matches the " "given query."},
+                            }
+                        }
+                    },
+                },
+                422: {
+                    "description": "Error: Unprocessable Entity",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
+    def update_character_by_id(self, character_id: int, character: CharacterInSchema) -> Character:
         """
         Update user's character by id.
 
@@ -444,40 +398,37 @@ class UsersController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        result = self.user_service.update_character_by_id(character_id,
-                                                          character)
+        result = self.user_service.update_character_by_id(character_id, character)
 
         return result
 
-    @http_get("/my-characters/", response=list[CharacterOutSchema],
-              auth=JWTAuth(),
-              openapi_extra={
-                  "responses": {
-                      401: {
-                          "description": "Unauthorized",
-                          "content": {
-                              "application/json": {
-                                  "schema": {
-                                      "properties": {
-                                          "detail": {
-                                              "type": "string",
-                                          }
-                                      },
-                                      "example": {
-                                          "detail": "Unauthorized"
-                                      }
-
-                                  }
-                              }
-                          },
-
-                      },
-                      500: {
-                          "description": "Internal server error if"
-                                         " an unexpected error occurs.",
-                      }
-                  },
-              })
+    @http_get(
+        "/my-characters/",
+        response=list[CharacterOutSchema],
+        auth=JWTAuth(),
+        openapi_extra={
+            "responses": {
+                401: {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Unauthorized"},
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
     def get_my_characters(self, request: HttpRequest) -> QuerySet:
         """
         Get records of user's characters.
@@ -508,50 +459,47 @@ class AuthController(ControllerBase):
         """
         self.auth_service = auth_service
 
-    @http_post("/registration/", tags=["token"],
-               response=MessageOutSchema,
-               openapi_extra={
-                   "responses": {
-                       409: {
-                           "description": "Error: Conflict",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                       "example": {
-                                           "detail": "This email already"
-                                                     " in use ☹"
-                                       }
-
-                                   }
-                               }
-                           },
-
-                       },
-                       422: {
-                           "description": "Error: Unprocessable Entity",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                   }
-                               }
-                           },
-                       },
-                       500: {
-                           "description": "Internal server error if"
-                                          " an unexpected error occurs.",
-                       }
-                   },
-               })
+    @http_post(
+        "/registration/",
+        tags=["token"],
+        response=MessageOutSchema,
+        openapi_extra={
+            "responses": {
+                409: {
+                    "description": "Error: Conflict",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "This email already" " in use ☹"},
+                            }
+                        }
+                    },
+                },
+                422: {
+                    "description": "Error: Unprocessable Entity",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
     def registration(self, user: RegisterSchema) -> MessageOutSchema:
         """
         Register new user.
@@ -581,49 +529,46 @@ class AuthController(ControllerBase):
     #     login = self.provider.sociallogin_from_response(request, identity_data)
     #     return result
 
-    @http_post("/reset-password/", tags=["token"],
-               openapi_extra={
-                   "responses": {
-                       409: {
-                           "description": "Error: Conflict",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                       "example": {
-                                           "detail": "This email already"
-                                                     " in use ☹"
-                                       }
-
-                                   }
-                               }
-                           },
-
-                       },
-                       422: {
-                           "description": "Error: Unprocessable Entity",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                   }
-                               }
-                           },
-                       },
-                       500: {
-                           "description": "Internal server error if"
-                                          " an unexpected error occurs.",
-                       }
-                   },
-               })
+    @http_post(
+        "/reset-password/",
+        tags=["token"],
+        openapi_extra={
+            "responses": {
+                409: {
+                    "description": "Error: Conflict",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "This email already" " in use ☹"},
+                            }
+                        }
+                    },
+                },
+                422: {
+                    "description": "Error: Unprocessable Entity",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
     def reset_password(self, body: EmailSchema) -> MessageOutSchema:
         """
         Reset user's password.
@@ -641,56 +586,53 @@ class AuthController(ControllerBase):
         result = self.auth_service.reset_password(body=body)
         return result
 
-    @http_post("/check-change-password/", tags=["token"],
-               openapi_extra={
-                   "responses": {
-                       400: {
-                           "description": "Error: Invalid data provided",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                       "example": {
-                                           "detail": "Invalid link ☹"
-                                       }
-
-                                   }
-                               }
-                           },
-
-                       },
-                       422: {
-                           "description": "Error: Unprocessable Entity",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                   }
-                               }
-                           },
-                       },
-                       500: {
-                           "description": "Internal server error if"
-                                          " an unexpected error occurs.",
-                       }
-                   },
-               })
-    def check_change_password(self, body: ConfirmationSchema) \
-            -> MessageOutSchema:
+    @http_post(
+        "/check-change-password/",
+        tags=["token"],
+        openapi_extra={
+            "responses": {
+                400: {
+                    "description": "Error: Invalid data provided",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Invalid link ☹"},
+                            }
+                        }
+                    },
+                },
+                422: {
+                    "description": "Error: Unprocessable Entity",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
+    def check_change_password(self, body: ConfirmationSchema) -> MessageOutSchema:
         """
         Check data for reset user's password.
-        
+
         Please provide:
           - **Request body**  data which we want to check
-        
+
         Returns:
           - **200**: Success response with the data.
           - **400**: Error: Invalid data provided.
@@ -700,71 +642,65 @@ class AuthController(ControllerBase):
         result = self.auth_service.check_change_password(body=body)
         return result
 
-    @http_post("/change-password/", tags=["token"],
-               openapi_extra={
-                   "responses": {
-                       400: {
-                           "description": "Error: Invalid data provided",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                       "example": {
-                                           "detail": "Invalid link ☹"
-                                       }
-
-                                   }
-                               }
-                           },
-
-                       },
-                       403: {
-                           "description": "Error: Forbidden",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                       "example": {
-                                           "detail": "Passwords aren't the same ☹"
-                                       }
-
-                                   }
-                               }
-                           },
-
-                       },
-                       422: {
-                           "description": "Error: Unprocessable Entity",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                   }
-                               }
-                           },
-                       },
-                       500: {
-                           "description": "Internal server error if"
-                                          " an unexpected error occurs.",
-                       }
-                   },
-               })
-    def change_password(self, body: ChangePasswordSchema) \
-            -> MessageOutSchema:
+    @http_post(
+        "/change-password/",
+        tags=["token"],
+        openapi_extra={
+            "responses": {
+                400: {
+                    "description": "Error: Invalid data provided",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Invalid link ☹"},
+                            }
+                        }
+                    },
+                },
+                403: {
+                    "description": "Error: Forbidden",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Passwords aren't the same ☹"},
+                            }
+                        }
+                    },
+                },
+                422: {
+                    "description": "Error: Unprocessable Entity",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
+    def change_password(self, body: ChangePasswordSchema) -> MessageOutSchema:
         """
-        Change user's password
+        Change user's password.
+
         Part 2
         Please provide:
           - **Request body**  data with new passwords and credentials
@@ -779,51 +715,50 @@ class AuthController(ControllerBase):
         result = self.auth_service.change_password(body=body)
         return result
 
-    @http_post("/confirm-email/", tags=["token"],
-               openapi_extra={
-                   "responses": {
-                       400: {
-                           "description": "Error: Invalid data provided",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                       "example": {
-                                           "detail": "Invalid link ☹"
-                                       }
-
-                                   }
-                               }
-                           },
-
-                       },
-                       422: {
-                           "description": "Error: Unprocessable Entity",
-                           "content": {
-                               "application/json": {
-                                   "schema": {
-                                       "properties": {
-                                           "detail": {
-                                               "type": "string",
-                                           }
-                                       },
-                                   }
-                               }
-                           },
-                       },
-                       500: {
-                           "description": "Internal server error if"
-                                          " an unexpected error occurs.",
-                       }
-                   },
-               })
+    @http_post(
+        "/confirm-email/",
+        tags=["token"],
+        openapi_extra={
+            "responses": {
+                400: {
+                    "description": "Error: Invalid data provided",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Invalid link ☹"},
+                            }
+                        }
+                    },
+                },
+                422: {
+                    "description": "Error: Unprocessable Entity",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
     def confirm_email(self, body: ConfirmationSchema) -> MessageOutSchema:
         """
-        Activate user account in the site
+        Activate user account in the site.
+
         Please provide:
           - **Request body**  data with credentials for activation
 
@@ -840,8 +775,7 @@ class AuthController(ControllerBase):
 schema = SchemaControl(api_settings)
 
 
-@api_controller("/token", permissions=[AllowAny],
-                tags=["token"], auth=None)
+@api_controller("/token", permissions=[AllowAny], tags=["token"], auth=None)
 class CustomTokenObtainPairController(ControllerBase):
     @http_post(
         "/pair",
@@ -859,14 +793,10 @@ class CustomTokenObtainPairController(ControllerBase):
                                         "type": "string",
                                     }
                                 },
-                                "example": {
-                                    "detail": "Unauthorized"
-                                }
-
+                                "example": {"detail": "Unauthorized"},
                             }
                         }
                     },
-
                 },
                 422: {
                     "description": "Error: Unprocessable Entity",
@@ -883,14 +813,15 @@ class CustomTokenObtainPairController(ControllerBase):
                     },
                 },
                 500: {
-                    "description": "Internal server error if"
-                                   " an unexpected error occurs.",
-                }
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
             },
-        })
+        },
+    )
     def obtain_token(self, user_token: schema.obtain_pair_schema):
         """
-        Get user's token by provided credentials
+        Get user's token by provided credentials.
+
         Please provide:
           - **Request body**  data with credentials of user
 
@@ -919,14 +850,10 @@ class CustomTokenObtainPairController(ControllerBase):
                                         "type": "string",
                                     }
                                 },
-                                "example": {
-                                    "detail": "Unauthorized"
-                                }
-
+                                "example": {"detail": "Unauthorized"},
                             }
                         }
                     },
-
                 },
                 422: {
                     "description": "Error: Unprocessable Entity",
@@ -943,15 +870,15 @@ class CustomTokenObtainPairController(ControllerBase):
                     },
                 },
                 500: {
-                    "description": "Internal server error if"
-                                   " an unexpected error occurs.",
-                }
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
             },
-        })
-    def refresh_token(self,
-                      refresh_token: schema.obtain_pair_refresh_schema):
+        },
+    )
+    def refresh_token(self, refresh_token: schema.obtain_pair_refresh_schema):
         """
-        Get user's new access token by provided refresh token
+        Get user's new access token by provided refresh token.
+
         Please provide:
           - **Request body**  provide here refresh token
 
@@ -979,14 +906,10 @@ class CustomTokenObtainPairController(ControllerBase):
                                         "type": "string",
                                     }
                                 },
-                                "example": {
-                                    "detail": "Unauthorized"
-                                }
-
+                                "example": {"detail": "Unauthorized"},
                             }
                         }
                     },
-
                 },
                 422: {
                     "description": "Error: Unprocessable Entity",
@@ -1003,14 +926,15 @@ class CustomTokenObtainPairController(ControllerBase):
                     },
                 },
                 500: {
-                    "description": "Internal server error if"
-                                   " an unexpected error occurs.",
-                }
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
             },
-        })
+        },
+    )
     def verify_token(self, token: schema.verify_schema):
         """
-        Check if user's token is valid
+        Check if user's token is valid.
+
         Please provide:
           - **Request body**  provide here user's token to check it
 

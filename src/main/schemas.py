@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-This module contains pydantic schemas for app "main"
-implement logic for encoding and decoding data into python
+This module contains pydantic schemas for app "main".
+
+Implement logic for encoding and decoding data into python
 object and json
 """
 from typing import List
@@ -10,12 +11,13 @@ from ninja import ModelSchema, Schema
 
 import src.games.schemas as game_schemas
 from config.settings import ABSOLUTE_URL
-from src.main.models import Insta, News, Review, Setting, WhyChooseUs, PromoCode
+from src.main.models import Insta, News, PromoCode, Review, Setting, WhyChooseUs
 
 
 class WhyChooseUsSchema(ModelSchema):
     """
     Pydantic schema for model WhyChooseUs.
+
     Purpose of this schema to return WhyChooseUs
     queryset to client side
     """
@@ -33,6 +35,7 @@ class WhyChooseUsSchema(ModelSchema):
 class ReviewsSchema(ModelSchema):
     """
     Pydantic schema for model Reviews.
+
     Purpose of this schema to return Reviews
     queryset to client side
     """
@@ -40,12 +43,13 @@ class ReviewsSchema(ModelSchema):
     class Meta:
         model = Review
         fields = "__all__"
-        exclude = ('id',)
+        exclude = ("id",)
 
 
 class NewsSchema(ModelSchema):
     """
     Pydantic schema for model News.
+
     Purpose of this schema to return News
     queryset to client side
     """
@@ -59,12 +63,13 @@ class NewsSchema(ModelSchema):
     class Meta:
         model = News
         fields = "__all__"
-        exclude = ('id',)
+        exclude = ("id",)
 
 
 class InstaSchema(ModelSchema):
     """
     Pydantic schema for model Insta.
+
     Purpose of this schema to return Insta
     queryset to client side
     """
@@ -75,14 +80,13 @@ class InstaSchema(ModelSchema):
 
     class Meta:
         model = Insta
-        fields = [
-            "img", 'img_alt'
-        ]
+        fields = ["img", "img_alt"]
 
 
 class SettingsOutSchema(ModelSchema):
     """
     Pydantic schema for model Setting.
+
     Purpose of this schema to return Setting
     model instance data to client side
     """
@@ -95,7 +99,8 @@ class SettingsOutSchema(ModelSchema):
 
 class ReviewsSectionSchema(Schema):
     """
-    Pydantic schema for section Reviews
+    Pydantic schema for section Reviews.
+
     Purpose of this schema to return
     paginated queryset of Review
     """
@@ -108,7 +113,8 @@ class ReviewsSectionSchema(Schema):
 
 class NewsSectionSchema(Schema):
     """
-    Pydantic schema for section News
+    Pydantic schema for section News.
+
     Purpose of this schema to return
     paginated queryset of News
     """
@@ -122,12 +128,13 @@ class NewsSectionSchema(Schema):
 class PromoCodeSchema(ModelSchema):
     class Meta:
         model = PromoCode
-        fields = ['discount']
+        fields = ["discount"]
 
 
 class OrderOutSchema(Schema):
     """
     Pydantic schema for return message to client side.
+
     Purpose of this schema just say that operation
     has been successful
     """

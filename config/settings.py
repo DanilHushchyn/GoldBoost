@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # django-environ
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env.prod"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -52,10 +52,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "corsheaders",
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "ninja_jwt",
     "ninja_jwt.token_blacklist",
     "django_cleanup.apps.CleanupConfig",
@@ -70,48 +70,41 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "users.User"
 PASSWORD_RESET_TIMEOUT = 1800  # 30 minutes
 ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Change the token expiration time to 30 minutes
-GOOGLE_OAUTH_CLIENT_ID = env('GOOGLE_OAUTH_CLIENT_ID')
-GOOGLE_OAUTH_CLIENT_SECRET = env('GOOGLE_OAUTH_CLIENT_SECRET')
+GOOGLE_OAUTH_CLIENT_ID = env("GOOGLE_OAUTH_CLIENT_ID")
+GOOGLE_OAUTH_CLIENT_SECRET = env("GOOGLE_OAUTH_CLIENT_SECRET")
 
 NINJA_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=25),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': False,
-    'UPDATE_LAST_LOGIN': False,
-
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-    'AUDIENCE': None,
-    'ISSUER': None,
-    'JWK_URL': None,
-    'LEEWAY': 0,
-
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-    'USER_AUTHENTICATION_RULE': 'ninja_jwt.authentication.default_user_authentication_rule',
-
-    'AUTH_TOKEN_CLASSES': ('ninja_jwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
-    'TOKEN_USER_CLASS': 'ninja_jwt.models.TokenUser',
-
-    'JTI_CLAIM': 'jti',
-
-    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(days=1),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=5),
-
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=25),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "UPDATE_LAST_LOGIN": False,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "VERIFYING_KEY": None,
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "USER_AUTHENTICATION_RULE": "ninja_jwt.authentication.default_user_authentication_rule",
+    "AUTH_TOKEN_CLASSES": ("ninja_jwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "ninja_jwt.models.TokenUser",
+    "JTI_CLAIM": "jti",
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(days=1),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=5),
     # For Controller Schemas
     # FOR OBTAIN PAIR
-    'TOKEN_OBTAIN_PAIR_INPUT_SCHEMA': "ninja_jwt.schema.TokenObtainPairInputSchema",
-    'TOKEN_OBTAIN_PAIR_REFRESH_INPUT_SCHEMA': "ninja_jwt.schema.TokenRefreshInputSchema",
+    "TOKEN_OBTAIN_PAIR_INPUT_SCHEMA": "ninja_jwt.schema.TokenObtainPairInputSchema",
+    "TOKEN_OBTAIN_PAIR_REFRESH_INPUT_SCHEMA": "ninja_jwt.schema.TokenRefreshInputSchema",
     # FOR SLIDING TOKEN
-    'TOKEN_OBTAIN_SLIDING_INPUT_SCHEMA': "ninja_jwt.schema.TokenObtainSlidingInputSchema",
-    'TOKEN_OBTAIN_SLIDING_REFRESH_INPUT_SCHEMA': "ninja_jwt.schema.TokenRefreshSlidingInputSchema",
-
-    'TOKEN_BLACKLIST_INPUT_SCHEMA': "ninja_jwt.schema.TokenBlacklistInputSchema",
-    'TOKEN_VERIFY_INPUT_SCHEMA': "ninja_jwt.schema.TokenVerifyInputSchema",
+    "TOKEN_OBTAIN_SLIDING_INPUT_SCHEMA": "ninja_jwt.schema.TokenObtainSlidingInputSchema",
+    "TOKEN_OBTAIN_SLIDING_REFRESH_INPUT_SCHEMA": "ninja_jwt.schema.TokenRefreshSlidingInputSchema",
+    "TOKEN_BLACKLIST_INPUT_SCHEMA": "ninja_jwt.schema.TokenBlacklistInputSchema",
+    "TOKEN_VERIFY_INPUT_SCHEMA": "ninja_jwt.schema.TokenVerifyInputSchema",
 }
 UNFOLD = {
     "SITE_TITLE": "GoldBoost",
@@ -156,7 +149,7 @@ UNFOLD = {
                     {
                         "title": "Users",
                         "icon": "people",
-                        "link": 'http://127.0.0.1:8000/admin/users/user/',
+                        "link": "http://127.0.0.1:8000/admin/users/user/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                 ],
@@ -168,37 +161,37 @@ UNFOLD = {
                     {
                         "title": "Why choose us",
                         "icon": "view_carousel",
-                        "link": 'http://127.0.0.1:8000/admin/main/whychooseus/',
+                        "link": "http://127.0.0.1:8000/admin/main/whychooseus/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "News",
                         "icon": "newspaper",
-                        "link": 'http://127.0.0.1:8000/admin/main/news/',
+                        "link": "http://127.0.0.1:8000/admin/main/news/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Insta",
                         "icon": "camera",
-                        "link": 'http://127.0.0.1:8000/admin/main/insta/',
+                        "link": "http://127.0.0.1:8000/admin/main/insta/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Promo code",
                         "icon": "featured_seasonal_and_gifts",
-                        "link": 'http://127.0.0.1:8000/admin/main/promocode/',
+                        "link": "http://127.0.0.1:8000/admin/main/promocode/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Reviews",
                         "icon": "reviews",
-                        "link": 'http://127.0.0.1:8000/admin/main/review/',
+                        "link": "http://127.0.0.1:8000/admin/main/review/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Settings",
                         "icon": "settings",
-                        "link": 'http://127.0.0.1:8000/admin/main/setting/',
+                        "link": "http://127.0.0.1:8000/admin/main/setting/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                 ],
@@ -210,19 +203,19 @@ UNFOLD = {
                     {
                         "title": "Products",
                         "icon": "category",
-                        "link": 'http://127.0.0.1:8000/admin/products/product/',
+                        "link": "http://127.0.0.1:8000/admin/products/product/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Filters",
                         "icon": "filter_alt",
-                        "link": 'http://127.0.0.1:8000/admin/products/filter/',
+                        "link": "http://127.0.0.1:8000/admin/products/filter/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Tags",
                         "icon": "sell",
-                        "link": 'http://127.0.0.1:8000/admin/products/tag/',
+                        "link": "http://127.0.0.1:8000/admin/products/tag/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                 ],
@@ -234,40 +227,40 @@ UNFOLD = {
                     {
                         "title": "Games",
                         "icon": "joystick",
-                        "link": 'http://127.0.0.1:8000/admin/games/game/',
+                        "link": "http://127.0.0.1:8000/admin/games/game/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Calendars",
                         "icon": "calendar_month",
-                        "link": 'http://127.0.0.1:8000/admin/games/calendar/',
+                        "link": "http://127.0.0.1:8000/admin/games/calendar/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Calendar blocks",
                         "icon": "calendar_add_on",
-                        "link": 'http://127.0.0.1:8000/admin/games/calendarblock/',
+                        "link": "http://127.0.0.1:8000/admin/games/calendarblock/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Worth look",
                         "icon": "view_carousel",
-                        "link": 'http://127.0.0.1:8000/admin/games/worthlook/',
+                        "link": "http://127.0.0.1:8000/admin/games/worthlook/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Catalog pages",
                         "icon": "menu_book",
-                        "link": 'http://127.0.0.1:8000/admin/games/catalogpage/',
+                        "link": "http://127.0.0.1:8000/admin/games/catalogpage/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": " ",
-                        "link": '#',
+                        "link": "#",
                     },
                 ],
             },
-        ]
+        ],
     },
 }
 
@@ -278,7 +271,7 @@ UNFOLD = {
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    'django.middleware.locale.LocaleMiddleware',
+    "django.middleware.locale.LocaleMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -290,16 +283,12 @@ MIDDLEWARE = [
 ]
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
-    'google': {
+    "google": {
         # For each OAuth based provider, either add a ``SocialApp``
         # (``socialaccount`` app) containing the required client
         # credentials, or list them here:
-        'EMAIL_AUTHENTICATION': True,
-        'APP': {
-            'client_id': env('GOOGLE_OAUTH_CLIENT_ID'),
-            'secret': env('GOOGLE_OAUTH_CLIENT_SECRET'),
-            'key': ''
-        }
+        "EMAIL_AUTHENTICATION": True,
+        "APP": {"client_id": env("GOOGLE_OAUTH_CLIENT_ID"), "secret": env("GOOGLE_OAUTH_CLIENT_SECRET"), "key": ""},
     }
 }
 CORS_ORIGIN_ALLOW_ALL = True
@@ -389,8 +378,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 LANGUAGES = [
-    ('en', 'English'),
-    ('ua', 'Ukrainian'),
+    ("en", "English"),
+    ("ua", "Ukrainian"),
 ]
 
 STATIC_URL = "/static/"

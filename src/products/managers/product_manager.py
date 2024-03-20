@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Module contain classes Managers for models in app products
+Module contain classes Managers for models in app products.
+
 These Managers implement most frequently used methods
 for selecting data in models
 """
@@ -10,6 +11,7 @@ from django.db import models
 class ProductManager(models.Manager):
     """
     A Manager class for managing products.
+
     This class provides methods for ordering and filtering products with db queries.
     """
 

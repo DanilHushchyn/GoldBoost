@@ -20,13 +20,12 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from ninja_extra import NinjaExtraAPI
-from ninja_jwt.controller import NinjaJWTDefaultController
 from config import settings
-from src.games.api import GamesController, CatalogController
+from src.games.api import CatalogController, GamesController
 from src.main.api import MainController
 from src.orders.api import OrderController
 from src.products.api import ProductController
-from src.users.api import AuthController, UsersController, CustomTokenObtainPairController
+from src.users.api import AuthController, CustomTokenObtainPairController, UsersController
 
 main_api = NinjaExtraAPI()
 # main_api.register_controllers(NinjaJWTDefaultController)
@@ -43,5 +42,4 @@ urlpatterns = [
     path("api/", main_api.urls),
 ]
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL,
-                          document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
