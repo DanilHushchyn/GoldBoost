@@ -17,7 +17,7 @@ worker:
 	celery -A config worker -l info
 
 dumpdata:
-	$(MANAGE) dumpdata > db.json
+	$(MANAGE) dumpdata  -e contenttypes -e auth.Permission > db.json
 
 dock-build:
 	sudo docker-compose -f docker-compose.yml build
