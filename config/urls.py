@@ -26,10 +26,11 @@ from src.games.api import GamesController, CatalogController
 from src.main.api import MainController
 from src.orders.api import OrderController
 from src.products.api import ProductController
-from src.users.api import AuthController, UsersController
+from src.users.api import AuthController, UsersController, CustomTokenObtainPairController
 
 main_api = NinjaExtraAPI()
-main_api.register_controllers(NinjaJWTDefaultController)
+# main_api.register_controllers(NinjaJWTDefaultController)
+main_api.register_controllers(CustomTokenObtainPairController)
 main_api.register_controllers(ProductController)
 main_api.register_controllers(OrderController)
 main_api.register_controllers(UsersController)

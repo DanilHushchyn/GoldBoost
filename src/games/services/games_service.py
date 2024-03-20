@@ -112,9 +112,9 @@ class GameService:
         """
         items = (CalendarBlock.objects.
                  filter(calendar__catalogpage=page_id))
-        if not items:
-            raise HttpError(404,
-                            "Not found Calendar's blocks for this page ☹")
+        # if not items:
+        #     raise HttpError(404,
+        #                     "Not found Calendar's blocks for this page ☹")
         return items
 
     @staticmethod
@@ -129,9 +129,9 @@ class GameService:
         """
         items = (CalendarBlockItem.objects.
                  filter(block=block_id))
-        if not items:
-            raise HttpError(404,
-                            "Not found Calendar's items for this page ☹")
+        # if not items:
+        #     raise HttpError(404,
+        #                     "Not found Calendar's items for this page ☹")
         return items
 
     @staticmethod

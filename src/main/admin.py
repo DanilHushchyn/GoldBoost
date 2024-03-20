@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Django Admin Configuration
+"""
+Django Admin Configuration.
 
 This module defines the admin site
 configuration for the Django project. It registers
@@ -22,7 +23,13 @@ https://docs.djangoproject.com/en/stable/ref/contrib/admin/
 
 from django import forms
 from django.contrib import admin
+from django.db.models import Model
+from django.forms import Form
+from django.http import HttpRequest
+from ninja.errors import HttpError
+from typing_extensions import Any
 from unfold.admin import ModelAdmin, TabularInline
+from unfold.exceptions import UnfoldException
 from unfold.widgets import (
     UnfoldAdminDateWidget,
     UnfoldAdminDecimalFieldWidget,
@@ -37,6 +44,7 @@ from unfold.widgets import (
 
 from src.main.models import Insta, News, PromoCode, Review, Setting, WhyChooseUs
 
+
 # Register your models here.
 
 
@@ -44,6 +52,7 @@ from src.main.models import Insta, News, PromoCode, Review, Setting, WhyChooseUs
 class NewsAdminClass(ModelAdmin):
     """
     Admin configuration for model News.
+
     This class defines the behavior of the News admin interface,
     For more information on Django admin customization,
     """
@@ -55,6 +64,7 @@ class NewsAdminClass(ModelAdmin):
 class ReviewAdminClass(ModelAdmin):
     """
     Admin configuration for model Review.
+
     This class defines the behavior of the Review admin interface,
     For more information on Django admin customization,
     """
@@ -66,11 +76,29 @@ class ReviewAdminClass(ModelAdmin):
 class WhyChooseUsAdminClass(ModelAdmin):
     """
     Admin configuration for model WhyChooseUs.
+
     This class defines the behavior of the WhyChooseUs admin interface,
     For more information on Django admin customization,
     """
+    def has_delete_permission(self, request, obj=None):
+        # Disable delete permission for all instances
+        if WhyChooseUs.objects.count() <= 3:
+            # If an instance already exists,
+            # prevent creation of another instance
+            return False
+        else:
+            # Allow creation of the first instance
+            return True
 
-    pass
+    def has_add_permission(self, request):
+        # Check if any instance already exists
+        if WhyChooseUs.objects.count() >= 6:
+            # If an instance already exists,
+            # prevent creation of another instance
+            return False
+        else:
+            # Allow creation of the first instance
+            return True
 
 
 @admin.register(Insta)
@@ -81,7 +109,25 @@ class InstaAdminClass(ModelAdmin):
     For more information on Django admin customization,
     """
 
-    pass
+    def has_delete_permission(self, request, obj=None):
+        # Disable delete permission for all instances
+        if Insta.objects.count() <= 6:
+            # If an instance already exists,
+            # prevent creation of another instance
+            return False
+        else:
+            # Allow creation of the first instance
+            return True
+
+    def has_add_permission(self, request):
+        # Check if any instance already exists
+        if Insta.objects.count() >= 6:
+            # If an instance already exists,
+            # prevent creation of another instance
+            return False
+        else:
+            # Allow creation of the first instance
+            return True
 
 
 # Register your models here.

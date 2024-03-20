@@ -40,6 +40,7 @@ class ReviewsSchema(ModelSchema):
     class Meta:
         model = Review
         fields = "__all__"
+        exclude = ('id',)
 
 
 class NewsSchema(ModelSchema):
@@ -58,6 +59,7 @@ class NewsSchema(ModelSchema):
     class Meta:
         model = News
         fields = "__all__"
+        exclude = ('id',)
 
 
 class InstaSchema(ModelSchema):

@@ -38,19 +38,83 @@ class ProductController(ControllerBase):
 
     @http_post("/{product_id}/to-cart/", response=MessageOutSchema,
                auth=OptionalJWTAuth(),
-               summary="Add product to cart (OPTIONAL Auth)")
+               summary="Add product to cart (OPTIONAL Auth)",
+               openapi_extra={
+                   "requestBody": {
+                       "content": {
+                           "application/json": {
+                               "schema": {
+                                   "properties": {
+                                       "attributes": {
+                                           "type": "array",
+                                       },
+                                       "quantity": {
+                                           "type": "int",
+                                           "default": 1,
+                                       }
+                                   }, }
+                           },
+                       },
+                       "required": True
+                   },
+                   "responses": {
+                       404: {
+                           "description": "Error: Not Found",
+                           "content": {
+                               "application/json": {
+                                   "schema": {
+                                       "properties": {
+                                           "detail": {
+                                               "type": "string",
+                                           }
+                                       },
+                                       "example": {
+                                           "detail":
+                                               "Not Found: "
+                                               "No Product matches "
+                                               "the given query."
+                                       }
+
+                                   }
+                               }
+                           },
+                       },
+                       422: {
+                           "description": "Error: Unprocessable Entity",
+                           "content": {
+                               "application/json": {
+                                   "schema": {
+                                       "properties": {
+                                           "detail": {
+                                               "type": "string",
+                                           }
+                                       },
+                                   }
+                               }
+                           },
+                       },
+                       500: {
+                           "description": "Internal server error if"
+                                          " an unexpected error occurs.",
+                       },
+                   },
+               }, )
     def add_product_to_cart(self, request: HttpRequest,
                             product_id: int,
                             body: AddToCartSchema) \
             -> MessageOutSchema:
         """
-        Endpoint adds product to user's cart.
+        Add product to user's cart
 
-        :param body: additional attributes for product if it needed
-        :param request: HttpRequest()
-        :rtype: MessageOutSchema
-        :param product_id: the product's id we want to add to cart
-        :return: message that product added to cart
+        Please provide:
+         - **product_id**  id of product we want to add to cart
+         - **Request body**  specify product's parameters
+
+        Returns:
+          - **200**: Success response with the data.
+          - **404**: Error: Not Found.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         request.session.save()
         user = request.session.session_key
@@ -63,78 +127,251 @@ class ProductController(ControllerBase):
                                       body=body))
         return result
 
-    @http_get("/hot-offers/", response=HotSectionSchema)
+    @http_get("/hot-offers/", response=HotSectionSchema,
+              openapi_extra={
+                  "responses": {
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_hot_products(self,
                          page: int,
                          page_size: int,
-                         game_id: int = 0) -> dict:
+                         game_id: int = None) -> dict:
         """
-        Endpoint gets all products with Tag(related models) value hot.
+        Get all products with tag hot and makes pagination of records.
 
-        Make pagination of related queryset
-        :rtype: dict
-        :param page: the page number we want to get
-        :param page_size: length of queryset per page
-        :param game_id: filter(not required) additionally by game id
-        :return: dict which contains all parameters for pagination
+        Please provide:
+         - **page**  number of page we want to get
+         - **page_size**  length of records per page
+         - **game_id**  id of game for filtering(it's optional)
+
+        Returns:
+          - **200**: Success response with the data.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         result = self.product_service.get_hot_products(
             game_id=game_id, page=page, page_size=page_size)
         return result
 
-    @http_get("/bestsellers/", response=BestSellersSchema)
+    @http_get("/bestsellers/", response=BestSellersSchema,
+              openapi_extra={
+                  "responses": {
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_bestsellers(self, page: int, page_size: int) -> dict:
         """
         Endpoint gets all products ordered by bought_count field.
 
-        Model Product (return frequently bought products on site)
-        :rtype: object
-        :param page: the page number we want to get
-        :param page_size: length of queryset per page
-        :return: dict which contains all parameters for pagination
+        Makes pagination of records.
+
+        Please provide:
+         - **page**  number of page we want to get
+         - **page_size**  length of records per page
+
+        Returns:
+          - **200**: Success response with the data.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         result = self.product_service.best_sellers(page, page_size)
         return result
 
-    @http_get("tab-content/{tab_id}/", response=TabContentSchema)
+    @http_get("tab-content/{tab_id}/", response=TabContentSchema,
+              openapi_extra={
+                  "responses": {
+                      404: {
+                          "description": "Error: Not Found",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                      "example": {
+                                          "detail":
+                                              "Not Found: "
+                                              "No ProductTabs matches "
+                                              "the given query."
+                                      }
+
+                                  }
+                              }
+                          },
+                      },
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_tab_content(self, request: HttpRequest, tab_id: int) \
             -> ProductTabs:
         """
-        Endpoint returns specific ProductTabs model instance.
+        Get tab's content for product's page by tab id .
 
-        :param request:
-        :rtype: ProductTabs()
-        :param tab_id: id of ProductTabs model's instance we want to get
-        :return: return ProductTabs() model instance
+        Please provide:
+         - **tab_id**  id of tab we want to get
+
+        Returns:
+          - **200**: Success response with the data.
+          - **404**: Error: Not Found.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         result = self.product_service.get_tab_content(tab_id=tab_id)
         return result
 
-    @http_get("/search/", response=List[ProductSearchSchema])
+    @http_get("/search/", response=List[ProductSearchSchema],
+              openapi_extra={
+                  "responses": {
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def search_products(self, request: HttpRequest,
                         search_line: str, game_id: int = None) \
             -> QuerySet:
         """
-        Endpoint returns queryset of products.
-        Search products by search_line
-        :param search_line: search by special line products
-        :param game_id: game's id
-        :param request: HttpRequest()
-        :return: Product model QuerySet
+        Get records of products searched by search_line.
+
+        Please provide:
+         - **search_line**  id of tab we want to get
+         - **game_id**  id of game by which we want to filter records
+
+        Returns:
+          - **200**: Success response with the data.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
         """
-        print(111)
         result = (self.product_service.
                   search_products(game_id=game_id,
                                   search_line=search_line))
         return result
 
-    @http_get("/{product_id}/", response=ProductCardSchema)
+    @http_get("/{product_id}/", response=ProductCardSchema,
+              openapi_extra={
+                  "responses": {
+                      404: {
+                          "description": "Error: Not Found",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                      "example": {
+                                          "detail":
+                                              "Not Found: "
+                                              "No Product matches "
+                                              "the given query."
+                                      }
+
+                                  }
+                              }
+                          },
+                      },
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_product_by_id(self, product_id: int) -> Product:
         """
-        Endpoint gets info for product's card page.
+        Gets info for product's card page.
 
-        :param product_id: id of Product model's instance
-        :return: Product model's instance with related filters
+        Please provide:
+         - **product_id**  id of product we want to get
+
+        Returns:
+          - **200**: Success response with the data.
+          - **404**: Error: Not Found.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         result = self.product_service.get_product_by_id(product_id)
         return result

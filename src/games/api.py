@@ -12,8 +12,12 @@ from ninja_extra.controllers.base import ControllerBase, api_controller
 
 import src.products.schemas as product_schemas
 from src.games.models import Game, CatalogTabs
-from src.games.schemas import GamesSchema, SidebarSchema, CatalogPageSchema, WorthLookItemSchema, \
-    CalendarBlockItemSchema, CalendarBlockSchema
+from src.games.schemas import (GamesSchema,
+                               SidebarSchema,
+                               CatalogPageSchema,
+                               WorthLookItemSchema,
+                               CalendarBlockItemSchema,
+                               CalendarBlockSchema)
 from src.games.services.games_service import GameService
 
 
@@ -28,11 +32,35 @@ class GamesController(ControllerBase):
     def __init__(self, game_service: GameService):
         """
         Use this method to inject services to endpoints of GamesController
-        :param game_service: variable for managing games and related entities
+        :param game_service: variable for managing games
+        and related entities
         """
         self.game_service = game_service
 
-    @http_get("/product-carousels/", response=product_schemas.GameCarouselsMainSchema)
+    @http_get("/product-carousels/",
+              response=product_schemas.GameCarouselsMainSchema,
+              openapi_extra={
+                  "responses": {
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              })
     def game_carousels(
             self,
             page: int,
@@ -41,35 +69,156 @@ class GamesController(ControllerBase):
             catalog_id: int = None,
     ) -> dict:
         """
-        Endpoint gets all products for specific game, catalog_page
-        if necessary and makes pagination of related queryset
-        :param page: the page number we want to get
-        :param page_size: length of queryset per page
-        :param game_id: filter by game id
-        :param catalog_id: filter(not required) additionally by catalog id
-        :return:
+        Get all products for specific game and catalog's page.
+
+        Makes pagination
+
+        Please provide:
+         - **page**  number of page we want to get
+         - **page_size**  length of records per page
+         - **game_id** id of game, for filtering
+         - **catalog_id** id of catalog's page, for filtering (it's optional)
+
+        Returns:
+          - **200**: Success response with the data.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         result = self.game_service.get_games_carousel(
-            game_id=game_id, catalog_id=catalog_id, page=page, page_size=page_size
+            game_id=game_id,
+            catalog_id=catalog_id, page=page, page_size=page_size
         )
         return result
 
-    @http_get("/{game_id}/catalog-pages/", response=List[SidebarSchema])
+    @http_get("/{game_id}/catalog-pages/", response=List[SidebarSchema],
+              openapi_extra={
+                  # "requestBody": {
+                  #     "content": {
+                  #         "application/json": {
+                  #             "schema": {
+                  #                 "required": ["email"],
+                  #                 "type": "object",
+                  #                 "properties": {
+                  #                     "name": {"type": "string"},
+                  #                     "phone": {"type": "number"},
+                  #                     "email": {"type": "string"},
+                  #                 },
+                  #             }
+                  #         }
+                  #     },
+                  #     "required": True,
+                  # },
+                  404: {
+                      "description": "Error: Not Found",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "properties": {
+                                      "detail": {
+                                          "type": "string",
+                                      }
+                                  },
+                                  "example": {
+                                      "detail":
+                                          "Not Found: "
+                                          "No Game matches "
+                                          "the given query."
+                                  }
+
+                              }
+                          }
+                      },
+                  },
+                  422: {
+                      "description": "Error: Unprocessable Entity",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "properties": {
+                                      "detail": {
+                                          "type": "string",
+                                      }
+                                  },
+                              }
+                          }
+                      },
+                  },
+                  "responses": {
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_game_pages(self, game_id: int) -> QuerySet:
         """
-        Endpoint gets all catalog's pages by game id.
+        Gets all catalog's pages by game id.
 
-        :return: dict
+
+        Returns:
+          - **200**: Success response with the data.
+          - **404**: Error: Not Found.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
+
         """
         result = self.game_service.get_game_pages(game_id=game_id)
         return result
 
-    @http_get("/", response=List[GamesSchema])
+    @http_get("/", response=List[GamesSchema],
+              openapi_extra={
+                  "responses": {
+                      404: {
+                          "description": "Error: Not Found",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                      "example": {
+                                          "detail":
+                                              "Not Found: "
+                                              "No CatalogPage matches "
+                                              "the given query."
+                                      }
+
+                                  }
+                              }
+                          },
+                      },
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_games(self) -> Game:
         """
-        Endpoint gets all games and related
-        to games root catalog pages
-        :return:
+        Get all games and related to specific game root catalog's pages.
+
+
+        Returns:
+          - **200**: Success response with the data.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
+
         """
         result = self.game_service.get_games()
         return result
@@ -92,58 +241,262 @@ class CatalogController(ControllerBase):
         """
         self.game_service = game_service
 
-    @http_get("/{page_id}/", response=CatalogPageSchema)
+    @http_get("/{page_id}/", response=CatalogPageSchema,
+              openapi_extra={
+                  "responses": {
+                      404: {
+                          "description": "Error: Not Found",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                      "example": {
+                                          "detail":
+                                              "Not Found: "
+                                              "No CatalogPage matches "
+                                              "the given query."
+                                      }
+
+                                  }
+                              }
+                          },
+                      },
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_catalog_page(self, page_id: int) -> QuerySet:
         """
-        Endpoint gets catalog's page content by page id.
+        Get catalog's page content by page id.
 
-        :return: dict
+        Please provide:
+         - **page_id**  id of page we want to get
+
+        Returns:
+          - **200**: Success response with the data.
+          - **404**: Error: Not Found.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
+
         """
         result = self.game_service.get_catalog_page(page_id=page_id)
         return result
 
-    @http_get("/{page_id}/worth-look/", response=List[WorthLookItemSchema])
+    @http_get("/{page_id}/worth-look/",
+              response=List[WorthLookItemSchema],
+              openapi_extra={
+                  "responses": {
+                      404: {
+                          "description": "Error: Not Found",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                      "example": {
+                                          "detail":
+                                              "Not Found: "
+                                              "No CatalogPage matches "
+                                              "the given query."
+                                      }
+
+                                  }
+                              }
+                          },
+                      },
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_worth_look(self, page_id: int) -> QuerySet:
         """
-        Endpoint gets catalog's page content by page id.
+        Get catalog's page content by page id.
+        Please provide:
+         - **page_id**  id of page we want to get
 
-        :return: dict
+        Returns:
+          - **200**: Success response with the data.
+          - **404**: Error: Not Found.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         result = self.game_service.get_worth_look(page_id=page_id)
         return result
 
     @http_get("/{page_id}/calendar/",
-              response=List[CalendarBlockSchema])
+              response=List[CalendarBlockSchema],
+              openapi_extra={
+                  "responses": {
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_calendar(self, page_id: int) -> QuerySet:
         """
-        Endpoint gets catalog's calendar by page id.
+        Gets catalog's calendar blocks by page id.
+        Please provide:
+         - **page_id**  id of page we want to get
 
-        :return: dict
+        Returns:
+          - **200**: Success response with the data.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         result = self.game_service.get_calendar(page_id=page_id)
         return result
 
     @http_get("/{block_id}/calendar-items/",
-              response=List[CalendarBlockItemSchema])
+              response=List[CalendarBlockItemSchema],
+              openapi_extra={
+                  "responses": {
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_calendar_items(self, block_id: int) -> QuerySet:
         """
-        Endpoint gets calendar's content by block id.
+        Get calendar's content by calendar block id.
 
-        :return: dict
+        Please provide:
+         - **block_id**  id of page we want to get
+
+        Returns:
+          - **200**: Success response with the data.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         result = self.game_service.get_calendar_items(block_id=block_id)
         return result
 
-    @http_get("/tab-content/{tab_id}/", response=product_schemas.TabContentSchema)
+    @http_get("/tab-content/{tab_id}/",
+              response=product_schemas.TabContentSchema,
+              openapi_extra={
+                  "responses": {
+                      404: {
+                          "description": "Error: Not Found",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                      "example": {
+                                          "detail":
+                                              "Not Found: "
+                                              "No CatalogTabs matches "
+                                              "the given query."
+                                      }
+
+                                  }
+                              }
+                          },
+                      },
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_tab_content(self, request: HttpRequest, tab_id: int) \
             -> CatalogTabs:
         """
-        Endpoint returns specific CatalogTabs model instance.
+        Get tab's content for catalog's page by tab id .
 
-        :param request:
-        :rtype: CatalogTabs()
-        :param tab_id: id of CatalogTabs model's instance we want to get
-        :return: return CatalogTabs() model instance
+        Please provide:
+         - **tab_id**  id of tab we want to get
+
+        Returns:
+          - **200**: Success response with the data.
+          - **404**: Error: Not Found.
+          - **422**: Error: Not Found.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         result = self.game_service.get_tab_content(tab_id=tab_id)
         return result

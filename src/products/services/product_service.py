@@ -41,7 +41,8 @@ class ProductService:
                        .prefetch_related('filters__subfilters')
                        .get(id=product_id))
         except Product.DoesNotExist:
-            raise HttpError(404, 'Product not found ☹')
+            raise HttpError(404, 'Not Found: No Product'
+                                 ' matches the given query.')
 
         if isinstance(user, User):
             cart, status = Cart.objects.get_or_create(user=user)
@@ -99,7 +100,8 @@ class ProductService:
                        prefetch_related(pr_filters).
                        get(id=product_id))
         except Product.DoesNotExist:
-            raise HttpError(404, "Product not found ☹")
+            raise HttpError(404, "Not Found: No Product matches"
+                                 " the given query.")
         return product
 
     @staticmethod

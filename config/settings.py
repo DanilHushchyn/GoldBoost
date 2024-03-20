@@ -16,6 +16,7 @@ from pathlib import Path
 
 import environ
 from django.templatetags.static import static
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -138,7 +139,138 @@ UNFOLD = {
             "900": "88 28 135",
         },
     },
+    "SIDEBAR": {
+        "show_search": False,  # Search in applications and models names
+        "show_all_applications": False,  # Dropdown with all applications and models
+        "navigation": [
+            {
+                "title": "Navigation",
+                "separator": True,  # Top border
+                "items": [
+                    {
+                        "title": "Dashboard",
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Users",
+                        "icon": "people",
+                        "link": 'http://127.0.0.1:8000/admin/users/user/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                ],
+            },
+            {
+                "title": "Main",
+                "separator": True,  # Top border
+                "items": [
+                    {
+                        "title": "Why choose us",
+                        "icon": "view_carousel",
+                        "link": 'http://127.0.0.1:8000/admin/main/whychooseus/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "News",
+                        "icon": "newspaper",
+                        "link": 'http://127.0.0.1:8000/admin/main/news/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Insta",
+                        "icon": "camera",
+                        "link": 'http://127.0.0.1:8000/admin/main/insta/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Promo code",
+                        "icon": "featured_seasonal_and_gifts",
+                        "link": 'http://127.0.0.1:8000/admin/main/promocode/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Reviews",
+                        "icon": "reviews",
+                        "link": 'http://127.0.0.1:8000/admin/main/review/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Settings",
+                        "icon": "settings",
+                        "link": 'http://127.0.0.1:8000/admin/main/setting/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                ],
+            },
+            {
+                "title": "Products",
+                "separator": True,  # Top border
+                "items": [
+                    {
+                        "title": "Products",
+                        "icon": "category",
+                        "link": 'http://127.0.0.1:8000/admin/products/product/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Filters",
+                        "icon": "filter_alt",
+                        "link": 'http://127.0.0.1:8000/admin/products/filter/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Tags",
+                        "icon": "sell",
+                        "link": 'http://127.0.0.1:8000/admin/products/tag/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                ],
+            },
+            {
+                "title": "Games",
+                "separator": True,  # Top border
+                "items": [
+                    {
+                        "title": "Games",
+                        "icon": "joystick",
+                        "link": 'http://127.0.0.1:8000/admin/games/game/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Calendars",
+                        "icon": "calendar_month",
+                        "link": 'http://127.0.0.1:8000/admin/games/calendar/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Calendar blocks",
+                        "icon": "calendar_add_on",
+                        "link": 'http://127.0.0.1:8000/admin/games/calendarblock/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Worth look",
+                        "icon": "view_carousel",
+                        "link": 'http://127.0.0.1:8000/admin/games/worthlook/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Catalog pages",
+                        "icon": "menu_book",
+                        "link": 'http://127.0.0.1:8000/admin/games/catalogpage/',
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": " ",
+                        "link": '#',
+                    },
+                ],
+            },
+        ]
+    },
 }
+
 # AUTHENTICATION_BACKENDS = [
 #     # `allauth` specific authentication methods, such as login by email
 #     'allauth.account.auth_backends.AuthenticationBackend',

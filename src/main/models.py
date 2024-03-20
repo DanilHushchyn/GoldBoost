@@ -32,8 +32,11 @@ class WhyChooseUs(models.Model):
 
     icon = models.ImageField(upload_to=get_timestamp_path, null=True)
     icon_alt = models.CharField(max_length=255, null=True)
-    title = models.CharField(max_length=25, null=True)
+    title = models.CharField(max_length=255, null=True)
     description = models.TextField(null=True)
+
+    def __str__(self):
+        return self.title
 
     class Meta:
         verbose_name = "WhyChooseUs"
@@ -50,6 +53,9 @@ class Insta(models.Model):
 
     img = models.ImageField(upload_to=get_timestamp_path, null=True)
     img_alt = models.CharField(max_length=255, null=True)
+
+    def __str__(self):
+        return self.img_alt
 
     class Meta:
         verbose_name = "Insta"
@@ -96,7 +102,11 @@ class Review(models.Model):
     comment = models.TextField()
     stars_count = models.FloatField()
     source_of_review = models.CharField(max_length=255)
+    source_of_review_url = models.URLField(null=True)
     date_published = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return self.author
 
     class Meta:
         ordering = ["-date_published"]

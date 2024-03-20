@@ -219,6 +219,9 @@ class Filter(models.Model):
                                 related_name="filters")
     order = models.PositiveIntegerField(null=True)
 
+    def __str__(self):
+        return f"{self.product.title}  ({self.title})"
+
     class Meta:
         ordering = ['order', ]
         verbose_name = "Filters"

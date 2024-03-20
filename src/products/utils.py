@@ -32,7 +32,7 @@ def paginate(page: int, items: QuerySet, page_size: int) -> dict:
     :rtype: dict
     """
     if page_size < 1:
-        raise HttpError(403,
+        raise HttpError(422,
                         'page_size query parameter must be more than 1 ☹')
     paginator = Paginator(items, per_page=page_size)
     try:

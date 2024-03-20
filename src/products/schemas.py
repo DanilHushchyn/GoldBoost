@@ -208,10 +208,12 @@ class AddToCartSchema(Schema):
     """
     Pydantic schema for adding products to cart.
 
-    Purpose of this schema, from
-    Product model instance create OrderItem model instance
+    Please provide:
+      - **attributes**: array of id of filters related to product
+      if needed(only for product with range price)
+      - **quantity**: number of products we want to add to cart
     """
-    attributes: list = []
+    attributes: list[int] = []
     quantity: conint(gt=0)
 
 

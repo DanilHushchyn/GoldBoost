@@ -13,7 +13,7 @@ class ProductManager(models.Manager):
     This class provides methods for ordering and filtering products with db queries.
     """
 
-    def hot_all(self, game_id=None):
+    def hot_all(self, game_id: int = None):
         if game_id:
             objects = (
                 self.get_queryset()

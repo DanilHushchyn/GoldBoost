@@ -101,6 +101,10 @@ class UserService:
 
         :return: Character model instance
         """
+        if Character.objects.filter(user_id=user_id).count() >=3:
+            raise HttpError(409,
+                            'Not more than 3 characters '
+                            'are possible to create ☹')
         character = Character.objects.create(user_id=user_id)
         return character
 

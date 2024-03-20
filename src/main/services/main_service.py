@@ -92,8 +92,8 @@ class MainService:
         if not (promo_code.until_date and promo_code.from_date and
                 promo_code.until_date > current_datetime >
                 promo_code.from_date):
-            raise HttpError(400, 'Promo code has been expired ☹')
+            raise HttpError(410, 'Promo code has been expired ☹')
         if user.promo_codes.filter(code=code).exists():
-            raise HttpError(400, 'Promo code has been already used ☹')
+            raise HttpError(403, 'Promo code has been already used ☹')
 
         return promo_code

@@ -29,7 +29,7 @@ class AuthService:
         :return: str message that registration successful
         """
         if User.objects.filter(email=user.email).exists():
-            raise HttpError(403, "This email already in use ☹")
+            raise HttpError(409, "This email already in use ☹")
         user = User.objects.create_user(email=user.email,
                                         password=user.password,
                                         notify_me=user.notify_me)
@@ -64,7 +64,7 @@ class AuthService:
             user.save()
             return MessageOutSchema(message="Email confirmed successfully")
         else:
-            raise HttpError(400, "Invalid confirmation link ☹")
+            raise HttpError(400, "Invalid link ☹")
 
     @staticmethod
     def reset_password(body: EmailSchema) -> MessageOutSchema:
@@ -108,14 +108,12 @@ class AuthService:
         try:
             uid = urlsafe_base64_decode(body.uidb64).decode()
             user = User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError):
-            raise HttpError(400, "uidb64 is invalid ☹")
-        except User.DoesNotExist:
-            raise HttpError(404, "User not found ☹")
+        except (TypeError, ValueError, OverflowError,User.DoesNotExist):
+            raise HttpError(400, "Invalid link ☹")
         if not default_token_generator.check_token(user, body.token):
-            raise HttpError(400, "Invalid token")
+            raise HttpError(400, "Invalid link ☹")
         if body.password1 != body.password2:
-            raise HttpError(400, "Passwords aren't the same ☹")
+            raise HttpError(403, "Passwords aren't the same ☹")
 
         # Change user's password
         user.set_password(body.password1)
@@ -138,11 +136,9 @@ class AuthService:
         try:
             uid = urlsafe_base64_decode(body.uidb64).decode()
             user = User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError):
-            raise HttpError(400, "uidb64 is invalid ☹")
-        except User.DoesNotExist:
-            raise HttpError(404, "User not found ☹")
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            raise HttpError(400, "Invalid link ☹")
         if not default_token_generator.check_token(user, body.token):
-            raise HttpError(400, "Invalid token ☹")
+            raise HttpError(400, "Invalid link ☹")
 
         return MessageOutSchema(message="Data is valid.")

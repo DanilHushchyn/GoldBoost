@@ -34,15 +34,53 @@ class OrderController(ControllerBase):
 
     @http_get("/my-cart/", response=CartOutSchema,
               auth=OptionalJWTAuth(),
-              summary='Get my cart (OPTIONAL Auth)')
+              summary='Get my cart (OPTIONAL Auth)',
+              openapi_extra={
+                  "responses": {
+                    401: {
+                          "description": "Error: Unauthorized",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                              "default": "Unauthorized",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_my_cart(self, request: HttpRequest) \
             -> Cart:
         """
-        Endpoint gets  user's cart.
+        Get  user's cart.
 
-        :param request: HttpRequest()
-        :rtype: CartOutSchema
-        :return: cart's products
+        Returns:
+          - **200**: Success response with the data.
+          - **401**: ERROR: Unauthorized.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         request.session.save()
         user = request.session.session_key
@@ -54,16 +92,73 @@ class OrderController(ControllerBase):
 
     @http_delete("/my-cart/items/{item_id}/", response=MessageOutSchema,
                  auth=OptionalJWTAuth(),
-                 summary="Delete cart's item (OPTIONAL Auth)")
+                 summary="Delete cart's item (OPTIONAL Auth)",
+                 openapi_extra={
+                     "responses": {
+                         401: {
+                             "description": "Error: Unauthorized",
+                             "content": {
+                                 "application/json": {
+                                     "schema": {
+                                         "properties": {
+                                             "detail": {
+                                                 "type": "string",
+                                                 "default": "Unauthorized",
+                                             }
+                                         },
+                                     }
+                                 }
+                             },
+                         },
+                         404: {
+                             "description": "Error: Unauthorized",
+                             "content": {
+                                 "application/json": {
+                                     "schema": {
+                                         "properties": {
+                                             "detail": {
+                                                 "type": "string",
+                                                 "default": "Not Found: "
+                                                            "No CartItem "
+                                                            "matches the "
+                                                            "given query"
+                                                            ".",
+                                             }
+                                         },
+                                     }
+                                 }
+                             },
+                         },
+                         422: {
+                             "description": "Error: Unprocessable Entity",
+                             "content": {
+                                 "application/json": {
+                                     "schema": {
+                                         "properties": {
+                                             "detail": {
+                                                 "type": "string",
+                                             }
+                                         },
+                                     }
+                                 }
+                             },
+                         },
+                         500: {
+                             "description": "Internal server error if"
+                                            " an unexpected error occurs.",
+                         },
+                     },
+                 }, )
     def delete_cart_item(self, request: HttpRequest, item_id: int) \
             -> Cart:
         """
-        Endpoint delete cart's item.
+        Delete cart's item.
 
-        :param item_id: cart's item id
-        :param request: HttpRequest()
-        :rtype: MessageOutSchema
-        :return: message that item deleted
+        Returns:
+          - **200**: Success response with the data.
+          - **401**: ERROR: Unauthorized.
+          - **404**: ERROR: Not Found.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         request.session.save()
         user = request.session.session_key
@@ -75,15 +170,71 @@ class OrderController(ControllerBase):
         return result
 
     @http_post("/new/", response=OrderOutSchema, auth=OptionalJWTAuth(),
-               summary="Create new order (OPTIONAL Auth)")
-    def create_order(self, request: HttpRequest, promo_code: str|None = None) \
+               summary="Create new order (OPTIONAL Auth)",
+               openapi_extra={
+                   "responses": {
+                       401: {
+                           "description": "Error: Unauthorized",
+                           "content": {
+                               "application/json": {
+                                   "schema": {
+                                       "properties": {
+                                           "detail": {
+                                               "type": "string",
+                                               "default": "Unauthorized",
+                                           }
+                                       },
+                                   }
+                               }
+                           },
+                       },
+                       404: {
+                           "description": "Error: Not Found",
+                           "content": {
+                               "application/json": {
+                                   "schema": {
+                                       "properties": {
+                                           "detail": {
+                                               "type": "string",
+                                               "default": "Your cart"
+                                                          " is empty ☹",
+                                           }
+                                       },
+                                   }
+                               }
+                           },
+                       },
+                       422: {
+                           "description": "Error: Unprocessable Entity",
+                           "content": {
+                               "application/json": {
+                                   "schema": {
+                                       "properties": {
+                                           "detail": {
+                                               "type": "string",
+                                           }
+                                       },
+                                   }
+                               }
+                           },
+                       },
+                       500: {
+                           "description": "Internal server error if"
+                                          " an unexpected error occurs.",
+                       },
+                   },
+               }, )
+    def create_order(self, request: HttpRequest, promo_code: str | None = None) \
             -> OrderOutSchema:
         """
-        Endpoint creates order.
+        Create order.
 
-        :param promo_code: for order if exists
-        :param request: HttpRequest()
-        :return: result of operation
+        Returns:
+          - **200**: Success response with the data.
+          - **401**: ERROR: Unauthorized.
+          - **404**: ERROR: Not Found.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         request.session.save()
         user = request.session.session_key
@@ -94,15 +245,80 @@ class OrderController(ControllerBase):
         return result
 
     @http_post("/{order_id}/repeat-order/",
-               response=CabinetOrdersSchema, auth=JWTAuth())
+               response=CabinetOrdersSchema, auth=JWTAuth(),
+               openapi_extra={
+                   "responses": {
+                       401: {
+                           "description": "ERROR: Unauthorized",
+                           "content": {
+                               "application/json": {
+                                   "schema": {
+                                       "properties": {
+                                           "detail": {
+                                               "type": "string",
+                                           }
+                                       },
+                                       "example": {
+                                           "detail": "Unauthorized"
+                                       }
+
+                                   }
+                               }
+                           },
+
+                       },
+                       404: {
+                           "description": "ERROR: Not Found",
+                           "content": {
+                               "application/json": {
+                                   "schema": {
+                                       "properties": {
+                                           "detail": {
+                                               "type": "string",
+                                           }
+                                       },
+                                       "example": {
+                                           "detail": "Cannot repeat "
+                                                     "order, some "
+                                                     "products are not"
+                                                     " exists nowadays ☹"
+                                       }
+
+                                   }
+                               }
+                           },
+
+                       },
+                       422: {
+                           "description": "Error: Unprocessable Entity",
+                           "content": {
+                               "application/json": {
+                                   "schema": {
+                                       "properties": {
+                                           "detail": {
+                                               "type": "string",
+                                           }
+                                       },
+                                   }
+                               }
+                           },
+                       },
+                       500: {
+                           "description": "Internal server error if"
+                                          " an unexpected error occurs.",
+                       },
+                   },
+               }, )
     def repeat_order(self, request: HttpRequest, order_id: str) \
             -> Order:
         """
-        Endpoint repeat order.
+        Repeat order.
 
-        :param order_id: order's id
-        :param request: HttpRequest()
-        :return: result of operation
+        Returns:
+          - **200**: Success response with the data.
+          - **401**: ERROR: Unauthorized.
+          - **404**: ERROR: Not Found.
+          - **500**: Internal server error if an unexpected error occurs.
         """
         result = (self.order_service.
                   repeat_order(user=request.user,
@@ -110,14 +326,58 @@ class OrderController(ControllerBase):
         return result
 
     @http_get("/my-orders/", response=list[CabinetOrdersSchema],
-              auth=JWTAuth())
+              auth=JWTAuth(),
+              openapi_extra={
+                  "responses": {
+                      401: {
+                          "description": "ERROR: Unauthorized",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                      "example": {
+                                          "detail": "Unauthorized"
+                                      }
+
+                                  }
+                              }
+                          },
+
+                      },
+                      422: {
+                          "description": "Error: Unprocessable Entity",
+                          "content": {
+                              "application/json": {
+                                  "schema": {
+                                      "properties": {
+                                          "detail": {
+                                              "type": "string",
+                                          }
+                                      },
+                                  }
+                              }
+                          },
+                      },
+                      500: {
+                          "description": "Internal server error if"
+                                         " an unexpected error occurs.",
+                      },
+                  },
+              }, )
     def get_my_orders(self, request: HttpRequest) \
             -> QuerySet:
         """
-        Endpoint get user's orders.
+        Get user's orders.
 
-        :param request: HttpRequest()
-        :return: result of operation
+        Returns:
+          - **200**: Success response with the data.
+          - **401**: ERROR: Unauthorized.
+          - **500**: Internal server error if an unexpected error occurs.
         """
+
         result = self.order_service.get_my_orders(user_id=request.user.id)
         return result
