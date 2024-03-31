@@ -5,19 +5,22 @@
 
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from ninja_extra import http_delete, http_get, http_patch, http_post, http_put
+from ninja_extra import http_delete, http_get, http_patch, http_post
 from ninja_extra.controllers.base import ControllerBase, api_controller
 from ninja_extra.permissions.common import AllowAny
 from ninja_jwt.authentication import JWTAuth
 from ninja_jwt.schema_control import SchemaControl
 from ninja_jwt.settings import api_settings
+
+from src.main.utils import LangEnum
 from src.users.schemas import *
 from src.users.schemas import MessageOutSchema
 from src.users.services.auth_service import AuthService
 from src.users.services.user_service import UserService
+from ninja import Header
 
 
-@api_controller("/users")
+@api_controller("/users", tags=['Users'])
 class UsersController(ControllerBase):
     """
     A controller class for managing users.
@@ -34,7 +37,7 @@ class UsersController(ControllerBase):
         self.user_service = user_service
 
     @http_post(
-        "/subscribe/{email}/",
+        "/subscribe/",
         response=MessageOutSchema,
         openapi_extra={
             "responses": {
@@ -61,7 +64,7 @@ class UsersController(ControllerBase):
                                 "properties": {
                                     "detail": {
                                         "type": "string",
-                                        "default": "This email" " has been " "already " "subscribed ☹",
+                                        "default": "This email" " has been " "already " "subscribed",
                                     }
                                 },
                             }
@@ -88,12 +91,16 @@ class UsersController(ControllerBase):
             },
         },
     )
-    def subscribe(self, email: str):
+    def subscribe(self, request: HttpRequest,
+                  body: EmailSchema,
+                  accept_lang:
+                  LangEnum = Header(alias='Accept-Language'),
+                  ) -> MessageOutSchema:
         """
         Subscribe user to news by user's email
 
         Please provide:
-         - **email**  email of user we want to subscribe for news
+         - **RequestBody**  email of user we want to subscribe for news
 
         Returns:
           - **200**: Success response with the data.
@@ -101,12 +108,13 @@ class UsersController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        result = self.user_service.subscribe(email)
+
+        result = self.user_service.subscribe(body=body)
         return result
 
     @http_patch(
         "/my-profile/",
-        response=UserOutSchema,
+        response=UserUpdatedSchema,
         auth=JWTAuth(),
         openapi_extra={
             "responses": {
@@ -140,12 +148,16 @@ class UsersController(ControllerBase):
                     },
                 },
                 500: {
-                    "description": "Internal server error if" " an unexpected error occurs.",
+                    "description": "Internal server error if" 
+                                   " an unexpected error occurs.",
                 },
             },
         },
     )
-    def update_my_profile(self, request: HttpRequest, user_body: UserInSchema):
+    def update_my_profile(self, request: HttpRequest, user_body: UserInSchema,
+                          accept_lang:
+                          LangEnum = Header(alias='Accept-Language'),
+                          ) -> User:
         """
         Update user's personal data.
         Please provide:
@@ -157,6 +169,7 @@ class UsersController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         result = self.user_service.update_my_profile(request.user.id, user_body)
         return result
 
@@ -187,7 +200,10 @@ class UsersController(ControllerBase):
             },
         },
     )
-    def get_my_profile(self, request: HttpRequest) -> User:
+    def get_my_profile(self, request: HttpRequest,
+                       accept_lang:
+                       LangEnum = Header(alias='Accept-Language'),
+                       ) -> User:
         """
         Get user's personal data for cabinet.
 
@@ -196,6 +212,7 @@ class UsersController(ControllerBase):
           - **401**: Unauthorized.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         result = self.user_service.get_my_profile(request.user.id)
         return result
 
@@ -228,7 +245,7 @@ class UsersController(ControllerBase):
                                 "properties": {
                                     "detail": {
                                         "type": "string",
-                                        "default": "Not more " "than 3 " "characters " "are possible " "to create ☹",
+                                        "default": "Not more " "than 3 " "characters " "are possible " "to create",
                                     }
                                 },
                             }
@@ -241,7 +258,10 @@ class UsersController(ControllerBase):
             },
         },
     )
-    def create_default_character(self, request: HttpRequest) -> Character:
+    def create_default_character(self, request: HttpRequest,
+                                 accept_lang:
+                                 LangEnum = Header(alias='Accept-Language'),
+                                 ) -> Character:
         """
         Create default user's characters.
 
@@ -251,6 +271,7 @@ class UsersController(ControllerBase):
           - **409**: Error: Conflict.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         result = self.user_service.create_character(request.user.id)
         return result
 
@@ -311,8 +332,11 @@ class UsersController(ControllerBase):
         },
     )
     def delete_character_by_id(
-        self,
-        character_id: int,
+            self,
+            request: HttpRequest,
+            character_id: int,
+            accept_lang:
+            LangEnum = Header(alias='Accept-Language'),
     ) -> MessageOutSchema:
         """
         Delete user's character by id.
@@ -325,6 +349,7 @@ class UsersController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         result = self.user_service.delete_character_by_id(character_id)
         return result
 
@@ -384,7 +409,13 @@ class UsersController(ControllerBase):
             },
         },
     )
-    def update_character_by_id(self, character_id: int, character: CharacterInSchema) -> Character:
+    def update_character_by_id(self,
+                               request: HttpRequest,
+                               character_id: int,
+                               character: CharacterInSchema,
+                               accept_lang:
+                               LangEnum = Header(alias='Accept-Language'),
+                               ) -> Character:
         """
         Update user's character by id.
 
@@ -398,6 +429,7 @@ class UsersController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         result = self.user_service.update_character_by_id(character_id, character)
 
         return result
@@ -429,7 +461,10 @@ class UsersController(ControllerBase):
             },
         },
     )
-    def get_my_characters(self, request: HttpRequest) -> QuerySet:
+    def get_my_characters(self, request: HttpRequest,
+                          accept_lang:
+                          LangEnum = Header(alias='Accept-Language'),
+                          ) -> QuerySet:
         """
         Get records of user's characters.
 
@@ -438,6 +473,7 @@ class UsersController(ControllerBase):
           - **401**: Unauthorized.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         result = self.user_service.get_my_characters(request.user.id)
         return result
 
@@ -475,7 +511,7 @@ class AuthController(ControllerBase):
                                         "type": "string",
                                     }
                                 },
-                                "example": {"detail": "This email already" " in use ☹"},
+                                "example": {"detail": "This email already" " in use"},
                             }
                         }
                     },
@@ -500,7 +536,10 @@ class AuthController(ControllerBase):
             },
         },
     )
-    def registration(self, user: RegisterSchema) -> MessageOutSchema:
+    def registration(self, request: HttpRequest, user: RegisterSchema,
+                     accept_lang:
+                     LangEnum = Header(alias='Accept-Language'),
+                     ) -> MessageOutSchema:
         """
         Register new user.
 
@@ -513,7 +552,8 @@ class AuthController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        result = self.auth_service.register_user(user)
+
+        result = self.auth_service.register_user(user_body=user)
         return result
 
     # @http_post("/google-login/", tags=["token"],
@@ -544,7 +584,7 @@ class AuthController(ControllerBase):
                                         "type": "string",
                                     }
                                 },
-                                "example": {"detail": "This email already" " in use ☹"},
+                                "example": {"detail": "This email already" " in use"},
                             }
                         }
                     },
@@ -569,7 +609,11 @@ class AuthController(ControllerBase):
             },
         },
     )
-    def reset_password(self, body: EmailSchema) -> MessageOutSchema:
+    def reset_password(self, request: HttpRequest,
+                       body: EmailSchema,
+                       accept_lang:
+                       LangEnum = Header(alias='Accept-Language'),
+                       ) -> MessageOutSchema:
         """
         Reset user's password.
 
@@ -583,6 +627,7 @@ class AuthController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         result = self.auth_service.reset_password(body=body)
         return result
 
@@ -601,7 +646,7 @@ class AuthController(ControllerBase):
                                         "type": "string",
                                     }
                                 },
-                                "example": {"detail": "Invalid link ☹"},
+                                "example": {"detail": "Invalid link"},
                             }
                         }
                     },
@@ -626,7 +671,11 @@ class AuthController(ControllerBase):
             },
         },
     )
-    def check_change_password(self, body: ConfirmationSchema) -> MessageOutSchema:
+    def check_change_password(self, request: HttpRequest,
+                              body: ConfirmationSchema,
+                              accept_lang:
+                              LangEnum = Header(alias='Accept-Language'),
+                              ) -> MessageOutSchema:
         """
         Check data for reset user's password.
 
@@ -639,6 +688,7 @@ class AuthController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         result = self.auth_service.check_change_password(body=body)
         return result
 
@@ -657,7 +707,7 @@ class AuthController(ControllerBase):
                                         "type": "string",
                                     }
                                 },
-                                "example": {"detail": "Invalid link ☹"},
+                                "example": {"detail": "Invalid link"},
                             }
                         }
                     },
@@ -672,7 +722,7 @@ class AuthController(ControllerBase):
                                         "type": "string",
                                     }
                                 },
-                                "example": {"detail": "Passwords aren't the same ☹"},
+                                "example": {"detail": "Passwords aren't the same"},
                             }
                         }
                     },
@@ -697,7 +747,11 @@ class AuthController(ControllerBase):
             },
         },
     )
-    def change_password(self, body: ChangePasswordSchema) -> MessageOutSchema:
+    def change_password(self, request: HttpRequest,
+                        body: ChangePasswordSchema,
+                        accept_lang:
+                        LangEnum = Header(alias='Accept-Language'),
+                        ) -> MessageOutSchema:
         """
         Change user's password.
 
@@ -712,6 +766,7 @@ class AuthController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         result = self.auth_service.change_password(body=body)
         return result
 
@@ -730,7 +785,7 @@ class AuthController(ControllerBase):
                                         "type": "string",
                                     }
                                 },
-                                "example": {"detail": "Invalid link ☹"},
+                                "example": {"detail": "Invalid link"},
                             }
                         }
                     },
@@ -755,7 +810,11 @@ class AuthController(ControllerBase):
             },
         },
     )
-    def confirm_email(self, body: ConfirmationSchema) -> MessageOutSchema:
+    def confirm_email(self, request: HttpRequest,
+                      body: ConfirmationSchema,
+                      accept_lang:
+                      LangEnum = Header(alias='Accept-Language'),
+                      ) -> MessageOutSchema:
         """
         Activate user account in the site.
 
@@ -768,6 +827,7 @@ class AuthController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         result = self.auth_service.confirm_email(body=body)
         return result
 
@@ -775,7 +835,7 @@ class AuthController(ControllerBase):
 schema = SchemaControl(api_settings)
 
 
-@api_controller("/token", permissions=[AllowAny], tags=["token"], auth=None)
+@api_controller("/token", permissions=[AllowAny], tags=["token"], auth=None, )
 class CustomTokenObtainPairController(ControllerBase):
     @http_post(
         "/pair",
@@ -818,7 +878,9 @@ class CustomTokenObtainPairController(ControllerBase):
             },
         },
     )
-    def obtain_token(self, user_token: schema.obtain_pair_schema):
+    def obtain_token(self, request: HttpRequest,
+                     user_token:
+                     schema.obtain_pair_schema):
         """
         Get user's token by provided credentials.
 
@@ -831,6 +893,7 @@ class CustomTokenObtainPairController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         user_token.check_user_authentication_rule()
         return user_token.to_response_schema()
 
@@ -875,7 +938,9 @@ class CustomTokenObtainPairController(ControllerBase):
             },
         },
     )
-    def refresh_token(self, refresh_token: schema.obtain_pair_refresh_schema):
+    def refresh_token(self, request: HttpRequest,
+                      refresh_token: schema.obtain_pair_refresh_schema,
+                      ):
         """
         Get user's new access token by provided refresh token.
 
@@ -888,6 +953,7 @@ class CustomTokenObtainPairController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         return refresh_token.to_response_schema()
 
     @http_post(
@@ -931,7 +997,9 @@ class CustomTokenObtainPairController(ControllerBase):
             },
         },
     )
-    def verify_token(self, token: schema.verify_schema):
+    def verify_token(self, request: HttpRequest,
+                     token: schema.verify_schema,
+                     ):
         """
         Check if user's token is valid.
 
@@ -944,4 +1012,5 @@ class CustomTokenObtainPairController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
+
         return token.to_response_schema()

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from datetime import timedelta
+from enum import Enum
 from pathlib import Path
 
 import environ
@@ -39,6 +40,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    "modeltranslation",
     "unfold",
     "unfold.contrib.filters",
     "unfold.contrib.forms",
@@ -52,6 +54,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "corsheaders",
+    'imagekit',
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -149,7 +152,7 @@ UNFOLD = {
                     {
                         "title": "Users",
                         "icon": "people",
-                        "link": "http://127.0.0.1:8000/admin/users/user/",
+                        "link": f"{env('MEDIA_URL')}/admin/users/user/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                 ],
@@ -161,37 +164,37 @@ UNFOLD = {
                     {
                         "title": "Why choose us",
                         "icon": "view_carousel",
-                        "link": "http://127.0.0.1:8000/admin/main/whychooseus/",
+                        "link": f"{env('MEDIA_URL')}/admin/main/whychooseus/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "News",
                         "icon": "newspaper",
-                        "link": "http://127.0.0.1:8000/admin/main/news/",
+                        "link": f"{env('MEDIA_URL')}/admin/main/news/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Insta",
                         "icon": "camera",
-                        "link": "http://127.0.0.1:8000/admin/main/insta/",
+                        "link": f"{env('MEDIA_URL')}/admin/main/insta/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Promo code",
                         "icon": "featured_seasonal_and_gifts",
-                        "link": "http://127.0.0.1:8000/admin/main/promocode/",
+                        "link": f"{env('MEDIA_URL')}/admin/main/promocode/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Reviews",
                         "icon": "reviews",
-                        "link": "http://127.0.0.1:8000/admin/main/review/",
+                        "link": f"{env('MEDIA_URL')}/admin/main/review/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Settings",
                         "icon": "settings",
-                        "link": "http://127.0.0.1:8000/admin/main/setting/",
+                        "link": f"{env('MEDIA_URL')}/admin/main/setting/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                 ],
@@ -203,19 +206,25 @@ UNFOLD = {
                     {
                         "title": "Products",
                         "icon": "category",
-                        "link": "http://127.0.0.1:8000/admin/products/product/",
+                        "link": f"{env('MEDIA_URL')}/admin/products/product/",
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Frequently bought",
+                        "icon": "list_alt",
+                        "link": f"{env('MEDIA_URL')}/admin/products/freqbought/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Filters",
                         "icon": "filter_alt",
-                        "link": "http://127.0.0.1:8000/admin/products/filter/",
+                        "link": f"{env('MEDIA_URL')}/admin/products/filter/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Tags",
                         "icon": "sell",
-                        "link": "http://127.0.0.1:8000/admin/products/tag/",
+                        "link": f"{env('MEDIA_URL')}/admin/products/tag/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                 ],
@@ -227,31 +236,37 @@ UNFOLD = {
                     {
                         "title": "Games",
                         "icon": "joystick",
-                        "link": "http://127.0.0.1:8000/admin/games/game/",
+                        "link": f"{env('MEDIA_URL')}/admin/games/game/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Calendars",
                         "icon": "calendar_month",
-                        "link": "http://127.0.0.1:8000/admin/games/calendar/",
+                        "link": f"{env('MEDIA_URL')}/admin/games/calendar/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Calendar blocks",
                         "icon": "calendar_add_on",
-                        "link": "http://127.0.0.1:8000/admin/games/calendarblock/",
+                        "link": f"{env('MEDIA_URL')}/admin/games/calendarblock/",
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Teams",
+                        "icon": "groups_3",
+                        "link": f"{env('MEDIA_URL')}/admin/games/team/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Worth look",
                         "icon": "view_carousel",
-                        "link": "http://127.0.0.1:8000/admin/games/worthlook/",
+                        "link": f"{env('MEDIA_URL')}/admin/games/worthlook/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": "Catalog pages",
                         "icon": "menu_book",
-                        "link": "http://127.0.0.1:8000/admin/games/catalogpage/",
+                        "link": f"{env('MEDIA_URL')}/admin/games/catalogpage/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
@@ -292,7 +307,8 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 CORS_ORIGIN_ALLOW_ALL = True
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:1337", "http://127.0.0.1", "http://*"]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:1337", "http://127.0.0.1",
+                        "https://goodboost-spacelab.avada-media-dev2.od.ua"]
 ROOT_URLCONF = "config.urls"
 
 SITE_ID = 1
@@ -365,12 +381,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
+USE_I18N = True
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en"
 
 TIME_ZONE = "Europe/Kiev"
 
-USE_I18N = True
+USE_L10N = True
 
 USE_TZ = True
 
@@ -382,6 +399,12 @@ LANGUAGES = [
     ("ua", "Ukrainian"),
 ]
 
+
+MODELTRANSLATION_LANGUAGES = ('en', 'ua')
+# MODELTRANSLATION_FALLBACK_LANGUAGES = {'default': ('en',)}
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale')
+]
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static"
 STATICFILES_DIRS = []

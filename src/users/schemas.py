@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 """
-This module contains pydantic schemas for app "users"
+This module contains pydantic schemas for app "users".
+
 implement logic for encoding and decoding data into python
 object and json
 """
 from enum import Enum
+from typing import List
 
 from ninja import ModelSchema, Schema
 from pydantic import EmailStr
 
 from config.settings import ABSOLUTE_URL
-from src.main.models import OrderItem
+from src.main.models import OrderItem, OrderItemAttribute
 from src.orders.models import Order
 from src.users.models import User, Character
 
@@ -18,6 +20,7 @@ from src.users.models import User, Character
 class UserOutSchema(ModelSchema):
     """
     Pydantic schema for User.
+
     Purpose of this schema to return user's
     personal data(except password) to client side
     """
@@ -29,9 +32,25 @@ class UserOutSchema(ModelSchema):
                   'notify_me', 'bonus_points']
 
 
+class UserUpdatedSchema(ModelSchema):
+    """
+    Pydantic schema for User.
+
+    Purpose of this schema to return user's
+    personal data(except password) to client side
+    """
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email',
+                  'payment_method', 'communication',
+                  'notify_me', ]
+
+
 class CharacterOutSchema(ModelSchema):
     """
     Pydantic schema for Characters.
+
     Purpose of this schema to return user's
     characters
     """
@@ -63,6 +82,7 @@ class ClassAndSpec(str, Enum):
 class CharacterInSchema(ModelSchema):
     """
     Pydantic schema for Characters.
+
     Purpose of this schema to update user's
     characters
     """
@@ -98,6 +118,7 @@ class CommunicationMethod(str, Enum):
 class UserInSchema(Schema):
     """
     Pydantic schema for User.
+
     Purpose of this schema to return user's
     personal data(except password) to client side
     """
@@ -112,6 +133,7 @@ class UserInSchema(Schema):
 class MessageOutSchema(Schema):
     """
     Pydantic schema for return message to client side.
+
     Purpose of this schema just say that operation
     has been successful
     """
@@ -122,6 +144,7 @@ class MessageOutSchema(Schema):
 class RegisterSchema(Schema):
     """
     Pydantic schema for registration new users in the site.
+
     Purpose of this schema to give data in endpoint for registration
     """
 
@@ -133,14 +156,33 @@ class RegisterSchema(Schema):
 class EmailSchema(Schema):
     """
     Pydantic schema for subscribe users to news in the site.
+
     Purpose of this schema to give data in endpoint for subscribing
     """
     email: EmailStr
 
 
+class OrderItemAttributeSchema(ModelSchema):
+    """
+    Pydantic schema for order item attributes.
+
+    Purpose of this schema to update user's
+    characters
+    """
+
+    class Meta:
+        model = OrderItemAttribute
+        fields = ['title', 'price']
+
+
 class OrdersItemSchema(ModelSchema):
     card_img: str | None = None
+    card_img_alt: str | None = None
     game_logo: str | None = None
+    game_logo_alt: str | None = None
+    title: str | None = None
+    subtitle: str | None = None
+    attributes: List[OrderItemAttributeSchema] = []
 
     @staticmethod
     def resolve_card_img(obj):
@@ -155,6 +197,36 @@ class OrdersItemSchema(ModelSchema):
         return (ABSOLUTE_URL +
                 obj.product.catalog_page.game.logo_product.url)
 
+    @staticmethod
+    def resolve_game_logo_alt(obj):
+        if obj.product is None:
+            return None
+        return obj.product.catalog_page.game.logo_product_alt
+
+    @staticmethod
+    def resolve_card_img_alt(obj):
+        if obj.product is None:
+            return None
+        return obj.product.card_img_alt
+
+    @staticmethod
+    def resolve_title(obj):
+        if obj.product is None:
+            return None
+        return obj.product.title
+
+    @staticmethod
+    def resolve_subtitle(obj):
+        if obj.product is None:
+            return None
+        return obj.product.subtitle
+
+    # @staticmethod
+    # def resolve_subtitle(obj):
+    #     if obj.product is None:
+    #         return None
+    #     return obj.product.subtitle
+
     class Meta:
         model = OrderItem
         fields = '__all__'
@@ -164,21 +236,28 @@ class OrdersItemSchema(ModelSchema):
 class CabinetOrdersSchema(ModelSchema):
     """
     Pydantic schema for return orders to cabinet.
+
     """
     items: list[OrdersItemSchema]
     repeat_btn: bool
 
     @staticmethod
     def resolve_repeat_btn(obj):
-        for item in obj.items.values_list('product_id', flat=True):
-            if item is None:
+        for item in obj.items.all():
+            if item.product.is_deleted:
                 return False
+
+            for attr in item.attributes.all():
+                if (attr.subfilter is None or
+                        attr.subfilter.filter.product.id
+                        != item.product.id):
+                    return False
         return True
 
     class Meta:
         model = Order
         fields = '__all__'
-        exclude = ['user']
+        exclude = ['user', 'freqbot', 'id']
 
 
 class ConfirmationSchema(Schema):

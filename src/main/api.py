@@ -7,13 +7,15 @@
 from typing import List
 
 from django.http import HttpRequest
+from ninja import Header
 from ninja_extra import http_get
 from ninja_extra.controllers.base import ControllerBase, api_controller
 from ninja_jwt.authentication import JWTAuth
 
 import src.main.schemas as main_schemas
-from src.main.models import Insta, Setting, WhyChooseUs
+from src.main.models import Insta, Setting, WhyChooseUs, PromoCode
 from src.main.services.main_service import MainService
+from src.main.utils import LangEnum
 from src.users.schemas import MessageOutSchema
 
 
@@ -59,7 +61,9 @@ class MainController(ControllerBase):
             },
         },
     )
-    def get_reviews(self, page: int, page_size: int) -> dict:
+    def get_reviews(self, request: HttpRequest, page: int, page_size: int,
+                    accept_lang: LangEnum =
+                    Header(alias='Accept-Language')) -> dict:
         """
         Get data for section Reviews.
 
@@ -86,7 +90,10 @@ class MainController(ControllerBase):
             },
         },
     )
-    def get_why_choose_us(self) -> WhyChooseUs:
+    def get_why_choose_us(self, request: HttpRequest,
+                          accept_lang:
+                          LangEnum = Header(alias='Accept-Language')
+                          ) -> WhyChooseUs:
         """
         Get data for section WhyChooseUs.
 
@@ -108,7 +115,10 @@ class MainController(ControllerBase):
             },
         },
     )
-    def get_instagram(self) -> Insta:
+    def get_instagram(self, request: HttpRequest,
+                      accept_lang:
+                      LangEnum = Header(alias='Accept-Language'),
+                      ) -> Insta:
         """
         Get data for section Instagram.
 
@@ -144,7 +154,10 @@ class MainController(ControllerBase):
             },
         },
     )
-    def get_news(self, page: int, page_size: int) -> dict:
+    def get_news(self, request: HttpRequest, page: int, page_size: int,
+                 accept_lang:
+                 LangEnum = Header(alias='Accept-Language'),
+                 ) -> dict:
         """
         Get data for section News.
 
@@ -171,7 +184,10 @@ class MainController(ControllerBase):
             },
         },
     )
-    def get_settings(self) -> Setting:
+    def get_settings(self, request: HttpRequest,
+                     accept_lang:
+                     LangEnum = Header(alias='Accept-Language'),
+                     ) -> Setting:
         """
         Get data for footer and header of the site.
 
@@ -179,94 +195,7 @@ class MainController(ControllerBase):
           - **200**: Success response with the data.
           - **500**: Internal server error if an unexpected error occurs.
         """
+        print('xxx')
         result = self.main_service.get_settings()
         return result
 
-    @http_get(
-        "/check-promo-code/{code}/",
-        response=main_schemas.PromoCodeSchema,
-        auth=JWTAuth(),
-        openapi_extra={
-            "responses": {
-                401: {
-                    "description": "Unauthorized",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "detail": {
-                                        "type": "string",
-                                    }
-                                },
-                                "example": {"detail": "Unauthorized"},
-                            }
-                        }
-                    },
-                },
-                403: {
-                    "description": "Promo code has been expired",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "detail": {
-                                        "type": "string",
-                                    }
-                                },
-                                "example": {"detail": "Promo code " "has been expired ☹"},
-                            }
-                        }
-                    },
-                },
-                410: {
-                    "description": "Promo code " "has been already used",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "detail": {
-                                        "type": "string",
-                                    }
-                                },
-                                "example": {"detail": "Promo code " "has been already used ☹"},
-                            }
-                        }
-                    },
-                },
-                422: {
-                    "description": "Error: Unprocessable Entity",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "detail": {
-                                        "type": "string",
-                                    }
-                                },
-                            }
-                        }
-                    },
-                },
-                500: {
-                    "description": "Internal server error if" " an unexpected error occurs.",
-                },
-            },
-        },
-    )
-    def check_promo_code(self, request: HttpRequest, code: str) -> MessageOutSchema:
-        """
-        Check promo code.
-
-        Please provide:
-         - **code**  code we want to check
-
-        Returns:
-          - **200**: Success response with the data.
-          - **401**: Unauthorized.
-          - **403**: Promo code has been already used.
-          - **410**: Promo code has been expired.
-          - **422**: Error: Unprocessable Entity.
-          - **500**: Internal server error if an unexpected error occurs.
-        """
-        result = self.main_service.check_promo_code(code=code, user=request.user)
-        return result

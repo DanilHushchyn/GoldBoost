@@ -21,6 +21,8 @@ https://docs.djangoproject.com/en/stable/ref/contrib/admin/
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from unfold.admin import ModelAdmin
+
 from django import forms
 from unfold.widgets import UnfoldAdminTextInputWidget, UnfoldAdminSplitDateTimeWidget, UnfoldAdminSelect
 

@@ -36,5 +36,11 @@ startapp:
 	$(MANAGE) collectstatic --no-input
 	gunicorn GoldBoost.wsgi:application --bind 0.0.0.0:8000
 
-createapp_example:
+create_app_example:
 	$(MANAGE) startapp website ./src/website/
+
+
+locale_cmd_1:
+	django-admin makemessages -l en
+comp_msg:
+	django-admin complimessages

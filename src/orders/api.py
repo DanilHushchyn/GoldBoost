@@ -2,19 +2,24 @@
 """
     Module contains class(set of endpoints) for managing orders and carts.
 """
+from typing import Annotated
+
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from ninja_extra import http_delete, http_get, http_post
 from ninja_extra.controllers.base import ControllerBase, api_controller
 from ninja_jwt.authentication import JWTAuth
 
-from src.main.schemas import OrderOutSchema
+from src.main.models import PromoCode
+from src.main.schemas import OrderOutSchema, PromoCodeSchema
+from src.main.utils import LangEnum
 from src.orders.models import Cart, Order
 from src.orders.schemas import CartOutSchema, CreateOrderInSchema
 from src.orders.services.order_service import OrderService
 from src.products.utils import get_current_user
 from src.users.schemas import CabinetOrdersSchema, MessageOutSchema
 from src.users.utils import OptionalJWTAuth
+from ninja import Header
 
 
 @api_controller("/orders/", tags=["Orders"], permissions=[])
@@ -74,7 +79,10 @@ class OrderController(ControllerBase):
             },
         },
     )
-    def get_my_cart(self, request: HttpRequest) -> Cart:
+    def get_my_cart(self, request: HttpRequest,
+                    accept_lang:
+                    LangEnum = Header(alias='Accept-Language'),
+                    ) -> Cart:
         """
         Get  user's cart.
 
@@ -83,11 +91,12 @@ class OrderController(ControllerBase):
           - **401**: ERROR: Unauthorized.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        request.session.save()
-        user = request.session.session_key
-        if "Authorization" in request.headers.keys():
-            token = request.headers["Authorization"]
-            user = get_current_user(token=token)
+        if not request.auth.is_anonymous:
+            user = request.auth
+        else:
+            request.session.save()
+            user = request.session.session_key
+
         result = self.order_service.get_my_cart(
             user=user,
         )
@@ -150,7 +159,10 @@ class OrderController(ControllerBase):
             },
         },
     )
-    def delete_cart_item(self, request: HttpRequest, item_id: int) -> Cart:
+    def delete_cart_item(self, request: HttpRequest, item_id: int,
+                         accept_lang:
+                         LangEnum = Header(alias='Accept-Language'),
+                         ) -> Cart:
         """
         Delete cart's item.
 
@@ -160,11 +172,11 @@ class OrderController(ControllerBase):
           - **404**: ERROR: Not Found.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        request.session.save()
-        user = request.session.session_key
-        if "Authorization" in request.headers.keys():
-            token = request.headers["Authorization"]
-            user = get_current_user(token=token)
+        if not request.auth.is_anonymous:
+            user = request.auth
+        else:
+            request.session.save()
+            user = request.session.session_key
         result = self.order_service.delete_cart_item(user=user, item_id=item_id)
         return result
 
@@ -190,15 +202,15 @@ class OrderController(ControllerBase):
                         }
                     },
                 },
-                404: {
-                    "description": "Error: Not Found",
+                400: {
+                    "description": "Error: Bad Request",
                     "content": {
                         "application/json": {
                             "schema": {
                                 "properties": {
                                     "detail": {
                                         "type": "string",
-                                        "default": "Your cart" " is empty ☹",
+                                        "default": "Your cart is empty",
                                     }
                                 },
                             }
@@ -225,28 +237,124 @@ class OrderController(ControllerBase):
             },
         },
     )
-    def create_order(self, request: HttpRequest, promo_code: str | None = None) -> OrderOutSchema:
+    def create_order(self, request: HttpRequest, promo_code: str | None = None,
+                     accept_lang:
+                     LangEnum = Header(alias='Accept-Language'),
+                     ) -> OrderOutSchema:
         """
         Create order.
 
         Returns:
           - **200**: Success response with the data.
-          - **401**: ERROR: Unauthorized.
+          - **400**: ERROR: Bad Request.
           - **404**: ERROR: Not Found.
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        request.session.save()
-        user = request.session.session_key
-        if "Authorization" in request.headers.keys():
-            token = request.headers["Authorization"]
-            user = get_current_user(token=token)
-        result = self.order_service.create_order(user=user, promo_code=promo_code)
+
+        if not request.auth.is_anonymous:
+            user = request.auth
+        else:
+            request.session.save()
+            user = request.session.session_key
+        result = self.order_service.create_order(user=user, code=promo_code)
+        return result
+
+    @http_get(
+        "/check-promo-code/{promo_code}/",
+        response=PromoCodeSchema,
+        auth=JWTAuth(),
+        openapi_extra={
+            "responses": {
+                401: {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Unauthorized"},
+                            }
+                        }
+                    },
+                },
+                403: {
+                    "description": "Promo code has been expired",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Promo code " "has been expired"},
+                            }
+                        }
+                    },
+                },
+                410: {
+                    "description": "Promo code " "has been already used",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Promo code " "has been already used"},
+                            }
+                        }
+                    },
+                },
+                422: {
+                    "description": "Error: Unprocessable Entity",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
+    def check_promo_code(self, request: HttpRequest, promo_code: str,
+                         accept_lang:
+                         LangEnum = Header(alias='Accept-Language'),
+                         ) -> PromoCode:
+        """
+        Check promo code.
+
+        Please provide:
+         - **code**  code we want to check
+
+        Returns:
+          - **200**: Success response with the data.
+          - **401**: Unauthorized.
+          - **403**: Promo code has been expired.
+          - **410**: Promo code has been already used.
+          - **422**: Error: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
+        """
+        result = self.order_service.check_promo_code(code=promo_code, user=request.user)
         return result
 
     @http_post(
-        "/{order_id}/repeat-order/",
-        response=CabinetOrdersSchema,
+        "/{number}/repeat-order/",
+        response=MessageOutSchema,
         auth=JWTAuth(),
         openapi_extra={
             "responses": {
@@ -276,7 +384,7 @@ class OrderController(ControllerBase):
                                     }
                                 },
                                 "example": {
-                                    "detail": "Cannot repeat " "order, some " "products are not" " exists nowadays ☹"
+                                    "detail": "Cannot repeat " "order, some " "products are not" " exists nowadays"
                                 },
                             }
                         }
@@ -302,7 +410,10 @@ class OrderController(ControllerBase):
             },
         },
     )
-    def repeat_order(self, request: HttpRequest, order_id: str) -> Order:
+    def repeat_order(self, request: HttpRequest, number: str,
+                     accept_lang:
+                     LangEnum = Header(alias='Accept-Language'),
+                     ) -> MessageOutSchema:
         """
         Repeat order.
 
@@ -312,7 +423,7 @@ class OrderController(ControllerBase):
           - **404**: ERROR: Not Found.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        result = self.order_service.repeat_order(user=request.user, order_id=order_id)
+        result = self.order_service.repeat_order(user=request.user, number=number)
         return result
 
     @http_get(
@@ -356,7 +467,10 @@ class OrderController(ControllerBase):
             },
         },
     )
-    def get_my_orders(self, request: HttpRequest) -> QuerySet:
+    def get_my_orders(self, request: HttpRequest,
+                      accept_lang:
+                      LangEnum = Header(alias='Accept-Language'),
+                      ) -> QuerySet:
         """
         Get user's orders.
 
@@ -365,6 +479,5 @@ class OrderController(ControllerBase):
           - **401**: ERROR: Unauthorized.
           - **500**: Internal server error if an unexpected error occurs.
         """
-
         result = self.order_service.get_my_orders(user_id=request.user.id)
         return result

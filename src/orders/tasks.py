@@ -7,6 +7,8 @@ import random
 from time import sleep
 from celery.app import shared_task
 from django.shortcuts import get_object_or_404
+
+from src.main.models import Setting
 from src.orders.models import Order
 
 
@@ -25,6 +27,6 @@ def change_order_status(order_id: int) -> dict:
     else:
         order.status = 'CANCELED'
         msg = "ORDER CANCELED"
+        # order.first_sale_active = True
     order.save()
     return {"message": msg}
-

@@ -13,7 +13,8 @@ import uuid
 # -*- coding: utf-8 -*-
 from django.db import models
 
-from src.products.models import Product, SubFilter
+from src.products.models import Product, SubFilter, FreqBought
+from src.products.utils import make_sale
 from src.users.models import User
 
 
@@ -27,7 +28,7 @@ class Order(models.Model):
 
     # Foreign Key to User model
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    number = models.PositiveBigIntegerField(null=True,unique=True)
+    number = models.PositiveBigIntegerField(null=True, unique=True)
     # Status Choices
     ORDER_STATUS_CHOICES = (
         ("IN PROGRESS", "IN PROGRESS"),
@@ -39,6 +40,12 @@ class Order(models.Model):
                               default='CANCELED')
     date_created = models.DateTimeField(auto_now_add=True)
     total_price = models.FloatField()
+    # repeat_btn = models.BooleanField(default=True)
+    # first_sale_active = models.BooleanField(default=False)
+    freqbot = models.ForeignKey(FreqBought,
+                                on_delete=models.SET_NULL,
+                                null=True,
+                                related_name='orders')
 
     class Meta:
         ordering = ['-date_created']
@@ -55,8 +62,25 @@ class Cart(models.Model):
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
     session_key = models.CharField(max_length=500, null=True)
 
+    # freqbought_items = models.ManyToManyField(FreqBought, blank=True, through=)
+
     class Meta:
         db_table = 'carts'
+
+
+# class CartFreqBot(models.Model):
+#     freqbot = models.ForeignKey(
+#         FreqBought,
+#         on_delete=models.CASCADE,
+#         null=True,
+#         related_name='cart_items'
+#     )
+#     cart = models.ForeignKey(Cart, null=True,
+#                              on_delete=models.CASCADE,
+#                              related_name='cart')
+#
+#     class Meta:
+#         db_table = 'cart_freqbot'
 
 
 class CartItem(models.Model):
@@ -68,19 +92,44 @@ class CartItem(models.Model):
         Product,
         on_delete=models.CASCADE,
         null=True,
+        related_name='cart_items'
+    )
+    freqbot = models.ForeignKey(
+        FreqBought,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name='cart_items'
     )
     quantity = models.PositiveIntegerField()
     cart = models.ForeignKey(Cart, null=True,
                              on_delete=models.CASCADE,
                              related_name='items')
 
-    def price(self):
-        total = self.product.price
-        if self.product.sale_active():
-            total = self.product.sale_price()
+    def price_for_product(self, product: Product):
+        total = product.price
+        if product.sale_active():
+            total = product.sale_price()
         for attr in self.attributes.all():
             total = total + attr.sub_filter.price
         return total * self.quantity
+
+    def price(self):
+        if self.product:
+            return self.price_for_product(self.product)
+        else:
+            total = 0
+            for product in self.freqbot.products.all():
+                total = total + self.price_for_product(product)
+            return make_sale(total, self.freqbot.discount)
+
+    def bonus_points(self):
+        if self.product:
+            return self.product.bonus_points * self.quantity
+        else:
+            total = 0
+            for product in self.freqbot.products.all():
+                total = total + product.bonus_points
+            return total
 
     class Meta:
         db_table = 'cart_items'
@@ -88,7 +137,8 @@ class CartItem(models.Model):
 
 class Attribute(models.Model):
     """
-    Model is storing additional attributes
+    Model is storing additional attributes.
+
     for ordered product
     """
 

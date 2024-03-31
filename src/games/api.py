@@ -22,6 +22,8 @@ from src.games.schemas import (
     WorthLookItemSchema,
 )
 from src.games.services.games_service import GameService
+from src.main.utils import LangEnum
+from ninja import Header
 
 
 @api_controller("/games", tags=["Game"], permissions=[])
@@ -66,11 +68,14 @@ class GamesController(ControllerBase):
         },
     )
     def game_carousels(
-        self,
-        page: int,
-        page_size: int,
-        game_id: int,
-        catalog_id: int = None,
+            self,
+            request: HttpRequest,
+            page: int,
+            page_size: int,
+            game_id: int,
+            catalog_id: int = None,
+            accept_lang:
+            LangEnum = Header(alias='Accept-Language'),
     ) -> dict:
         """
         Get all products for specific game and catalog's page.
@@ -97,22 +102,6 @@ class GamesController(ControllerBase):
         "/{game_id}/catalog-pages/",
         response=List[SidebarSchema],
         openapi_extra={
-            # "requestBody": {
-            #     "content": {
-            #         "application/json": {
-            #             "schema": {
-            #                 "required": ["email"],
-            #                 "type": "object",
-            #                 "properties": {
-            #                     "name": {"type": "string"},
-            #                     "phone": {"type": "number"},
-            #                     "email": {"type": "string"},
-            #                 },
-            #             }
-            #         }
-            #     },
-            #     "required": True,
-            # },
             404: {
                 "description": "Error: Not Found",
                 "content": {
@@ -149,7 +138,10 @@ class GamesController(ControllerBase):
             },
         },
     )
-    def get_game_pages(self, game_id: int) -> QuerySet:
+    def get_game_pages(self, request: HttpRequest, game_id: int,
+                       accept_lang:
+                       LangEnum = Header(alias='Accept-Language'),
+                       ) -> QuerySet:
         """
         Gets all catalog's pages by game id.
 
@@ -204,7 +196,10 @@ class GamesController(ControllerBase):
             },
         },
     )
-    def get_games(self) -> Game:
+    def get_games(self, request: HttpRequest,
+                  accept_lang:
+                  LangEnum = Header(alias='Accept-Language'),
+                  ) -> Game:
         """
         Get all games and related to specific game root catalog's pages.
 
@@ -276,7 +271,10 @@ class CatalogController(ControllerBase):
             },
         },
     )
-    def get_catalog_page(self, page_id: int) -> QuerySet:
+    def get_catalog_page(self, request: HttpRequest, page_id: int,
+                         accept_lang:
+                         LangEnum = Header(alias='Accept-Language'),
+                         ) -> QuerySet:
         """
         Get catalog's page content by page id.
 
@@ -333,7 +331,10 @@ class CatalogController(ControllerBase):
             },
         },
     )
-    def get_worth_look(self, page_id: int) -> QuerySet:
+    def get_worth_look(self, request: HttpRequest, page_id: int,
+                       accept_lang:
+                       LangEnum = Header(alias='Accept-Language'),
+                       ) -> QuerySet:
         """
         Get catalog's page content by page id.
         Please provide:
@@ -373,7 +374,10 @@ class CatalogController(ControllerBase):
             },
         },
     )
-    def get_calendar(self, page_id: int) -> QuerySet:
+    def get_calendar(self, request: HttpRequest, page_id: int,
+                     accept_lang:
+                     LangEnum = Header(alias='Accept-Language'),
+                     ) -> QuerySet:
         """
         Gets catalog's calendar blocks by page id.
         Please provide:
@@ -412,7 +416,10 @@ class CatalogController(ControllerBase):
             },
         },
     )
-    def get_calendar_items(self, block_id: int) -> QuerySet:
+    def get_calendar_items(self, request: HttpRequest, block_id: int,
+                           accept_lang:
+                           LangEnum = Header(alias='Accept-Language'),
+                           ) -> QuerySet:
         """
         Get calendar's content by calendar block id.
 
@@ -467,7 +474,10 @@ class CatalogController(ControllerBase):
             },
         },
     )
-    def get_tab_content(self, request: HttpRequest, tab_id: int) -> CatalogTabs:
+    def get_tab_content(self, request: HttpRequest, tab_id: int,
+                        accept_lang:
+                        LangEnum = Header(alias='Accept-Language'),
+                        ) -> CatalogTabs:
         """
         Get tab's content for catalog's page by tab id .
 

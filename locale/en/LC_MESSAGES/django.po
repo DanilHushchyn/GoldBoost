@@ -1,0 +1,240 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-25 17:16+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: config/urls.py:42
+msgid "Unauthorized"
+msgstr ""
+
+#: src/games/services/games_service.py:76
+msgid "Not Found: No Game matches the given query."
+msgstr ""
+
+#: src/games/services/games_service.py:93
+#: src/games/services/games_service.py:109
+msgid "Not Found: No CatalogPage matches the given query."
+msgstr ""
+
+#: src/games/services/games_service.py:114
+msgid "Not found section WorthLook for this catalog's page"
+msgstr ""
+
+#: src/games/services/games_service.py:155
+msgid "Not Found: No CatalogTab matches the given query."
+msgstr ""
+
+#: src/main/services/main_service.py:93
+msgid "Not Found: No PromoCode matches the given query."
+msgstr ""
+
+#: src/main/services/main_service.py:101
+msgid "Promo code has been expired"
+msgstr ""
+
+#: src/main/services/main_service.py:103
+msgid "Promo code has been already used"
+msgstr ""
+
+#: src/orders/services/order_service.py:63
+msgid "Not Found: No CartItem matches the given query."
+msgstr ""
+
+#: src/orders/services/order_service.py:66
+msgid "Cart items has been deleted successfully"
+msgstr ""
+
+#: src/orders/services/order_service.py:77
+msgid "Your cart is empty"
+msgstr ""
+
+#: src/orders/services/order_service.py:114
+msgid "Order issued successfully"
+msgstr ""
+
+#: src/orders/services/order_service.py:128
+#: src/users/services/user_service.py:33 src/users/services/user_service.py:50
+#: src/users/services/user_service.py:70 src/users/services/user_service.py:86
+msgid "Not Found: No User matches the given query."
+msgstr ""
+
+#: src/orders/services/order_service.py:145
+msgid "Not Found: No Order matches the given query."
+msgstr ""
+
+#: src/orders/services/order_service.py:149
+msgid "Cannot repeat order, some products are not exists nowadays"
+msgstr ""
+
+#: src/products/services/product_service.py:44
+#: src/products/services/product_service.py:100
+msgid "Not Found: No Product matches the given query."
+msgstr ""
+
+#: src/products/services/product_service.py:63
+msgid "Sub filters has been chosen incorrectly "
+msgstr ""
+
+#: src/products/services/product_service.py:81
+msgid "Product added to cart successfully"
+msgstr ""
+
+#: src/products/services/product_service.py:147
+msgid "Not Found: No ProductTabs matches the given query."
+msgstr ""
+
+#: src/users/services/auth_service.py:35
+msgid "This email already in use"
+msgstr ""
+
+#: src/users/services/auth_service.py:41
+msgid "Please confirm your registration. We have send letter to your email"
+msgstr ""
+
+#: src/users/services/auth_service.py:60
+msgid "Email has already been confirmed"
+msgstr ""
+
+#: src/users/services/auth_service.py:63
+msgid "Email has been confirmed successfully"
+msgstr ""
+
+#: src/users/services/auth_service.py:65 src/users/services/auth_service.py:107
+#: src/users/services/auth_service.py:109
+#: src/users/services/auth_service.py:134
+#: src/users/services/auth_service.py:136
+msgid "Invalid link"
+msgstr ""
+
+#: src/users/services/auth_service.py:80
+msgid "There is not user registered with that email"
+msgstr ""
+
+#: src/users/services/auth_service.py:84
+msgid "Please confirm reset password. We have send instructions to your email"
+msgstr ""
+
+#: src/users/services/auth_service.py:111
+msgid "Passwords aren't the same"
+msgstr ""
+
+#: src/users/services/auth_service.py:119
+msgid "Password reset successfully."
+msgstr ""
+
+#: src/users/services/auth_service.py:138
+msgid "Promo code is valid."
+msgstr ""
+
+#: src/users/services/user_service.py:103
+#: src/users/services/user_service.py:123
+msgid "Not Found: No Character matches the given query."
+msgstr ""
+
+#: src/users/services/user_service.py:126
+msgid "Character deleted successfully"
+msgstr ""
+
+#: src/users/services/user_service.py:137
+msgid "Not more than 3 characters are possible to create"
+msgstr ""
+
+#: src/users/services/user_service.py:154
+msgid "This email has been already subscribed"
+msgstr ""
+
+#: src/users/services/user_service.py:155
+msgid "You are successfully subscribed"
+msgstr ""
+
+#~ msgid "Не знайдено розділ WorthLook для цієї сторінки каталогу"
+#~ msgstr "Not found section WorthLook for this catalog's page"
+
+#~ msgid "Термін дії промокоду закінчився"
+#~ msgstr "Promo code has been expired"
+
+#~ msgid "Промокод вже використано"
+#~ msgstr "Promo code has been already used"
+
+#~ msgid "Товари кошика успішно видалено"
+#~ msgstr "Cart items has been deleted successfully"
+
+#~ msgid "Ваш кошик порожній"
+#~ msgstr "Your cart is empty"
+
+#~ msgid "Замовлення виконано успішно"
+#~ msgstr "Order issued successfully"
+
+#~ msgid "Неможливо повторити замовлення, деяких товарів зараз немає"
+#~ msgstr "Cannot repeat order, some products are not exists nowadays"
+
+#~ msgid "Не знайдено: жоден продукт не відповідає заданому запиту."
+#~ msgstr "Not Found: No Product matches the given query."
+
+#~ msgid "Підфільтри вибрано неправильно"
+#~ msgstr "Sub filters has been chosen incorrectly "
+
+#~ msgid "Товар успішно додано в кошик"
+#~ msgstr "Product added to cart successfully"
+
+#~ msgid "Ця електронна адреса вже використовується"
+#~ msgstr "This email already in use"
+
+#~ msgid ""
+#~ "Будь ласка, підтвердьте свою реєстрацію. Ми надіслали листа на вашу "
+#~ "електронну пошту"
+#~ msgstr "Please confirm your registration. We have send letter to your email"
+
+#~ msgid "Електронна пошта вже підтверджена"
+#~ msgstr "Email has already been confirmed"
+
+#~ msgid "Електронна пошта успішно підтверджена"
+#~ msgstr "Email has been confirmed successfully"
+
+#~ msgid "Недійсне посилання"
+#~ msgstr "Invalid link"
+
+#~ msgid "Немає зареєстрованого користувача з такою електронною адресою"
+#~ msgstr "There is not user registered with that email"
+
+#~ msgid ""
+#~ "Підтвердьте скидання пароля. Ми надіслали інструкції на вашу електронну "
+#~ "пошту"
+#~ msgstr ""
+#~ "Please confirm reset password. We have send instructions to your email"
+
+#~ msgid "Паролі не однакові"
+#~ msgstr "Passwords aren't the same"
+
+#~ msgid "Пароль скинуто успішно."
+#~ msgstr "Password reset successfully."
+
+#~ msgid "Промокод дійсний."
+#~ msgstr "Promo code is valid."
+
+#~ msgid "Персонаж успішно видалено"
+#~ msgstr "Character deleted successfully"
+
+#~ msgid "Можна створити не більше 3х персонажів"
+#~ msgstr "Not more than 3 characters are possible to create"
+
+#~ msgid "Ця пошта вже використовується"
+#~ msgstr "This email has been already subscribed"
+
+#~ msgid "Ви успішно підписані"
+#~ msgstr "You are successfully subscribed"

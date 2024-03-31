@@ -49,15 +49,19 @@ class Product(models.Model):
     description = models.TextField()
     price = models.FloatField()
     PRICE_TYPE_CHOICES = [("fixed", "Fixed"), ("range", "Range")]
-    price_type = models.CharField(max_length=10, choices=PRICE_TYPE_CHOICES)
+    price_type = models.CharField(max_length=10,
+                                  choices=PRICE_TYPE_CHOICES)
     bonus_points = models.IntegerField(default=0)
     sale_percent = models.PositiveSmallIntegerField(blank=True, null=True)
     sale_from = models.DateTimeField(blank=True, null=True)
     sale_until = models.DateTimeField(blank=True, null=True)
     bought_count = models.IntegerField(default=0)
-    catalog_page = models.ForeignKey(CatalogPage, on_delete=models.CASCADE, related_name="products", null=True)
-    tag = models.ForeignKey("Tag", on_delete=models.CASCADE, null=True, blank=True)
-
+    catalog_page = models.ForeignKey(CatalogPage,
+                                     on_delete=models.SET_NULL,
+                                     related_name="products",
+                                     null=True)
+    tag = models.ForeignKey("Tag", on_delete=models.SET_NULL, blank=True, null=True)
+    is_deleted = models.BooleanField(default=False)
     objects = ProductManager()
 
     def __str__(self):
@@ -158,6 +162,27 @@ class Product(models.Model):
         db_table = "products"
 
 
+class FreqBought(models.Model):
+    """
+    Model for storing frequently bought products in site.
+
+    which admin want to emphasize
+    """
+    title = models.CharField(null=True)
+    order = models.PositiveSmallIntegerField(null=True)
+    products = models.ManyToManyField("Product", blank=True)
+    discount = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ["order"]
+        verbose_name = "Frequently Bought"
+        verbose_name_plural = "Frequently Bought"
+        db_table = "freq_bought"
+
+
 class Tag(models.Model):
     """
     Model for storing specific statuses for products in site.
@@ -190,7 +215,11 @@ class Filter(models.Model):
         max_length=50,
         choices=[("Select", "Select"), ("Radio", "Radio"), ("CheckBox", "CheckBox"), ("Slider", "Slider")],
     )
-    product = models.ForeignKey("Product", on_delete=models.CASCADE, null=True, blank=True, related_name="filters")
+    product = models.ForeignKey("Product",
+                                on_delete=models.CASCADE,
+                                null=True,
+                                blank=True,
+                                related_name="filters")
     order = models.PositiveIntegerField(null=True)
 
     def __str__(self):
@@ -214,7 +243,10 @@ class SubFilter(models.Model):
 
     title = models.CharField(max_length=255)
     price = models.FloatField()
-    filter = models.ForeignKey("Filter", on_delete=models.CASCADE, related_name="subfilters", null=True)
+    filter = models.ForeignKey("Filter",
+                               on_delete=models.CASCADE,
+                               related_name="subfilters",
+                               null=True)
     order = models.PositiveIntegerField(null=True)
 
     class Meta:
@@ -236,7 +268,10 @@ class ProductTabs(models.Model):
     title = models.CharField()
     content = models.TextField()
     order = models.PositiveIntegerField(null=True)
-    product = models.ForeignKey("Product", on_delete=models.CASCADE, null=True, related_name="tabs")
+    product = models.ForeignKey("Product",
+                                on_delete=models.CASCADE,
+                                null=True,
+                                related_name="tabs")
 
     class Meta:
         ordering = [

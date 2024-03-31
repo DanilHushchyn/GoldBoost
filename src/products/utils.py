@@ -65,7 +65,6 @@ def get_current_user(token: str):
     Check auth user.
 
     """
-
     try:
         code, token = token.split(" ")
         if code != "Bearer":
@@ -80,6 +79,8 @@ def get_current_user(token: str):
 
     user = get_object_or_404(get_user_model(), id=payload["user_id"])
     return user
+
+# def get_auth(request:HttpRequest):
 
 
 def make_sale(price: float, sale: int):

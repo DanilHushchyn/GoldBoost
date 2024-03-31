@@ -1,4 +1,13 @@
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
+# # Replace 'username' with the username of the profile you want to fetch posts from
+# profile = instaloader.Profile.from_username(loader.context, '@thegutstuff')
+#
+# # Iterate over the posts and print their URLs
+# for post in profile.get_posts():
+#     print(post.url)
 
-print(urlsafe_base64_encode(force_bytes(4)))
+def make_sale(price: float, sale: int):
+    sale = (price * sale) / 100
+    return price - sale
+
+
+print(make_sale(0, 0))

@@ -27,15 +27,17 @@ from unfold.widgets import (
     UnfoldAdminImageFieldWidget,
     UnfoldAdminSingleDateWidget,
     UnfoldAdminSingleTimeWidget,
-    UnfoldAdminTextareaWidget, UnfoldAdminTextInputWidget, UnfoldAdminIntegerFieldWidget,
+    UnfoldAdminTextareaWidget, UnfoldAdminTextInputWidget, UnfoldAdminIntegerFieldWidget, UnfoldAdminSelect,
 )
 
 from src.games.models import CalendarBlock, CalendarBlockItem, CatalogPage, Game, WorthLookItem, \
-    WorthLook, Calendar, CatalogTabs
+    WorthLook, Calendar, CatalogTabs, Team
 
 
 class WorthLookItemInline(TabularInline):
     model = WorthLookItem
+    exclude = ['image_alt']
+    extra = 0
 
 
 @admin.register(WorthLook)
@@ -46,36 +48,46 @@ class WorthLookCarouselItem(ModelAdmin):
     ]
 
 
-@admin.register(Game)
-class GameAdminClass(ModelAdmin):
-    pass
+class GameForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['logo_filter_alt_en'].required = True
+        self.fields['logo_filter_alt_ua'].required = True
+        self.fields['logo_product_alt_en'].required = True
+        self.fields['logo_product_alt_ua'].required = True
+
+    class Meta:
+        model = Game
+        fields = "__all__"
+        exclude = ['logo_filter_alt', 'logo_product_alt', 'is_deleted']
 
 
 class CalendarItemForm(forms.ModelForm):
     class Meta:
         model = CalendarBlockItem
         fields = "__all__"
+
         widgets = {
-            "date": UnfoldAdminSingleDateWidget(attrs={"style": "width: 200px;"}),
-            "team1_img": UnfoldAdminImageFieldWidget(attrs={"style": "width: 10px;"}),
-            "team1_img_alt": UnfoldAdminTextInputWidget(attrs={"style": "width: 150px;"}),
-            "team2_img": UnfoldAdminImageFieldWidget(attrs={"style": "width: 10px;"}),
-            "team2_img_alt": UnfoldAdminTextInputWidget(attrs={"style": "width: 150px;"}),
-            "team1_from": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 200px;"}),
-            "team2_from": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 200px;"}),
-            "team1_until": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 200px;"}),
-            "team2_until": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 200px;"}),
+            "date": UnfoldAdminSingleDateWidget(attrs={"style": "width: 180px;"}),
+            "team1": UnfoldAdminSelect(attrs={"style": "width: 150px;", "placeholder": 'Select value'}),
+            "team2": UnfoldAdminSelect(attrs={"style": "width: 150px;", "placeholder": 'Select value'}),
+            "team1_from": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 160px;"}),
+            "team2_from": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 160px;"}),
+            "team1_until": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 160px;"}),
+            "team2_until": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 160px;"}),
         }
 
 
 class CalendarBlockItemInline(TabularInline):
     model = CalendarBlockItem
     form = CalendarItemForm
+    extra = 0
 
 
 @admin.register(CalendarBlock)
 class CalendarBlockModelAdmin(ModelAdmin):
     model = CalendarBlock
+    exclude = ['title', 'subtitle']
 
     inlines = [
         CalendarBlockItemInline,
@@ -95,12 +107,23 @@ class CatalogTabsForm(forms.ModelForm):
     admin panel django
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['title_en'].required = True
+        self.fields['title_ua'].required = True
+        self.fields['content_en'].required = True
+        self.fields['content_ua'].required = True
+
     class Meta:
         model = CatalogTabs
         fields = "__all__"
+        exclude = ['title', 'content']
+
         widgets = {
-            "title": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
-            "content": UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
+            "title_en": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
+            "title_ua": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
+            "content_en": UnfoldAdminTextareaWidget(attrs={"style": "width: 200px;", "summernote": "true", }),
+            "content_ua": UnfoldAdminTextareaWidget(attrs={"style": "width: 200px;", "summernote": "true", }),
             "order": UnfoldAdminIntegerFieldWidget(attrs={"style": "width: 80px;"}),
         }
 
@@ -118,8 +141,70 @@ class CatalogTabsInline(TabularInline):
     form = CatalogTabsForm
 
 
+class CatalogPageForm(forms.ModelForm):
+    class Meta:
+        model = CatalogPage
+        fields = "__all__"
+        exclude = ['title', 'description', 'is_deleted']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['parent'].queryset = (
+            self.fields['parent'].queryset.exclude(id=self.instance.id))
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        parent = instance.parent
+        if parent:
+            instance.game_id = parent.game.id
+        return instance
+
+
 @admin.register(CatalogPage)
 class CatalogPagesAdminClass(ModelAdmin):
+    form = CatalogPageForm
     inlines = [
         CatalogTabsInline
     ]
+
+    def delete_model(self, request, obj: CatalogPage):
+        for product in obj.products.all():
+            product.is_deleted = True
+            [tab.delete() for tab in product.tabs.all()]
+            product.save()
+        obj.is_deleted = True
+        obj.save()
+
+    def delete_queryset(self, request, queryset):
+        """Given a queryset, delete it from the database."""
+        for page in queryset:
+            for product in page.products.all():
+                product.is_deleted = True
+                [tab.delete() for tab in product.tabs.all()]
+                product.save()
+            page.is_deleted = True
+            page.save()
+
+
+@admin.register(Game)
+class GameAdminClass(ModelAdmin):
+    form = GameForm
+
+    def delete_model(self, request, obj: Game):
+        for page in obj.catalog_pages.all():
+            CatalogPagesAdminClass.delete_model(self, request, page)
+        obj.is_deleted = True
+        obj.save()
+
+    def delete_queryset(self, request, queryset):
+        """Given a queryset, delete it from the database."""
+        for game in queryset:
+            for page in game.catalog_pages.all():
+                CatalogPagesAdminClass.delete_model(self, request, page)
+            game.is_deleted = True
+            game.save()
+
+
+@admin.register(Team)
+class TeamAdminClass(ModelAdmin):
+    exclude = ['team_img_alt']

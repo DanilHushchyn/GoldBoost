@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-from ninja.errors import HttpError
+
 
 from src.main.models import Insta, News, PromoCode, Review, Setting, WhyChooseUs
 from src.products.utils import paginate
-from src.users.schemas import MessageOutSchema
+from django.utils.translation import gettext as _
 
 User = get_user_model()
 
@@ -26,6 +24,7 @@ class MainService:
         :return: WhyChooseUs model queryset
         :rtype: WhyChooseUs
         """
+        # activate('en')
         objects = WhyChooseUs.objects.all()
         return objects
 
@@ -74,26 +73,3 @@ class MainService:
         """
         items = News.objects.all()
         return paginate(items=items, page=page, page_size=page_size)
-
-    @staticmethod
-    def check_promo_code(code: str, user: User) -> PromoCode:
-        """
-        Checks promo code
-        used in cart page in the site
-        :param user: current user
-        :param code: promo code
-        :return: dict which contains parameters for pagination
-        :rtype: dict
-        """
-        promo_code = get_object_or_404(PromoCode, code=code)
-        current_datetime = timezone.now().date()
-        if not (
-            promo_code.until_date
-            and promo_code.from_date
-            and promo_code.until_date > current_datetime > promo_code.from_date
-        ):
-            raise HttpError(410, "Promo code has been expired ☹")
-        if user.promo_codes.filter(code=code).exists():
-            raise HttpError(403, "Promo code has been already used ☹")
-
-        return promo_code

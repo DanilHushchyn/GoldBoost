@@ -1,0 +1,163 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-25 17:16+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: config/urls.py:42
+msgid "Unauthorized"
+msgstr "Не авторизований"
+
+#: src/games/services/games_service.py:76
+msgid "Not Found: No Game matches the given query."
+msgstr "Не знайдено: жодна гра не відповідає заданому запиту."
+
+#: src/games/services/games_service.py:93
+#: src/games/services/games_service.py:109
+msgid "Not Found: No CatalogPage matches the given query."
+msgstr "Не знайдено: жодна сторінка каталогу не відповідає заданому запиту."
+
+#: src/games/services/games_service.py:114
+msgid "Not found section WorthLook for this catalog's page"
+msgstr "Не знайдено розділ WorthLook для цієї сторінки каталогу"
+
+#: src/games/services/games_service.py:155
+msgid "Not Found: No CatalogTab matches the given query."
+msgstr "Не знайдено: жодна вкладка каталогу не відповідає заданому запиту."
+
+#: src/main/services/main_service.py:93
+msgid "Not Found: No PromoCode matches the given query."
+msgstr "Не знайдено: жоден промо код не відповідає заданому запиту."
+
+#: src/main/services/main_service.py:101
+msgid "Promo code has been expired"
+msgstr "Термін дії промокоду закінчився"
+
+#: src/main/services/main_service.py:103
+msgid "Promo code has been already used"
+msgstr "Промокод вже використано"
+
+#: src/orders/services/order_service.py:63
+msgid "Not Found: No CartItem matches the given query."
+msgstr "Не знайдено: жоден елемент корзини не відповідає заданому запиту."
+
+#: src/orders/services/order_service.py:66
+msgid "Cart items has been deleted successfully"
+msgstr "Товари кошика успішно видалено"
+
+#: src/orders/services/order_service.py:77
+msgid "Your cart is empty"
+msgstr "Ваш кошик порожній"
+
+#: src/orders/services/order_service.py:114
+msgid "Order issued successfully"
+msgstr "Замовлення виконано успішно"
+
+#: src/orders/services/order_service.py:128
+#: src/users/services/user_service.py:33 src/users/services/user_service.py:50
+#: src/users/services/user_service.py:70 src/users/services/user_service.py:86
+msgid "Not Found: No User matches the given query."
+msgstr "Не знайдено: жоден користувач не відповідає заданому запиту."
+
+#: src/orders/services/order_service.py:145
+msgid "Not Found: No Order matches the given query."
+msgstr "Не знайдено: жодне замовлення не відповідає заданому запиту."
+
+#: src/orders/services/order_service.py:149
+msgid "Cannot repeat order, some products are not exists nowadays"
+msgstr "Неможливо повторити замовлення, деяких товарів зараз немає"
+
+#: src/products/services/product_service.py:44
+#: src/products/services/product_service.py:100
+msgid "Not Found: No Product matches the given query."
+msgstr "Не знайдено: жоден продукт не відповідає заданому запиту."
+
+#: src/products/services/product_service.py:63
+msgid "Sub filters has been chosen incorrectly "
+msgstr "Підфільтри вибрано неправильно"
+
+#: src/products/services/product_service.py:81
+msgid "Product added to cart successfully"
+msgstr "Товар успішно додано в кошик"
+
+#: src/products/services/product_service.py:147
+msgid "Not Found: No ProductTabs matches the given query."
+msgstr "Не знайдено: жодна вкладка продукту не відповідає заданому запиту."
+
+#: src/users/services/auth_service.py:35
+msgid "This email already in use"
+msgstr "Ця електронна адреса вже використовується"
+
+#: src/users/services/auth_service.py:41
+msgid "Please confirm your registration. We have send letter to your email"
+msgstr "Будь ласка, підтвердьте свою реєстрацію. Ми надіслали листа на вашу електронну пошту"
+
+#: src/users/services/auth_service.py:60
+msgid "Email has already been confirmed"
+msgstr "Електронна пошта вже підтверджена"
+
+#: src/users/services/auth_service.py:63
+msgid "Email has been confirmed successfully"
+msgstr "Електронна пошта успішно підтверджена"
+
+#: src/users/services/auth_service.py:65 src/users/services/auth_service.py:107
+#: src/users/services/auth_service.py:109
+#: src/users/services/auth_service.py:134
+#: src/users/services/auth_service.py:136
+msgid "Invalid link"
+msgstr "Недійсне посилання"
+
+#: src/users/services/auth_service.py:80
+msgid "There is not user registered with that email"
+msgstr "Немає зареєстрованого користувача з такою електронною адресою"
+
+#: src/users/services/auth_service.py:84
+msgid "Please confirm reset password. We have send instructions to your email"
+msgstr ""
+"Підтвердьте скидання пароля. Ми надіслали інструкції на вашу електронну пошту"
+
+#: src/users/services/auth_service.py:111
+msgid "Passwords aren't the same"
+msgstr "Паролі не однакові"
+
+#: src/users/services/auth_service.py:119
+msgid "Password reset successfully."
+msgstr "Пароль скинуто успішно."
+
+#: src/users/services/auth_service.py:138
+msgid "Promo code is valid."
+msgstr "Промокод дійсний."
+
+#: src/users/services/user_service.py:103
+#: src/users/services/user_service.py:123
+msgid "Not Found: No Character matches the given query."
+msgstr "Не знайдено: жоден персонаж не відповідає заданому запиту."
+
+#: src/users/services/user_service.py:126
+msgid "Character deleted successfully"
+msgstr "Персонаж успішно видалено"
+
+#: src/users/services/user_service.py:137
+msgid "Not more than 3 characters are possible to create"
+msgstr "Можна створити не більше 3х персонажів"
+
+#: src/users/services/user_service.py:154
+msgid "This email has been already subscribed"
+msgstr "Ця пошта вже використовується"
+
+#: src/users/services/user_service.py:155
+msgid "You are successfully subscribed"
+msgstr "Ви успішно підписані"

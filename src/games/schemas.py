@@ -6,7 +6,7 @@ object and json
 """
 from typing import List
 
-from ninja import ModelSchema
+from ninja import ModelSchema, Field
 
 from config.settings import ABSOLUTE_URL
 from src.games.models import CatalogPage, Game, WorthLookItem, CalendarBlockItem, CalendarBlock, CatalogTabs
@@ -41,6 +41,23 @@ class GameLogosProductSchema(ModelSchema):
         fields = ["name", "logo_product"]
 
 
+class GameLogosFilterSchema(ModelSchema):
+    """
+    Pydantic schema for model Game.
+    Purpose of this schema to return filter logo
+    for news carousel on main page in the site
+    """
+    logo: str | None
+
+    @staticmethod
+    def resolve_logo(obj):
+        return ABSOLUTE_URL + obj.logo_filter.url
+
+    class Meta:
+        model = Game
+        fields = ["name"]
+
+
 class GamesSchema(ModelSchema):
     """
     Pydantic schema for model Game.
@@ -61,9 +78,13 @@ class GamesSchema(ModelSchema):
 
     class Meta:
         model = Game
-        fields = "__all__"
-        exclude = [
-            "order",
+        fields = [
+            'id',
+            'name',
+            'logo_filter',
+            'logo_product',
+            'logo_filter_alt',
+            'logo_product_alt',
         ]
 
 
@@ -78,8 +99,7 @@ class CatalogTabSchema(ModelSchema):
 
     class Meta:
         model = CatalogTabs
-        fields = "__all__"
-        exclude = ['content', 'catalog', 'order']
+        fields = ['id', 'title', ]
 
 
 class CatalogPageSchema(ModelSchema):
@@ -90,11 +110,16 @@ class CatalogPageSchema(ModelSchema):
     info for catalog's page in the site
     """
     game_logo: str
+    game_logo_alt: str
     tabs: List[CatalogTabSchema]
 
     @staticmethod
     def resolve_game_logo(obj):
         return ABSOLUTE_URL + obj.game.logo_product.url
+
+    @staticmethod
+    def resolve_game_logo_alt(obj):
+        return obj.game.logo_product_alt
 
     class Meta:
         model = CatalogPage
@@ -125,7 +150,7 @@ class CalendarBlockSchema(ModelSchema):
 
     class Meta:
         model = CalendarBlock
-        exclude = ["calendar", ]
+        fields = ['id', "title", 'subtitle']
 
 
 class CalendarBlockItemSchema(ModelSchema):
@@ -135,18 +160,28 @@ class CalendarBlockItemSchema(ModelSchema):
     Purpose of this schema to return
     calendar content
     """
+    team1_img: str
+    team1_img_alt: str = Field(None, alias="team1.team_img_alt")
+    team2_img: str
+    team2_img_alt: str = Field(None, alias="team2.team_img_alt")
 
     @staticmethod
     def resolve_team1_img(obj):
-        return ABSOLUTE_URL + obj.team1_img.url
+        return ABSOLUTE_URL + obj.team1.team_img.url
 
     @staticmethod
     def resolve_team2_img(obj):
-        return ABSOLUTE_URL + obj.team2_img.url
+        return ABSOLUTE_URL + obj.team2.team_img.url
 
     class Meta:
         model = CalendarBlockItem
-        exclude = ["id", "block"]
+        fields = [
+            'date',
+            'team1_from',
+            'team1_until',
+            'team2_from',
+            'team2_until',
+        ]
 
 
 class WorthLookItemSchema(ModelSchema):

@@ -8,10 +8,12 @@ object and json
 from typing import List
 
 from ninja import ModelSchema, Schema
+from ninja import Field, Schema
 from pydantic.types import conint
 
 from config.settings import ABSOLUTE_URL
-from src.products.models import Filter, Product, ProductTabs, SubFilter, Tag
+from src.games.models import Game, CatalogPage
+from src.products.models import Filter, Product, ProductTabs, SubFilter, Tag, FreqBought
 
 
 class TagOutSchema(ModelSchema):
@@ -24,8 +26,18 @@ class TagOutSchema(ModelSchema):
 
     class Meta:
         model = Tag
-        fields = "__all__"
-        exclude = ("id",)
+        fields = ['name', 'color']
+
+
+class BreadCrumbSchema(Schema):
+    """
+    Pydantic schema for BreadCrumb.
+
+    Purpose of this schema to return info about tag(name,color)
+    to client side
+    """
+    text: str
+    id: int
 
 
 class ProductSchema(ModelSchema):
@@ -35,21 +47,24 @@ class ProductSchema(ModelSchema):
     Purpose of this schema to return info about product
     for product element in carousel in client side
     """
-
     tag: TagOutSchema | None
-    # первый вариант как вернуть картинку игры
-    # game_logo: str = Field(None, alias="catalog_page.game.logo_product")
+    game_logo: str
+    game_logo_alt: str
     price_from: float | None
     price_to: float | None
     sale_price_from: float | None
     sale_price_to: float | None
     sale_price: float | None
     sale_period: str | None
-    sale_active: bool
+    sale_active: bool | None
 
     @staticmethod
     def resolve_game_logo(obj):
         return f"{ABSOLUTE_URL}{obj.catalog_page.game.logo_product.url}"
+
+    @staticmethod
+    def resolve_game_logo_alt(obj):
+        return obj.catalog_page.game.logo_product_alt
 
     @staticmethod
     def resolve_card_img(obj):
@@ -61,8 +76,23 @@ class ProductSchema(ModelSchema):
 
     class Meta:
         model = Product
-        fields = "__all__"
-        exclude = ("bought_count",)
+        fields = [
+            'id',
+            'title',
+            'subtitle',
+            'image',
+            'image_alt',
+            'card_img',
+            'card_img_alt',
+            'price',
+            'price_type',
+            'bonus_points',
+            'sale_percent',
+            'sale_from',
+            'sale_until',
+            'catalog_page',
+            'tag',
+        ]
 
 
 class ProductsSectionSchema(Schema):
@@ -108,8 +138,11 @@ class SubFilterItemSchema(ModelSchema):
 
     class Meta:
         model = SubFilter
-        fields = "__all__"
-        exclude = ("filter", "order")
+        fields = [
+            'id',
+            'title',
+            'price',
+        ]
 
 
 class FilterItemSchema(ModelSchema):
@@ -125,8 +158,10 @@ class FilterItemSchema(ModelSchema):
 
     class Meta:
         model = Filter
-        fields = "__all__"
-        exclude = ("id", "product", "order")
+        fields = [
+            'type',
+            'title',
+        ]
 
 
 class ProductTabSchema(ModelSchema):
@@ -140,8 +175,42 @@ class ProductTabSchema(ModelSchema):
 
     class Meta:
         model = ProductTabs
-        fields = "__all__"
-        exclude = ["content", "product", "order"]
+        fields = [
+            'id',
+            'title'
+        ]
+
+
+class ProductCardGameSchema(ModelSchema):
+    """
+    Pydantic schema for Game.
+
+    Purpose of this schema to return
+    name and id for product card
+    """
+
+    class Meta:
+        model = Game
+        fields = [
+            'id',
+            'name'
+        ]
+
+
+class ProductCardCatalogSchema(ModelSchema):
+    """
+    Pydantic schema for Catalog.
+
+    Purpose of this schema to return
+    title and id for product card
+    """
+
+    class Meta:
+        model = CatalogPage
+        fields = [
+            'id',
+            'title'
+        ]
 
 
 class ProductCardSchema(ModelSchema):
@@ -152,6 +221,7 @@ class ProductCardSchema(ModelSchema):
     Product model instance and related
     Filter queryset
     """
+    bread_crumbs: List[BreadCrumbSchema]
 
     filters: List[FilterItemSchema] | None
     price_from: float | None
@@ -162,19 +232,31 @@ class ProductCardSchema(ModelSchema):
     sale_period: str | None
     sale_active: bool
     tabs: List[ProductTabSchema]
+    catalog_page: ProductCardCatalogSchema
+    # game: ProductCardGameSchema | None
+    game: ProductCardGameSchema = Field(None, alias="catalog_page.game")
 
     @staticmethod
     def resolve_image(obj):
         return ABSOLUTE_URL + obj.image.url
 
-    @staticmethod
-    def resolve_card_img(obj):
-        return ABSOLUTE_URL + obj.card_img.url
-
     class Meta:
         model = Product
-        fields = "__all__"
-        exclude = ("bought_count", "tag")
+        fields = [
+            'id',
+            'title',
+            'subtitle',
+            'image',
+            'image_alt',
+            'description',
+            'price',
+            'price_type',
+            'bonus_points',
+            'sale_percent',
+            'sale_from',
+            'sale_until',
+            'catalog_page',
+        ]
 
 
 class GameCarouselsMainSchema(Schema):
@@ -222,3 +304,35 @@ class ProductSearchSchema(ModelSchema):
     class Meta:
         model = Product
         fields = ["id", "title"]
+
+
+class FreqBoughtProductSchema(ModelSchema):
+    sale_price: float | None
+    sale_active: bool
+
+    @staticmethod
+    def resolve_card_img(obj):
+        return ABSOLUTE_URL + obj.card_img.url
+
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "title",
+            "subtitle",
+            'card_img',
+            'card_img_alt',
+            "price",
+            "price",
+        ]
+
+
+class FreqBoughtSchema(ModelSchema):
+    products: List[FreqBoughtProductSchema]
+
+    class Meta:
+        model = FreqBought
+        fields = [
+            "id",
+            "discount",
+        ]

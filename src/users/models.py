@@ -113,6 +113,7 @@ class User(AbstractUser):
     communication = models.CharField(max_length=255,
                                      choices=COMMUNICATION_METHOD,
                                      default='Discord')
+    subscribe_sale_active = models.BooleanField(null=True,blank=True)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
     objects = CustomUserManager()

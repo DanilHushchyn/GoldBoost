@@ -13,12 +13,16 @@
        Subscriber
 """
 from django.db import models
+from imagekit.models.fields import ImageSpecField
+from imagekit.processors import ResizeToFill
 
 from src.games.models import Game
+from src.main.tasks import share_news
 from src.orders.models import Order
-from src.products.models import Product
+from src.products.models import Product, SubFilter
 from src.products.utils import get_timestamp_path
 from src.users.models import User
+
 
 # Create your models here.
 
@@ -50,6 +54,10 @@ class Insta(models.Model):
     """
 
     img = models.ImageField(upload_to=get_timestamp_path, null=True)
+    img_thumbnail = ImageSpecField(source='img',
+                                   processors=[ResizeToFill(180, 183)],
+                                   format='PNG',
+                                   options={'quality': 90})
     img_alt = models.CharField(max_length=255, null=True)
 
     def __str__(self):
@@ -81,6 +89,12 @@ class News(models.Model):
         :return: str
         """
         return self.title
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            share_news.delay(news_title=self.title,
+                             news_descr=self.description)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "News"
@@ -115,8 +129,8 @@ class Review(models.Model):
 # Create your models here.
 class Setting(models.Model):
     """
-    Model is storing content for
-    header and footer in the site
+    Model is storing content for header and footer in the site.
+
     """
 
     instagram_nickname = models.CharField(max_length=255)
@@ -133,7 +147,9 @@ class Setting(models.Model):
     terms_of_use_link = models.URLField()
     refund_policy_link = models.URLField()
     address1 = models.CharField(max_length=255)
+    address1_link = models.URLField(null=True)
     address2 = models.CharField(max_length=255)
+    address2_link = models.URLField(null=True)
     subscribe_form_text = models.CharField(max_length=255)
     subscribe_sale = models.PositiveSmallIntegerField(null=True)
 
@@ -147,7 +163,8 @@ class Setting(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Purpose of this method to make constraint
+        Purpose of this method to make constraint.
+
         (not more than 1 Setting model instance in the site)
         """
         if Setting.objects.exists() and not self.pk:
@@ -163,8 +180,8 @@ class Setting(models.Model):
 
 class PromoCode(models.Model):
     """
-    Model is storing data
-    about all promo codes in the site
+    Model is storing data about all promo codes in the site.
+
     """
 
     code = models.CharField(max_length=215)
@@ -175,7 +192,8 @@ class PromoCode(models.Model):
 
     def __str__(self):
         """
-        String format for Setting models instance
+        String format for Setting models instance.
+
         :return: code of promo code
         """
         return self.code
@@ -188,11 +206,11 @@ class PromoCode(models.Model):
 
 class OrderItem(models.Model):
     """
-    Model represents order's items
-    """
+    Model represents order's items.
 
-    title = models.CharField(max_length=255)
-    subtitle = models.CharField(max_length=255)
+    """
+    # price = models.PositiveIntegerField(null=True)
+    quantity = models.PositiveIntegerField(null=True)
     product = models.ForeignKey(
         Product,
         on_delete=models.SET_NULL,
@@ -205,5 +223,45 @@ class OrderItem(models.Model):
         null=True,
     )
 
+    def price_for_product(self, product: Product):
+        total = product.price
+        if product.sale_active():
+            total = product.sale_price()
+        for attr in self.attributes.all():
+            total = total + attr.subfilter.price
+        return total * self.quantity
+
+    def price(self):
+        if self.product:
+            return self.price_for_product(self.product)
+
+    def bonus_points(self):
+        if self.product:
+            return self.product.bonus_points * self.quantity
+
     class Meta:
         db_table = "sub_orders"
+
+
+class OrderItemAttribute(models.Model):
+    """
+    Model represents order's item attributes.
+
+    """
+
+    title = models.CharField(max_length=255, null=True)
+    price = models.FloatField()
+    subfilter = models.ForeignKey(
+        SubFilter,
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    order_item = models.ForeignKey(
+        OrderItem,
+        on_delete=models.CASCADE,
+        related_name="attributes",
+        null=True,
+    )
+
+    class Meta:
+        db_table = "sub_orders_attributes"

@@ -5,11 +5,11 @@
 """
 from django.db import IntegrityError
 from django.db.models import QuerySet
-from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 
 from src.users.models import Character, Subscriber, User
-from src.users.schemas import CharacterInSchema, MessageOutSchema, UserInSchema, UserOutSchema
+from src.users.schemas import CharacterInSchema, MessageOutSchema, UserInSchema, EmailSchema
+from django.utils.translation import gettext as _
 
 
 class UserService:
@@ -26,7 +26,12 @@ class UserService:
         :return: User model instance
         """
 
-        user = get_object_or_404(User, id=user_id)
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise HttpError(404,
+                            _("Not Found: No User matches"
+                              " the given query."))
         return user
 
     @staticmethod
@@ -38,9 +43,16 @@ class UserService:
         :param user_id: user id
         :return: User model instance
         """
-        user = get_object_or_404(User, id=user_id)
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise HttpError(404,
+                            _("Not Found: No User matches"
+                              " the given query."))
         for key, value in user_body.dict().items():
-            if value:
+            if key == 'notify_me' and value and user.subscribe_sale_active is None:
+                user.subscribe_sale_active = True
+            if value is not None:
                 setattr(user, key, value)
         user.save()
         return user
@@ -53,7 +65,12 @@ class UserService:
         :param user_id: user id
         :return: User model instance
         """
-        user = get_object_or_404(User, id=user_id)
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise HttpError(404,
+                            _("Not Found: No User matches"
+                              " the given query."))
         return user
 
     @staticmethod
@@ -64,8 +81,12 @@ class UserService:
         :param user_id: user id
         :return: User model instance
         """
-        user = get_object_or_404(User, id=user_id)
-
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise HttpError(404,
+                            _("Not Found: No User matches"
+                              " the given query."))
         return user.character_set.all()
 
     @staticmethod
@@ -77,7 +98,12 @@ class UserService:
         :param character:
         :return: User model instance
         """
-        obj = get_object_or_404(Character, id=character_id)
+        try:
+            obj = Character.objects.get(id=character_id)
+        except Character.DoesNotExist:
+            raise HttpError(404,
+                            _("Not Found: No Character matches"
+                              " the given query."))
         for key, value in character.dict().items():
             if value:
                 setattr(obj, key, value)
@@ -92,9 +118,14 @@ class UserService:
         :param character_id:
         :return: User model instance
         """
-        obj = get_object_or_404(Character, id=character_id)
+        try:
+            obj = Character.objects.get(id=character_id)
+        except Character.DoesNotExist:
+            raise HttpError(404,
+                            _("Not Found: No Character matches"
+                              " the given query."))
         obj.delete()
-        return MessageOutSchema(message="Character deleted successfully")
+        return MessageOutSchema(message=_("Character deleted successfully"))
 
     @staticmethod
     def create_character(user_id: int) -> Character:
@@ -105,22 +136,22 @@ class UserService:
         """
         if Character.objects.filter(user_id=user_id).count() >= 3:
             raise HttpError(409,
-                            "Not more than 3 characters "
-                            "are possible to create ☹")
+                            _("Not more than 3 characters "
+                              "are possible to create"))
         character = Character.objects.create(user_id=user_id)
         return character
 
     @staticmethod
-    def subscribe(email: str) -> MessageOutSchema:
+    def subscribe(body: EmailSchema) -> MessageOutSchema:
         """
         Subscribe user's email to get news.
 
-        :param email: user's email
+        :param body: user's email
         :return: message that user subscribed
         """
         try:
-            Subscriber.objects.create(email=email)
+            Subscriber.objects.create(email=body.email)
         except IntegrityError:
             raise HttpError(409,
-                            "This email has been already subscribed ☹")
-        return MessageOutSchema(message="You are successfully subscribed")
+                            _("This email has been already subscribed"))
+        return MessageOutSchema(message=_("You are successfully subscribed"))

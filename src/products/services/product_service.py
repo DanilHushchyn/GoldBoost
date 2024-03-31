@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
 """
-    Module contains class for managing products on site
+    Module contains class for managing products on site.
+
 """
 from django.contrib.auth import get_user_model
 from django.db.models import Prefetch, QuerySet
+from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 
 from src.orders.models import Attribute, Cart, CartItem
-from src.products.models import Filter, Product, ProductTabs, SubFilter
+from src.products.models import Filter, Product, ProductTabs, SubFilter, FreqBought
 from src.products.schemas import AddToCartSchema
 from src.products.utils import paginate
 from src.users.schemas import MessageOutSchema
+from django.utils.translation import gettext as _
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -25,7 +29,9 @@ class ProductService:
     """
 
     @staticmethod
-    def add_product_to_cart(product_id: int, user: User | str, body: AddToCartSchema) -> MessageOutSchema:
+    def add_product_to_cart(product_id: int,
+                            user: User | str,
+                            body: AddToCartSchema) -> MessageOutSchema:
         """
         Gets info for product's card page.
 
@@ -38,7 +44,8 @@ class ProductService:
         try:
             product = Product.objects.prefetch_related("filters__subfilters").get(id=product_id)
         except Product.DoesNotExist:
-            raise HttpError(404, "Not Found: No Product" " matches the given query.")
+            raise HttpError(404, _("Not Found: No Product"
+                                   " matches the given query."))
 
         if isinstance(user, User):
             cart, status = Cart.objects.get_or_create(user=user)
@@ -48,33 +55,41 @@ class ProductService:
         if product.price_type == "range":
             attributes = set(body.attributes)
             for subfilter_id in attributes:
-                get_object_or_404(SubFilter, id=subfilter_id, filter__product=product_id)
+                get_object_or_404(SubFilter, id=subfilter_id,
+                                  filter__product=product_id)
             filters = product.filters.exclude(type__in=["CheckBox"])
             for flt in filters:
                 count = flt.subfilters.filter(id__in=attributes).count()
                 if count != 1:
                     raise HttpError(
                         403,
-                        "Sub filters has "
-                        "been chosen incorrectly ☹ "
-                        f"(Error: {flt.type} has {count}"
-                        f" chosen elements "
-                        f"but 1 have to be choosing)",
+                        _("Sub filters has "
+                          "been chosen incorrectly "
+                          f"(Error: {flt.type} has {count}"
+                          f" chosen elements "
+                          f"but 1 have to be choosing)"),
                     )
-            cart_item = CartItem.objects.create(product=product, quantity=body.quantity, cart=cart)
+            cart_item = CartItem.objects.create(product=product,
+                                                quantity=body.quantity,
+                                                cart=cart)
             for subfilter_id in attributes:
-                Attribute.objects.create(sub_filter_id=subfilter_id, cart_item=cart_item)
+                Attribute.objects.create(sub_filter_id=subfilter_id,
+                                         cart_item=cart_item)
 
         if product.price_type == "fixed":
-            (CartItem.objects.create(product=product, quantity=body.quantity, cart=cart))
+            (CartItem.objects.create(product=product,
+                                     quantity=body.quantity,
+                                     cart=cart))
 
-        return MessageOutSchema(message="Product added to cart successfully")
+        return MessageOutSchema(message=_("Product added to cart "
+                                          "successfully"))
 
     @staticmethod
-    def get_product_by_id(product_id: int) -> Product:
+    def get_product_by_id(request: HttpRequest, product_id: int) -> Product:
         """
         Gets info for product's card page.
 
+        :param request:
         :param product_id: id of Product model's instance
         :return: Product model's instance with related filters
         """
@@ -85,11 +100,25 @@ class ProductService:
         try:
             product = Product.objects.prefetch_related(pr_filters).get(id=product_id)
         except Product.DoesNotExist:
-            raise HttpError(404, "Not Found: No Product matches" " the given query.")
+            raise HttpError(404,
+                            _("Not Found: No Product matches"
+                              " the given query."))
+        product.bread_crumbs = [
+            {
+                'text': product.catalog_page.game.name,
+                'id': product.catalog_page.id,
+
+            },
+            {
+                'text': product.catalog_page.title,
+                'id': product.catalog_page.id,
+            },
+        ]
         return product
 
     @staticmethod
-    def get_hot_products(page: int, page_size: int, game_id: int = None) -> dict:
+    def get_hot_products(page: int, page_size: int,
+                         game_id: int = None) -> dict:
         """
         Gets all products with Tag(related models) value hot.
 
@@ -118,6 +147,18 @@ class ProductService:
         return paginate(items=items, page=page, page_size=page_size)
 
     @staticmethod
+    def frequently_bought() -> QuerySet:
+        """
+        Gets products which frequently bought together.
+
+        (return frequently bought products on site)
+        :return: FreqBoughtSchema , all orders for
+        bought product together
+        """
+        items = FreqBought.objects.prefetch_related('products').all()
+        return items
+
+    @staticmethod
     def get_tab_content(tab_id: int) -> ProductTabs:
         """
         Returns specific ProductTabs model instance.
@@ -126,11 +167,17 @@ class ProductService:
         :param tab_id: id of TabItem model's instance we want to get
         :return: return ProductTabs() model instance
         """
-        tab = get_object_or_404(ProductTabs, id=tab_id)
+        try:
+            tab = ProductTabs.objects.get(id=tab_id)
+        except ProductTabs.DoesNotExist:
+            raise HttpError(404,
+                            _("Not Found: No ProductTabs matches"
+                              " the given query."))
         return tab
 
     @staticmethod
-    def search_products(search_line: str, game_id: int = None) -> QuerySet:
+    def search_products(search_line: str, game_id: int = None) \
+            -> QuerySet:
         """
         Gets all products with Tag(related models) value hot.
 
@@ -140,8 +187,22 @@ class ProductService:
         :param game_id: filter(not required) additionally by game id
         :return: dict which contains all parameters for pagination
         """
+        items = Product.objects.filter(Q(title_en__icontains=search_line) |
+                                       Q(title_ua__icontains=search_line))
+
         if game_id:
-            items = Product.objects.filter(catalog_page__game_id=game_id, title__icontains=search_line)
-        else:
-            items = Product.objects.filter(title__icontains=search_line)
+            items = items.filter(catalog_page__game_id=game_id)
         return items[:10]
+
+    @staticmethod
+    def freqbot_to_cart(freqbot_id: int, cart: Cart) -> MessageOutSchema:
+        try:
+            freqbot = FreqBought.objects.get(id=freqbot_id)
+        except FreqBought.DoesNotExist:
+            raise HttpError(404,
+                            _("Not Found: No FreqBought matches"
+                              " the given query."))
+        CartItem.objects.create(freqbot_id=freqbot.id, quantity=1,
+                                cart_id=cart.id)
+        return MessageOutSchema(message=_("Freqbot element added to cart "
+                                          "successfully"))

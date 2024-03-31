@@ -7,6 +7,8 @@
 from django.db import models
 from meta.models import ModelMeta
 
+from src.games.managers.catalog_manager import CatalogPageManager
+from src.games.managers.game_manager import GameManager
 from src.products.utils import get_timestamp_path
 
 
@@ -24,6 +26,8 @@ class Game(models.Model):
     logo_filter_alt = models.CharField(max_length=255, null=True)
     logo_product_alt = models.CharField(max_length=255, null=True)
     order = models.IntegerField(null=True)
+    is_deleted = models.BooleanField(default=False)
+    objects = GameManager()
 
     def __str__(self):
         return self.name
@@ -47,17 +51,19 @@ class CatalogPage(ModelMeta, models.Model):
     title = models.CharField()
     description = models.TextField()
     game = models.ForeignKey(
-        "Game", on_delete=models.CASCADE,
+        "Game", on_delete=models.SET_NULL,
         null=True, related_query_name="game",
         related_name="catalog_pages"
     )
     calendar = models.ForeignKey("Calendar",
-                                 on_delete=models.CASCADE,
+                                 on_delete=models.SET_NULL,
                                  null=True, blank=True)
     worth_look = models.ForeignKey("WorthLook",
-                                   on_delete=models.CASCADE,
+                                   on_delete=models.SET_NULL,
                                    null=True, blank=True)
     order = models.IntegerField(null=True)
+    is_deleted = models.BooleanField(default=False)
+    objects = CatalogPageManager()
 
     def __str__(self):
         return self.title
@@ -176,16 +182,37 @@ class CalendarBlockItem(models.Model):
     """
 
     date = models.DateField()
-    team1_img = models.ImageField()
-    team1_img_alt = models.CharField(max_length=255, null=True)
+    # team1_img = models.ImageField()
+    # team1_img_alt = models.CharField(max_length=255, null=True)
     team1_from = models.TimeField()
     team1_until = models.TimeField()
-    team2_img = models.ImageField()
-    team2_img_alt = models.CharField(max_length=255, null=True)
+    #     team2_img = models.ImageField()
+    #     team2_img_alt = models.CharField(max_length=255, null=True)
     team2_from = models.TimeField()
     team2_until = models.TimeField()
     block = models.ForeignKey("CalendarBlock",
                               on_delete=models.CASCADE, null=True)
+    team1 = models.ForeignKey("Team", related_query_name='team1',
+                              related_name='calendars1',
+                              on_delete=models.CASCADE, null=True)
+    team2 = models.ForeignKey("Team", related_query_name='team2',
+                              related_name='calendars2',
+                              on_delete=models.CASCADE, null=True)
 
     class Meta:
         db_table = 'calendar_block_items'
+
+
+class Team(models.Model):
+    """
+    Model is storing specific event in calendar.
+    """
+
+    team_img = models.ImageField()
+    team_img_alt = models.CharField(max_length=255, null=True)
+
+    def __str__(self):
+        return self.team_img_alt
+
+    class Meta:
+        db_table = 'teams'

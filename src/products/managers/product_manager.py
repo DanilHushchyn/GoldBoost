@@ -15,15 +15,19 @@ class ProductManager(models.Manager):
     This class provides methods for ordering and filtering products with db queries.
     """
 
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+
     def hot_all(self, game_id: int = None):
         if game_id:
             objects = (
                 self.get_queryset()
                 .select_related("catalog_page__game")
-                .filter(tag__name__iexact="hot", catalog_page__game=game_id)
+                .filter(tags__id=1, catalog_page__game=game_id)
             )
+
         else:
-            objects = self.get_queryset().select_related("catalog_page__game").filter(tag__name__iexact="hot")
+            objects = self.get_queryset().select_related("catalog_page__game").filter(tags__id=1)
         return objects
 
     def bestsellers(self):

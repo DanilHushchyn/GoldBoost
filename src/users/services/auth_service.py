@@ -8,9 +8,11 @@ from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from ninja.errors import HttpError
 
-from src.users.models import PasswordResetToken, User
+from src.users.models import PasswordResetToken, User, Subscriber
 from src.users.schemas import ChangePasswordSchema, ConfirmationSchema, EmailSchema, MessageOutSchema, RegisterSchema
 from src.users.tasks import email_verification, reset_password_confirm
+
+from django.utils.translation import gettext as _
 
 
 class AuthService:
@@ -22,20 +24,31 @@ class AuthService:
     """
 
     @staticmethod
-    def register_user(user: RegisterSchema) -> MessageOutSchema:
+    def register_user(user_body: RegisterSchema) -> MessageOutSchema:
         """
         Part 1 of register new users on the site.
 
-        :param user: stores a set of user data for registration
+        :param user_body: stores a set of user data for registration
         :return: str message that registration successful
         """
-        if User.objects.filter(email=user.email).exists():
-            raise HttpError(409, "This email already in use ☹")
-        user = User.objects.create_user(email=user.email, password=user.password, notify_me=user.notify_me)
-        token = default_token_generator.make_token(user)
+        if User.objects.filter(email=user_body.email).exists():
+            raise HttpError(409, _("This email already in use"))
+        user = User.objects.create_user(email=user_body.email,
+                                        password=user_body.password,
+                                        notify_me=user_body.notify_me)
+        subscribed = Subscriber.objects.filter(email=user.email).exists()
+        if subscribed:
+            subscriber = Subscriber.objects.get(email=user.email)
+            subscriber.delete()
+            user.subscribe_sale_active = True
 
+        if user.notify_me is True:
+            user.subscribe_sale_active = True
+        user.save()
+        token = default_token_generator.make_token(user)
         email_verification.delay(user_id=user.id, token=token)
-        return MessageOutSchema(message="Please confirm " "your registration. " "We have send letter " "to your email")
+        return MessageOutSchema(
+            message=_("Please confirm " "your registration. " "We have send letter " "to your email"))
 
     @staticmethod
     def confirm_email(body: ConfirmationSchema) -> MessageOutSchema:
@@ -54,12 +67,12 @@ class AuthService:
             user = None
         if user is not None and default_token_generator.check_token(user, body.token):
             if user.is_active:
-                return MessageOutSchema(message="Email already confirmed")
+                return MessageOutSchema(message=_("Email has already been confirmed"))
             user.is_active = True
             user.save()
-            return MessageOutSchema(message="Email confirmed successfully")
+            return MessageOutSchema(message=_("Email has been confirmed successfully"))
         else:
-            raise HttpError(400, "Invalid link ☹")
+            raise HttpError(400, _("Invalid link"))
 
     @staticmethod
     def reset_password(body: EmailSchema) -> MessageOutSchema:
@@ -74,11 +87,11 @@ class AuthService:
         try:
             user = User.objects.get(email=body.email)
         except User.DoesNotExist:
-            raise HttpError(403, "There is not user registered" " with that email ☹")
+            raise HttpError(403, _("There is not user registered" " with that email"))
         token = default_token_generator.make_token(user)
         reset_password_confirm.delay(user.id, token)
         return MessageOutSchema(
-            message="Please confirm " "reset password." " We have send " "instructions to your email"
+            message=_("Please confirm " "reset password." " We have send " "instructions to your email")
         )
 
     @staticmethod
@@ -101,11 +114,11 @@ class AuthService:
             uid = urlsafe_base64_decode(body.uidb64).decode()
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            raise HttpError(400, "Invalid link ☹")
+            raise HttpError(400, _("Invalid link"))
         if not default_token_generator.check_token(user, body.token):
-            raise HttpError(400, "Invalid link ☹")
+            raise HttpError(400, _("Invalid link"))
         if body.password1 != body.password2:
-            raise HttpError(403, "Passwords aren't the same ☹")
+            raise HttpError(403, _("Passwords aren't the same"))
 
         # Change user's password
         user.set_password(body.password1)
@@ -113,7 +126,7 @@ class AuthService:
 
         # Delete user's token for password reset
         PasswordResetToken.objects.filter(user=user).delete()
-        return MessageOutSchema(message="Password reset successfully.")
+        return MessageOutSchema(message=_("Password reset successfully."))
 
     @staticmethod
     def check_change_password(body: ConfirmationSchema) -> MessageOutSchema:
@@ -128,8 +141,8 @@ class AuthService:
             uid = urlsafe_base64_decode(body.uidb64).decode()
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            raise HttpError(400, "Invalid link ☹")
+            raise HttpError(400, _("Invalid link"))
         if not default_token_generator.check_token(user, body.token):
-            raise HttpError(400, "Invalid link ☹")
+            raise HttpError(400, _("Invalid link"))
 
-        return MessageOutSchema(message="Data is valid.")
+        return MessageOutSchema(message=_("Promo code is valid."))

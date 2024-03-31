@@ -7,6 +7,7 @@ $(document).ready(function() {
         $(this).summernote({
             lang: 'ru-RU',
             height: "200",
+            width: "400",
                 toolbar: [
         ['style', ['style']],
         ['font', ['bold', 'italic', 'underline', 'clear']],

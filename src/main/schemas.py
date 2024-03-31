@@ -28,8 +28,7 @@ class WhyChooseUsSchema(ModelSchema):
 
     class Meta:
         model = WhyChooseUs
-        fields = "__all__"
-        exclude = ("id",)
+        fields = ['icon', 'icon_alt', 'title', 'description']
 
 
 class ReviewsSchema(ModelSchema):
@@ -42,8 +41,12 @@ class ReviewsSchema(ModelSchema):
 
     class Meta:
         model = Review
-        fields = "__all__"
-        exclude = ("id",)
+        fields = ['author',
+                  'comment',
+                  'stars_count',
+                  'source_of_review_url',
+                  'date_published',
+                  'source_of_review']
 
 
 class NewsSchema(ModelSchema):
@@ -54,7 +57,7 @@ class NewsSchema(ModelSchema):
     queryset to client side
     """
 
-    game: game_schemas.GameLogosProductSchema
+    game: game_schemas.GameLogosFilterSchema
 
     @staticmethod
     def resolve_image(obj):
@@ -62,8 +65,13 @@ class NewsSchema(ModelSchema):
 
     class Meta:
         model = News
-        fields = "__all__"
-        exclude = ("id",)
+        fields = [
+            'title',
+            'image',
+            'image_alt',
+            'description',
+            'date_published',
+        ]
 
 
 class InstaSchema(ModelSchema):
@@ -73,10 +81,15 @@ class InstaSchema(ModelSchema):
     Purpose of this schema to return Insta
     queryset to client side
     """
+    img_thumbnail: str | None = None
 
     @staticmethod
     def resolve_img(obj):
         return ABSOLUTE_URL + obj.img.url
+
+    @staticmethod
+    def resolve_img_thumbnail(obj):
+        return ABSOLUTE_URL + obj.img_thumbnail.url
 
     class Meta:
         model = Insta
@@ -93,8 +106,27 @@ class SettingsOutSchema(ModelSchema):
 
     class Meta:
         model = Setting
-        fields = "__all__"
-        exclude = ["subscribe_sale", "id"]
+        fields = [
+            'instagram_nickname',
+            'instagram_link',
+            'facebook_link',
+            'reddit_link',
+            'email',
+            'discord_link',
+            'whats_up_link',
+            'header_top_text',
+            'footer_bottom_text',
+            'footer_description',
+            'privacy_policy_link',
+            'terms_of_use_link',
+            'refund_policy_link',
+            'address1',
+            'address1_link',
+            'address2',
+            'address2_link',
+            'subscribe_form_text',
+            'subscribe_sale',
+        ]
 
 
 class ReviewsSectionSchema(Schema):
