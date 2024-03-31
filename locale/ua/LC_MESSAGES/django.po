@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-25 17:16+0200\n"
+"POT-Creation-Date: 2024-03-31 14:10+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: config/urls.py:42
+#: config/urls.py:41
 msgid "Unauthorized"
 msgstr "Не авторизований"
 
@@ -38,126 +38,153 @@ msgstr "Не знайдено розділ WorthLook для цієї сторі�
 msgid "Not Found: No CatalogTab matches the given query."
 msgstr "Не знайдено: жодна вкладка каталогу не відповідає заданому запиту."
 
-#: src/main/services/main_service.py:93
-msgid "Not Found: No PromoCode matches the given query."
-msgstr "Не знайдено: жоден промо код не відповідає заданому запиту."
+#: src/orders/models.py:35
+msgid "IN PROGRESS"
+msgstr "В ПРОЦЕСІ"
 
-#: src/main/services/main_service.py:101
-msgid "Promo code has been expired"
-msgstr "Термін дії промокоду закінчився"
+#: src/orders/models.py:36
+msgid "CANCELED"
+msgstr "СКАСОВАНО"
 
-#: src/main/services/main_service.py:103
-msgid "Promo code has been already used"
-msgstr "Промокод вже використано"
+#: src/orders/models.py:37
+msgid "COMPLETED"
+msgstr "ВИКОНАНО"
 
-#: src/orders/services/order_service.py:63
+#: src/orders/services/order_service.py:66
 msgid "Not Found: No CartItem matches the given query."
 msgstr "Не знайдено: жоден елемент корзини не відповідає заданому запиту."
 
-#: src/orders/services/order_service.py:66
+#: src/orders/services/order_service.py:69
 msgid "Cart items has been deleted successfully"
 msgstr "Товари кошика успішно видалено"
 
-#: src/orders/services/order_service.py:77
+#: src/orders/services/order_service.py:151
 msgid "Your cart is empty"
 msgstr "Ваш кошик порожній"
 
-#: src/orders/services/order_service.py:114
+#: src/orders/services/order_service.py:170
 msgid "Order issued successfully"
 msgstr "Замовлення виконано успішно"
 
-#: src/orders/services/order_service.py:128
+#: src/orders/services/order_service.py:184
 #: src/users/services/user_service.py:33 src/users/services/user_service.py:50
-#: src/users/services/user_service.py:70 src/users/services/user_service.py:86
+#: src/users/services/user_service.py:72 src/users/services/user_service.py:88
 msgid "Not Found: No User matches the given query."
 msgstr "Не знайдено: жоден користувач не відповідає заданому запиту."
 
-#: src/orders/services/order_service.py:145
+#: src/orders/services/order_service.py:201
 msgid "Not Found: No Order matches the given query."
 msgstr "Не знайдено: жодне замовлення не відповідає заданому запиту."
 
-#: src/orders/services/order_service.py:149
-msgid "Cannot repeat order, some products are not exists nowadays"
+#: src/orders/services/order_service.py:206
+#: src/orders/services/order_service.py:213
+msgid "Cannot repeat order, some products does not exists nowadays"
 msgstr "Неможливо повторити замовлення, деяких товарів зараз немає"
 
-#: src/products/services/product_service.py:44
-#: src/products/services/product_service.py:100
+#: src/orders/services/order_service.py:256
+msgid "Order repeated successfully"
+msgstr "Замовлення повторено успішно"
+
+#: src/orders/services/order_service.py:273
+msgid "Not Found: No PromoCode matches the given query."
+msgstr "Не знайдено: жоден промо код не відповідає заданому запиту."
+
+#: src/orders/services/order_service.py:281
+msgid "Promo code has been expired"
+msgstr "Термін дії промокоду закінчився"
+
+#: src/orders/services/order_service.py:283
+msgid "Promo code has been already used"
+msgstr "Промокод вже використано"
+
+#: src/products/services/product_service.py:47
+#: src/products/services/product_service.py:104
 msgid "Not Found: No Product matches the given query."
 msgstr "Не знайдено: жоден продукт не відповідає заданому запиту."
 
-#: src/products/services/product_service.py:63
+#: src/products/services/product_service.py:66
 msgid "Sub filters has been chosen incorrectly "
 msgstr "Підфільтри вибрано неправильно"
 
-#: src/products/services/product_service.py:81
+#: src/products/services/product_service.py:84
 msgid "Product added to cart successfully"
 msgstr "Товар успішно додано в кошик"
 
-#: src/products/services/product_service.py:147
+#: src/products/services/product_service.py:174
 msgid "Not Found: No ProductTabs matches the given query."
 msgstr "Не знайдено: жодна вкладка продукту не відповідає заданому запиту."
+
+#: src/products/services/product_service.py:203
+msgid "Not Found: No FreqBought matches the given query."
+msgstr "Не знайдено: жодена колекція не відповідає заданому запиту."
+
+#: src/products/services/product_service.py:207
+msgid "Freqbot element added to cart successfully"
+msgstr "Колекцію успішно додано в кошик"
 
 #: src/users/services/auth_service.py:35
 msgid "This email already in use"
 msgstr "Ця електронна адреса вже використовується"
 
-#: src/users/services/auth_service.py:41
+#: src/users/services/auth_service.py:51
 msgid "Please confirm your registration. We have send letter to your email"
-msgstr "Будь ласка, підтвердьте свою реєстрацію. Ми надіслали листа на вашу електронну пошту"
+msgstr ""
+"Будь ласка, підтвердьте свою реєстрацію. Ми надіслали листа на вашу "
+"електронну пошту"
 
-#: src/users/services/auth_service.py:60
+#: src/users/services/auth_service.py:70
 msgid "Email has already been confirmed"
 msgstr "Електронна пошта вже підтверджена"
 
-#: src/users/services/auth_service.py:63
+#: src/users/services/auth_service.py:73
 msgid "Email has been confirmed successfully"
 msgstr "Електронна пошта успішно підтверджена"
 
-#: src/users/services/auth_service.py:65 src/users/services/auth_service.py:107
-#: src/users/services/auth_service.py:109
-#: src/users/services/auth_service.py:134
-#: src/users/services/auth_service.py:136
+#: src/users/services/auth_service.py:75 src/users/services/auth_service.py:117
+#: src/users/services/auth_service.py:119
+#: src/users/services/auth_service.py:144
+#: src/users/services/auth_service.py:146
 msgid "Invalid link"
 msgstr "Недійсне посилання"
 
-#: src/users/services/auth_service.py:80
+#: src/users/services/auth_service.py:90
 msgid "There is not user registered with that email"
 msgstr "Немає зареєстрованого користувача з такою електронною адресою"
 
-#: src/users/services/auth_service.py:84
+#: src/users/services/auth_service.py:94
 msgid "Please confirm reset password. We have send instructions to your email"
 msgstr ""
 "Підтвердьте скидання пароля. Ми надіслали інструкції на вашу електронну пошту"
 
-#: src/users/services/auth_service.py:111
+#: src/users/services/auth_service.py:121
 msgid "Passwords aren't the same"
 msgstr "Паролі не однакові"
 
-#: src/users/services/auth_service.py:119
+#: src/users/services/auth_service.py:129
 msgid "Password reset successfully."
 msgstr "Пароль скинуто успішно."
 
-#: src/users/services/auth_service.py:138
+#: src/users/services/auth_service.py:148
 msgid "Promo code is valid."
 msgstr "Промокод дійсний."
 
-#: src/users/services/user_service.py:103
-#: src/users/services/user_service.py:123
+#: src/users/services/user_service.py:105
+#: src/users/services/user_service.py:125
 msgid "Not Found: No Character matches the given query."
 msgstr "Не знайдено: жоден персонаж не відповідає заданому запиту."
 
-#: src/users/services/user_service.py:126
+#: src/users/services/user_service.py:128
 msgid "Character deleted successfully"
 msgstr "Персонаж успішно видалено"
 
-#: src/users/services/user_service.py:137
+#: src/users/services/user_service.py:139
 msgid "Not more than 3 characters are possible to create"
 msgstr "Можна створити не більше 3х персонажів"
 
-#: src/users/services/user_service.py:154
+#: src/users/services/user_service.py:156
 msgid "This email has been already subscribed"
 msgstr "Ця пошта вже використовується"
 
-#: src/users/services/user_service.py:155
+#: src/users/services/user_service.py:157
 msgid "You are successfully subscribed"
 msgstr "Ви успішно підписані"

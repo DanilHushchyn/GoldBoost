@@ -43,4 +43,4 @@ create_app_example:
 locale_cmd_1:
 	django-admin makemessages -l en
 comp_msg:
-	django-admin complimessages
+	django-admin compilemessages

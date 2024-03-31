@@ -16,6 +16,7 @@ from django.db import models
 from src.products.models import Product, SubFilter, FreqBought
 from src.products.utils import make_sale
 from src.users.models import User
+from django.utils.translation import gettext as _
 
 
 # Create your models here.
@@ -31,9 +32,9 @@ class Order(models.Model):
     number = models.PositiveBigIntegerField(null=True, unique=True)
     # Status Choices
     ORDER_STATUS_CHOICES = (
-        ("IN PROGRESS", "IN PROGRESS"),
-        ("CANCELED", "CANCELED"),
-        ("COMPLETED", "COMPLETED"),
+        ("IN PROGRESS", _("IN PROGRESS")),
+        ("CANCELED", _("CANCELED")),
+        ("COMPLETED", _("COMPLETED")),
     )
     status = models.CharField(max_length=20,
                               choices=ORDER_STATUS_CHOICES,
