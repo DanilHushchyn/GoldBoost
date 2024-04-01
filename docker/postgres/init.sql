@@ -1,4 +1,4 @@
 CREATE USER danil WITH PASSWORD 'danil';
 
-CREATE DATABASE gold_boost_db;
-GRANT ALL PRIVILEGES ON DATABASE gold_boost_db TO danil;
+CREATE DATABASE gold_boost;
+GRANT ALL PRIVILEGES ON DATABASE gold_boost TO danil;

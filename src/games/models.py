@@ -18,7 +18,7 @@ class Game(models.Model):
 
     """
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     logo_filter = models.ImageField(upload_to=get_timestamp_path,
                                     null=True)
     logo_product = models.ImageField(upload_to=get_timestamp_path,

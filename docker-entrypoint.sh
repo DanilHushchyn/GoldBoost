@@ -14,6 +14,6 @@ fi
 
 python manage.py flush --no-input
 python manage.py migrate --no-input
-python manage.py loaddata db.json
+python manage.py init_script
 
 exec "$@"

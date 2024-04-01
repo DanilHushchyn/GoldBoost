@@ -12,6 +12,7 @@
        PromoCode
        Subscriber
 """
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from imagekit.models.fields import ImageSpecField
 from imagekit.processors import ResizeToFill
@@ -111,7 +112,12 @@ class Review(models.Model):
 
     author = models.CharField(max_length=255, null=True)
     comment = models.TextField()
-    stars_count = models.FloatField()
+    stars_count = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[
+            MaxValueValidator(5),
+            MinValueValidator(1)
+        ])
     source_of_review = models.CharField(max_length=255)
     source_of_review_url = models.URLField(null=True)
     date_published = models.DateField(auto_now_add=True)
