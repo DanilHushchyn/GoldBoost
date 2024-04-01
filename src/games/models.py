@@ -19,10 +19,8 @@ class Game(models.Model):
     """
 
     name = models.CharField(max_length=255, unique=True)
-    logo_filter = models.ImageField(upload_to=get_timestamp_path,
-                                    null=True)
-    logo_product = models.ImageField(upload_to=get_timestamp_path,
-                                     null=True)
+    logo_filter = models.ImageField(upload_to=get_timestamp_path, null=True)
+    logo_product = models.ImageField(upload_to=get_timestamp_path, null=True)
     logo_filter_alt = models.CharField(max_length=255, null=True)
     logo_product_alt = models.CharField(max_length=255, null=True)
     order = models.IntegerField(null=True)
@@ -36,7 +34,7 @@ class Game(models.Model):
         ordering = ["order"]
         verbose_name = "Games"
         verbose_name_plural = "Games"
-        db_table = 'games'
+        db_table = "games"
 
 
 class CatalogPage(ModelMeta, models.Model):
@@ -45,22 +43,14 @@ class CatalogPage(ModelMeta, models.Model):
 
     """
 
-    parent = models.ForeignKey("self", on_delete=models.SET_NULL,
-                               blank=True, null=True,
-                               related_name="items")
+    parent = models.ForeignKey("self", on_delete=models.SET_NULL, blank=True, null=True, related_name="items")
     title = models.CharField()
     description = models.TextField()
     game = models.ForeignKey(
-        "Game", on_delete=models.SET_NULL,
-        null=True, related_query_name="game",
-        related_name="catalog_pages"
+        "Game", on_delete=models.SET_NULL, null=True, related_query_name="game", related_name="catalog_pages"
     )
-    calendar = models.ForeignKey("Calendar",
-                                 on_delete=models.SET_NULL,
-                                 null=True, blank=True)
-    worth_look = models.ForeignKey("WorthLook",
-                                   on_delete=models.SET_NULL,
-                                   null=True, blank=True)
+    calendar = models.ForeignKey("Calendar", on_delete=models.SET_NULL, null=True, blank=True)
+    worth_look = models.ForeignKey("WorthLook", on_delete=models.SET_NULL, null=True, blank=True)
     order = models.IntegerField(null=True)
     is_deleted = models.BooleanField(default=False)
     objects = CatalogPageManager()
@@ -77,7 +67,7 @@ class CatalogPage(ModelMeta, models.Model):
         ordering = ["order"]
         verbose_name = "Catalog Page"
         verbose_name_plural = "Catalog Pages"
-        db_table = 'catalog_pages'
+        db_table = "catalog_pages"
 
 
 class CatalogTabs(models.Model):
@@ -90,15 +80,15 @@ class CatalogTabs(models.Model):
     title = models.CharField()
     content = models.TextField()
     order = models.PositiveIntegerField(null=True)
-    catalog = models.ForeignKey("CatalogPage",
-                                on_delete=models.CASCADE,
-                                null=True, related_name='tabs')
+    catalog = models.ForeignKey("CatalogPage", on_delete=models.CASCADE, null=True, related_name="tabs")
 
     class Meta:
-        ordering = ['order', ]
+        ordering = [
+            "order",
+        ]
         verbose_name = "Catalog Tab"
         verbose_name_plural = "Catalog Tabs"
-        db_table = 'catalog_tabs'
+        db_table = "catalog_tabs"
 
 
 class WorthLook(models.Model):
@@ -110,7 +100,7 @@ class WorthLook(models.Model):
     class Meta:
         verbose_name = "Worth look"
         verbose_name_plural = "Worth look"
-        db_table = 'worth_look'
+        db_table = "worth_look"
 
 
 class WorthLookItem(models.Model):
@@ -123,11 +113,8 @@ class WorthLookItem(models.Model):
 
     image = models.ImageField(upload_to=get_timestamp_path, null=True)
     image_alt = models.CharField(max_length=255, null=True)
-    catalog_page = models.ForeignKey("CatalogPage",
-                                     on_delete=models.CASCADE, null=True)
-    carousel = models.ForeignKey("WorthLook",
-                                 on_delete=models.CASCADE,
-                                 related_name='items', null=True)
+    catalog_page = models.ForeignKey("CatalogPage", on_delete=models.CASCADE, null=True)
+    carousel = models.ForeignKey("WorthLook", on_delete=models.CASCADE, related_name="items", null=True)
 
     def __str__(self):
         return self.catalog_page.title
@@ -135,7 +122,7 @@ class WorthLookItem(models.Model):
     class Meta:
         verbose_name = "Worth look item"
         verbose_name_plural = "Worth look items"
-        db_table = 'worth_look_items'
+        db_table = "worth_look_items"
 
 
 class Calendar(models.Model):
@@ -144,6 +131,7 @@ class Calendar(models.Model):
 
     This model related to CatalogPage
     """
+
     title = models.CharField(max_length=255, null=True)
 
     def __str__(self):
@@ -152,7 +140,7 @@ class Calendar(models.Model):
     class Meta:
         verbose_name = "Calendar"
         verbose_name_plural = "Calendars"
-        db_table = 'calendars'
+        db_table = "calendars"
 
 
 class CalendarBlock(models.Model):
@@ -164,8 +152,7 @@ class CalendarBlock(models.Model):
 
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255)
-    calendar = models.ForeignKey("Calendar",
-                                 on_delete=models.CASCADE, null=True)
+    calendar = models.ForeignKey("Calendar", on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.title
@@ -173,7 +160,7 @@ class CalendarBlock(models.Model):
     class Meta:
         verbose_name = "Calendar Block"
         verbose_name_plural = "Calendar Blocks"
-        db_table = 'calendar_blocks'
+        db_table = "calendar_blocks"
 
 
 class CalendarBlockItem(models.Model):
@@ -190,17 +177,16 @@ class CalendarBlockItem(models.Model):
     #     team2_img_alt = models.CharField(max_length=255, null=True)
     team2_from = models.TimeField()
     team2_until = models.TimeField()
-    block = models.ForeignKey("CalendarBlock",
-                              on_delete=models.CASCADE, null=True)
-    team1 = models.ForeignKey("Team", related_query_name='team1',
-                              related_name='calendars1',
-                              on_delete=models.CASCADE, null=True)
-    team2 = models.ForeignKey("Team", related_query_name='team2',
-                              related_name='calendars2',
-                              on_delete=models.CASCADE, null=True)
+    block = models.ForeignKey("CalendarBlock", on_delete=models.CASCADE, null=True)
+    team1 = models.ForeignKey(
+        "Team", related_query_name="team1", related_name="calendars1", on_delete=models.CASCADE, null=True
+    )
+    team2 = models.ForeignKey(
+        "Team", related_query_name="team2", related_name="calendars2", on_delete=models.CASCADE, null=True
+    )
 
     class Meta:
-        db_table = 'calendar_block_items'
+        db_table = "calendar_block_items"
 
 
 class Team(models.Model):
@@ -215,4 +201,4 @@ class Team(models.Model):
         return self.team_img_alt
 
     class Meta:
-        db_table = 'teams'
+        db_table = "teams"

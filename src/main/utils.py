@@ -5,7 +5,7 @@ from ninja_extra.exceptions import APIException
 
 class LangEnum(Enum):
     English = "en"
-    Ukrainian = "ua"
+    Ukrainian = "uk"
 
 
 class CustomAPIException(APIException):

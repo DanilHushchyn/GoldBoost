@@ -49,13 +49,12 @@ INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "modeltranslation",
-
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "corsheaders",
-    'imagekit',
+    "imagekit",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -308,8 +307,11 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 CORS_ORIGIN_ALLOW_ALL = True
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:1337", "http://127.0.0.1",
-                        "https://goodboost-spacelab.avada-media-dev2.od.ua"]
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:1337",
+    "http://127.0.0.1",
+    "https://goodboost-spacelab.avada-media-dev2.od.ua",
+]
 ROOT_URLCONF = "config.urls"
 
 SITE_ID = 1
@@ -397,15 +399,13 @@ USE_TZ = True
 
 LANGUAGES = [
     ("en", "English"),
-    ("ua", "Ukrainian"),
+    ("uk", "Ukrainian"),
 ]
 
 
-MODELTRANSLATION_LANGUAGES = ('en', 'ua')
+MODELTRANSLATION_LANGUAGES = ("en", "uk")
 # MODELTRANSLATION_FALLBACK_LANGUAGES = {'default': ('en',)}
-LOCALE_PATHS = [
-    os.path.join(BASE_DIR, 'locale')
-]
+LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static"
 STATICFILES_DIRS = []

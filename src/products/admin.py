@@ -72,9 +72,9 @@ class ProductForm(forms.ModelForm):
         ]
         # widgets = {
         #     "title_en": UnfoldAdminTextInputWidget(attrs={}),
-        #     "title_ua": UnfoldAdminTextInputWidget(attrs={}),
+        #     "title_uk": UnfoldAdminTextInputWidget(attrs={}),
         #     "subtitle_en": UnfoldAdminTextInputWidget(attrs={}),
-        #     "subtitle_ua": UnfoldAdminTextInputWidget(attrs={}),
+        #     "subtitle_uk": UnfoldAdminTextInputWidget(attrs={}),
         #     "price_per_run": UnfoldAdminDecimalFieldWidget(attrs={}),
         #     "sale_percent": UnfoldAdminIntegerFieldWidget(attrs={}),
         #     "sale_until": UnfoldAdminSplitDateTimeWidget(attrs={}),
@@ -82,7 +82,7 @@ class ProductForm(forms.ModelForm):
         #     "bonus_points": UnfoldAdminIntegerFieldWidget(attrs={}),
         #     "price": UnfoldAdminDecimalFieldWidget(attrs={}),
         #     "description_en": UnfoldAdminTextareaWidget(attrs={}),
-        #     "description_ua": UnfoldAdminTextareaWidget(attrs={}),
+        #     "description_uk": UnfoldAdminTextareaWidget(attrs={}),
         #     "tab": UnfoldAdminSelect(attrs={}),
         #     "filter": UnfoldAdminSelect(attrs={}),
         #     "catalog_page": UnfoldAdminSelect(attrs={}),
@@ -91,9 +91,9 @@ class ProductForm(forms.ModelForm):
         #     "runs": UnfoldBooleanWidget(attrs={}),
         #     "sale": UnfoldBooleanWidget(attrs={}),
         #     "card_img_alt_en": UnfoldAdminTextInputWidget(attrs={}),
-        #     "card_img_alt_ua": UnfoldAdminTextInputWidget(attrs={}),
+        #     "card_img_alt_uk": UnfoldAdminTextInputWidget(attrs={}),
         #     "image_alt_en": UnfoldAdminTextInputWidget(attrs={}),
-        #     "image_alt_ua": UnfoldAdminTextInputWidget(attrs={}),
+        #     "image_alt_uk": UnfoldAdminTextInputWidget(attrs={}),
         #     "card_img": UnfoldAdminImageFieldWidget(attrs={}),
         #     "image": UnfoldAdminImageFieldWidget(attrs={}),
         #     "tag": UnfoldAdminSelect(attrs={}),
@@ -114,7 +114,7 @@ class TagForm(forms.ModelForm):
         exclude = ['name', ]
         widgets = {
             "name_en": UnfoldAdminTextInputWidget(attrs={}),
-            "name_ua": UnfoldAdminTextInputWidget(attrs={}),
+            "name_uk": UnfoldAdminTextInputWidget(attrs={}),
             "color": UnfoldAdminTextInputWidget(attrs={}),
         }
 
@@ -215,7 +215,7 @@ class FilterForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['title_en'].required = True
-        self.fields['title_ua'].required = True
+        self.fields['title_uk'].required = True
 
     class Meta:
         model = Filter
@@ -223,7 +223,7 @@ class FilterForm(forms.ModelForm):
         exclude = ['title']
         widgets = {
             "title_en": UnfoldAdminTextInputWidget(attrs={}),
-            "title_ua": UnfoldAdminTextInputWidget(attrs={}),
+            "title_uk": UnfoldAdminTextInputWidget(attrs={}),
             "type": UnfoldAdminSelect(attrs={}),
             "product": UnfoldAdminSelect(attrs={}),
             "order": UnfoldAdminTextInputWidget(attrs={}),
@@ -241,11 +241,11 @@ class SubFilterForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['title_en'].required = True
-        self.fields['title_ua'].required = True
+        self.fields['title_uk'].required = True
         instance = getattr(self, 'instance', None)
         if instance and instance.pk:
             self.fields['title_en'].widget.attrs['readonly'] = True
-            self.fields['title_ua'].widget.attrs['readonly'] = True
+            self.fields['title_uk'].widget.attrs['readonly'] = True
 
     class Meta:
         model = SubFilter
@@ -254,7 +254,7 @@ class SubFilterForm(forms.ModelForm):
 
         widgets = {
             "title_en": UnfoldAdminTextInputWidget(attrs={}),
-            "title_ua": UnfoldAdminTextInputWidget(attrs={}),
+            "title_uk": UnfoldAdminTextInputWidget(attrs={}),
             "price": UnfoldAdminDecimalFieldWidget(attrs={}),
             "order": UnfoldAdminTextInputWidget(attrs={}),
         }
@@ -297,9 +297,9 @@ class ProductTabsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['title_en'].required = True
-        self.fields['title_ua'].required = True
+        self.fields['title_uk'].required = True
         self.fields['content_en'].required = True
-        self.fields['content_ua'].required = True
+        self.fields['content_uk'].required = True
 
     class Meta:
         model = ProductTabs
@@ -308,9 +308,9 @@ class ProductTabsForm(forms.ModelForm):
 
         widgets = {
             "title_en": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
-            "title_ua": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
+            "title_uk": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
             "content_en": UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
-            "content_ua": UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
+            "content_uk": UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
             "order": UnfoldAdminIntegerFieldWidget(attrs={"style": "width: 80px;"}),
         }
 

@@ -24,7 +24,6 @@ from src.products.models import Product, SubFilter
 from src.products.utils import get_timestamp_path
 from src.users.models import User
 
-
 # Create your models here.
 
 
@@ -55,10 +54,9 @@ class Insta(models.Model):
     """
 
     img = models.ImageField(upload_to=get_timestamp_path, null=True)
-    img_thumbnail = ImageSpecField(source='img',
-                                   processors=[ResizeToFill(180, 183)],
-                                   format='PNG',
-                                   options={'quality': 90})
+    img_thumbnail = ImageSpecField(
+        source="img", processors=[ResizeToFill(180, 183)], format="PNG", options={"quality": 90}
+    )
     img_alt = models.CharField(max_length=255, null=True)
 
     def __str__(self):
@@ -93,8 +91,7 @@ class News(models.Model):
 
     def save(self, *args, **kwargs):
         if self._state.adding:
-            share_news.delay(news_title=self.title,
-                             news_descr=self.description)
+            share_news.delay(news_title=self.title, news_descr=self.description)
         super().save(*args, **kwargs)
 
     class Meta:
@@ -112,12 +109,7 @@ class Review(models.Model):
 
     author = models.CharField(max_length=255, null=True)
     comment = models.TextField()
-    stars_count = models.PositiveSmallIntegerField(
-        default=1,
-        validators=[
-            MaxValueValidator(5),
-            MinValueValidator(1)
-        ])
+    stars_count = models.PositiveSmallIntegerField(default=1, validators=[MaxValueValidator(5), MinValueValidator(1)])
     source_of_review = models.CharField(max_length=255)
     source_of_review_url = models.URLField(null=True)
     date_published = models.DateField(auto_now_add=True)
@@ -215,6 +207,7 @@ class OrderItem(models.Model):
     Model represents order's items.
 
     """
+
     # price = models.PositiveIntegerField(null=True)
     quantity = models.PositiveIntegerField(null=True)
     product = models.ForeignKey(

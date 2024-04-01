@@ -52,9 +52,9 @@ class GameForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['logo_filter_alt_en'].required = True
-        self.fields['logo_filter_alt_ua'].required = True
+        self.fields['logo_filter_alt_uk'].required = True
         self.fields['logo_product_alt_en'].required = True
-        self.fields['logo_product_alt_ua'].required = True
+        self.fields['logo_product_alt_uk'].required = True
 
     class Meta:
         model = Game
@@ -110,9 +110,9 @@ class CatalogTabsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['title_en'].required = True
-        self.fields['title_ua'].required = True
+        self.fields['title_uk'].required = True
         self.fields['content_en'].required = True
-        self.fields['content_ua'].required = True
+        self.fields['content_uk'].required = True
 
     class Meta:
         model = CatalogTabs
@@ -121,9 +121,9 @@ class CatalogTabsForm(forms.ModelForm):
 
         widgets = {
             "title_en": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
-            "title_ua": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
+            "title_uk": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
             "content_en": UnfoldAdminTextareaWidget(attrs={"style": "width: 200px;", "summernote": "true", }),
-            "content_ua": UnfoldAdminTextareaWidget(attrs={"style": "width: 200px;", "summernote": "true", }),
+            "content_uk": UnfoldAdminTextareaWidget(attrs={"style": "width: 200px;", "summernote": "true", }),
             "order": UnfoldAdminIntegerFieldWidget(attrs={"style": "width: 80px;"}),
         }
 

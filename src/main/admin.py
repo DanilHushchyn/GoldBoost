@@ -76,10 +76,10 @@ class ReviewForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['author_en'].required = True
-        self.fields['author_ua'].required = True
+        self.fields['author_uk'].required = True
 
         self.fields['comment_en'].required = True
-        self.fields['comment_ua'].required = True
+        self.fields['comment_uk'].required = True
 
     class Meta:
         model = Review
@@ -110,11 +110,11 @@ class WhyChooseUsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['title_en'].required = True
-        self.fields['title_ua'].required = True
+        self.fields['title_uk'].required = True
         self.fields['icon_alt_en'].required = True
-        self.fields['icon_alt_ua'].required = True
+        self.fields['icon_alt_uk'].required = True
         self.fields['description_en'].required = True
-        self.fields['description_ua'].required = True
+        self.fields['description_uk'].required = True
 
     class Meta:
         model = WhyChooseUs
@@ -164,7 +164,7 @@ class InstaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['img_alt_en'].required = True
-        self.fields['img_alt_ua'].required = True
+        self.fields['img_alt_uk'].required = True
 
     class Meta:
         model = Insta
