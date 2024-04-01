@@ -25,18 +25,30 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.widgets import (
     UnfoldAdminImageFieldWidget,
+    UnfoldAdminIntegerFieldWidget,
+    UnfoldAdminSelect,
     UnfoldAdminSingleDateWidget,
     UnfoldAdminSingleTimeWidget,
-    UnfoldAdminTextareaWidget, UnfoldAdminTextInputWidget, UnfoldAdminIntegerFieldWidget, UnfoldAdminSelect,
+    UnfoldAdminTextareaWidget,
+    UnfoldAdminTextInputWidget,
 )
 
-from src.games.models import CalendarBlock, CalendarBlockItem, CatalogPage, Game, WorthLookItem, \
-    WorthLook, Calendar, CatalogTabs, Team
+from src.games.models import (
+    Calendar,
+    CalendarBlock,
+    CalendarBlockItem,
+    CatalogPage,
+    CatalogTabs,
+    Game,
+    Team,
+    WorthLook,
+    WorthLookItem,
+)
 
 
 class WorthLookItemInline(TabularInline):
     model = WorthLookItem
-    exclude = ['image_alt']
+    exclude = ["image_alt"]
     extra = 0
 
 
@@ -51,15 +63,15 @@ class WorthLookCarouselItem(ModelAdmin):
 class GameForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['logo_filter_alt_en'].required = True
-        self.fields['logo_filter_alt_uk'].required = True
-        self.fields['logo_product_alt_en'].required = True
-        self.fields['logo_product_alt_uk'].required = True
+        self.fields["logo_filter_alt_en"].required = True
+        self.fields["logo_filter_alt_uk"].required = True
+        self.fields["logo_product_alt_en"].required = True
+        self.fields["logo_product_alt_uk"].required = True
 
     class Meta:
         model = Game
         fields = "__all__"
-        exclude = ['logo_filter_alt', 'logo_product_alt', 'is_deleted']
+        exclude = ["logo_filter_alt", "logo_product_alt", "is_deleted"]
 
 
 class CalendarItemForm(forms.ModelForm):
@@ -69,8 +81,8 @@ class CalendarItemForm(forms.ModelForm):
 
         widgets = {
             "date": UnfoldAdminSingleDateWidget(attrs={"style": "width: 180px;"}),
-            "team1": UnfoldAdminSelect(attrs={"style": "width: 150px;", "placeholder": 'Select value'}),
-            "team2": UnfoldAdminSelect(attrs={"style": "width: 150px;", "placeholder": 'Select value'}),
+            "team1": UnfoldAdminSelect(attrs={"style": "width: 150px;", "placeholder": "Select value"}),
+            "team2": UnfoldAdminSelect(attrs={"style": "width: 150px;", "placeholder": "Select value"}),
             "team1_from": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 160px;"}),
             "team2_from": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 160px;"}),
             "team1_until": UnfoldAdminSingleTimeWidget(attrs={"style": "width: 160px;"}),
@@ -87,7 +99,7 @@ class CalendarBlockItemInline(TabularInline):
 @admin.register(CalendarBlock)
 class CalendarBlockModelAdmin(ModelAdmin):
     model = CalendarBlock
-    exclude = ['title', 'subtitle']
+    exclude = ["title", "subtitle"]
 
     inlines = [
         CalendarBlockItemInline,
@@ -109,21 +121,31 @@ class CatalogTabsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['title_en'].required = True
-        self.fields['title_uk'].required = True
-        self.fields['content_en'].required = True
-        self.fields['content_uk'].required = True
+        self.fields["title_en"].required = True
+        self.fields["title_uk"].required = True
+        self.fields["content_en"].required = True
+        self.fields["content_uk"].required = True
 
     class Meta:
         model = CatalogTabs
         fields = "__all__"
-        exclude = ['title', 'content']
+        exclude = ["title", "content"]
 
         widgets = {
             "title_en": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
             "title_uk": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
-            "content_en": UnfoldAdminTextareaWidget(attrs={"style": "width: 200px;", "summernote": "true", }),
-            "content_uk": UnfoldAdminTextareaWidget(attrs={"style": "width: 200px;", "summernote": "true", }),
+            "content_en": UnfoldAdminTextareaWidget(
+                attrs={
+                    "style": "width: 200px;",
+                    "summernote": "true",
+                }
+            ),
+            "content_uk": UnfoldAdminTextareaWidget(
+                attrs={
+                    "style": "width: 200px;",
+                    "summernote": "true",
+                }
+            ),
             "order": UnfoldAdminIntegerFieldWidget(attrs={"style": "width: 80px;"}),
         }
 
@@ -145,12 +167,11 @@ class CatalogPageForm(forms.ModelForm):
     class Meta:
         model = CatalogPage
         fields = "__all__"
-        exclude = ['title', 'description', 'is_deleted']
+        exclude = ["title", "description", "is_deleted"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['parent'].queryset = (
-            self.fields['parent'].queryset.exclude(id=self.instance.id))
+        self.fields["parent"].queryset = self.fields["parent"].queryset.exclude(id=self.instance.id)
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -163,9 +184,7 @@ class CatalogPageForm(forms.ModelForm):
 @admin.register(CatalogPage)
 class CatalogPagesAdminClass(ModelAdmin):
     form = CatalogPageForm
-    inlines = [
-        CatalogTabsInline
-    ]
+    inlines = [CatalogTabsInline]
 
     def delete_model(self, request, obj: CatalogPage):
         for product in obj.products.all():
@@ -207,4 +226,4 @@ class GameAdminClass(ModelAdmin):
 
 @admin.register(Team)
 class TeamAdminClass(ModelAdmin):
-    exclude = ['team_img_alt']
+    exclude = ["team_img_alt"]

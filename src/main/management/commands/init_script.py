@@ -102,20 +102,20 @@ class Command(BaseCommand):
             "address2_en": "Ukraine, Odessa, st. Kosmonavtov, 32",
             "address2_uk": "Українa, м. Одеса, вул. Космонавтів, 32",
             "footer_description_en": "We cooperate only with qualified and experienced top world players who participate "
-                                     "personally in each event and ready to provide you with the best boosting service and "
-                                     "gaming experience in your favorite online games. We ensure that every customer is "
-                                     "highly satisfied and 100% positive feedback of our work pretty much sums it up ;) Get "
-                                     "the most relevant eu boost and power leveling.",
+            "personally in each event and ready to provide you with the best boosting service and "
+            "gaming experience in your favorite online games. We ensure that every customer is "
+            "highly satisfied and 100% positive feedback of our work pretty much sums it up ;) Get "
+            "the most relevant eu boost and power leveling.",
             "footer_description_uk": "Ми співпрацюємо лише з кваліфікованими та досвідченими провідними світовими гравцями, "
-                                     "які особисто беруть участь у кожній події та готові надати вам найкращі послуги "
-                                     "підвищення та ігровий досвід у ваших улюблених онлайн-іграх. Ми гарантуємо, "
-                                     "що кожен клієнт буде дуже задоволений, і 100% позитивний відгук про нашу роботу майже "
-                                     "підсумовує це ;) Отримайте найрелевантнішу підтримку та підвищення потужності для ЄС.",
+            "які особисто беруть участь у кожній події та готові надати вам найкращі послуги "
+            "підвищення та ігровий досвід у ваших улюблених онлайн-іграх. Ми гарантуємо, "
+            "що кожен клієнт буде дуже задоволений, і 100% позитивний відгук про нашу роботу майже "
+            "підсумовує це ;) Отримайте найрелевантнішу підтримку та підвищення потужності для ЄС.",
             "header_top_text_en": "leave a trustpilot review and get an extra 10% off your next order!",
             "header_top_text_uk": "залиште відгук Trustpilot і отримайте додаткову знижку 10% на наступне замовлення!",
             "subscribe_form_text_en": "Sing up to our email newsteller and get 10% DISCOUNT on your first order!",
             "subscribe_form_text_uk": "Підпишіться на нашу електронну розсилку та отримайте ЗНИЖКУ 10% на перше "
-                                      "замовлення!",
+            "замовлення!",
             "address1_link": "https://www.youtube.com/",
             "address2_link": "https://www.youtube.com/",
         }
@@ -181,7 +181,7 @@ class Command(BaseCommand):
                     description_uk=self.fake_uk.text(max_nb_chars=150).capitalize(),
                     bonus_points=self.fake_en.pyint(min_value=10, max_value=150),
                     catalog_page_id=page.id,
-                    price_type='range' if i == 1 else 'fixed',
+                    price_type="range" if i == 1 else "fixed",
                     price=self.fake_en.pyint(min_value=5, max_value=600),
                     image=File(image, "/media/" + image.name),
                     card_img=File(card_image, "/media/" + card_image.name),
@@ -205,7 +205,7 @@ class Command(BaseCommand):
                     filter_obj = Filter.objects.create(
                         title_en=self.fake_en.word().capitalize(),
                         title_uk=self.fake_uk.word().capitalize(),
-                        type=random.choice(['Slider', 'Radio', 'CheckBox', 'Select']),
+                        type=random.choice(["Slider", "Radio", "CheckBox", "Select"]),
                         product_id=product.id,
                         order=j,
                     )

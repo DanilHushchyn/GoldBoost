@@ -20,11 +20,16 @@ Usage:
 For more information on the Django admin site, see the Django documentation:
 https://docs.djangoproject.com/en/stable/ref/contrib/admin/
 """
-from django import forms
-from unfold.admin import ModelAdmin
-from django.contrib import admin
+import json
 
+from django import forms
+from django.contrib import admin, messages
 from django.contrib.admin import TabularInline
+from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
+from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
+from django.urls import reverse
+from unfold.admin import ModelAdmin
 from unfold.widgets import (
     UnfoldAdminDecimalFieldWidget,
     UnfoldAdminIntegerFieldWidget,
@@ -33,14 +38,7 @@ from unfold.widgets import (
     UnfoldAdminTextInputWidget,
 )
 
-from src.products.models import Filter, Product, SubFilter, Tag, ProductTabs, FreqBought
-from django.contrib import messages
-from django.urls import reverse
-from django.http import HttpResponseRedirect
-import json
-from django.template.response import TemplateResponse
-from django.contrib.admin.templatetags.admin_urls import (
-    add_preserved_filters)
+from src.products.models import Filter, FreqBought, Product, ProductTabs, SubFilter, Tag
 
 IS_POPUP_VAR = "_popup"
 
@@ -54,21 +52,21 @@ class ProductForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        instance = getattr(self, 'instance', None)
+        instance = getattr(self, "instance", None)
         if instance and instance.pk:
-            self.fields['price_type'].widget = forms.HiddenInput()
-            self.fields['catalog_page'].widget = forms.HiddenInput()
+            self.fields["price_type"].widget = forms.HiddenInput()
+            self.fields["catalog_page"].widget = forms.HiddenInput()
 
     class Meta:
         model = Product
         exclude = [
-            'title',
-            'subtitle',
-            'image_alt',
-            'card_img_alt',
-            'description',
-            'bought_count',
-            'is_deleted',
+            "title",
+            "subtitle",
+            "image_alt",
+            "card_img_alt",
+            "description",
+            "bought_count",
+            "is_deleted",
         ]
         # widgets = {
         #     "title_en": UnfoldAdminTextInputWidget(attrs={}),
@@ -111,7 +109,9 @@ class TagForm(forms.ModelForm):
     class Meta:
         model = Tag
         fields = "__all__"
-        exclude = ['name', ]
+        exclude = [
+            "name",
+        ]
         widgets = {
             "name_en": UnfoldAdminTextInputWidget(attrs={}),
             "name_uk": UnfoldAdminTextInputWidget(attrs={}),
@@ -133,10 +133,8 @@ class TagAdmin(ModelAdmin):
         # For instance, you can perform additional actions or checks
         # such as preventing deletion of specific instances
         if obj.id == 1:
-            msg = 'Unable to delete tag HOT (very important tag).'
-            messages.add_message(request,
-                                 messages.ERROR,
-                                 msg)
+            msg = "Unable to delete tag HOT (very important tag)."
+            messages.add_message(request, messages.ERROR, msg)
 
             return False
             # request.user.message_set.create(message='Message text here')
@@ -145,11 +143,9 @@ class TagAdmin(ModelAdmin):
 
     def delete_queryset(self, request, queryset):
         """Given a queryset, delete it from the database."""
-        if 1 in queryset.values_list('id', flat=True):
-            msg = 'Unable to delete tag HOT (very important tag).'
-            messages.add_message(request,
-                                 messages.ERROR,
-                                 msg)
+        if 1 in queryset.values_list("id", flat=True):
+            msg = "Unable to delete tag HOT (very important tag)."
+            messages.add_message(request, messages.ERROR, msg)
             return False
         queryset.delete()
 
@@ -168,8 +164,7 @@ class TagAdmin(ModelAdmin):
                 request,
                 self.popup_response_template
                 or [
-                    "admin/%s/%s/popup_response.html"
-                    % (self.opts.app_label, self.opts.model_name),
+                    "admin/%s/%s/popup_response.html" % (self.opts.app_label, self.opts.model_name),
                     "admin/%s/popup_response.html" % self.opts.app_label,
                     "admin/popup_response.html",
                 ],
@@ -196,9 +191,7 @@ class TagAdmin(ModelAdmin):
                 current_app=self.admin_site.name,
             )
             preserved_filters = self.get_preserved_filters(request)
-            post_url = add_preserved_filters(
-                {"preserved_filters": preserved_filters, "opts": self.opts}, post_url
-            )
+            post_url = add_preserved_filters({"preserved_filters": preserved_filters, "opts": self.opts}, post_url)
         else:
             post_url = reverse("admin:index", current_app=self.admin_site.name)
         return HttpResponseRedirect(post_url)
@@ -214,13 +207,13 @@ class FilterForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['title_en'].required = True
-        self.fields['title_uk'].required = True
+        self.fields["title_en"].required = True
+        self.fields["title_uk"].required = True
 
     class Meta:
         model = Filter
         fields = "__all__"
-        exclude = ['title']
+        exclude = ["title"]
         widgets = {
             "title_en": UnfoldAdminTextInputWidget(attrs={}),
             "title_uk": UnfoldAdminTextInputWidget(attrs={}),
@@ -240,17 +233,17 @@ class SubFilterForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['title_en'].required = True
-        self.fields['title_uk'].required = True
-        instance = getattr(self, 'instance', None)
+        self.fields["title_en"].required = True
+        self.fields["title_uk"].required = True
+        instance = getattr(self, "instance", None)
         if instance and instance.pk:
-            self.fields['title_en'].widget.attrs['readonly'] = True
-            self.fields['title_uk'].widget.attrs['readonly'] = True
+            self.fields["title_en"].widget.attrs["readonly"] = True
+            self.fields["title_uk"].widget.attrs["readonly"] = True
 
     class Meta:
         model = SubFilter
         fields = "__all__"
-        exclude = ['title']
+        exclude = ["title"]
 
         widgets = {
             "title_en": UnfoldAdminTextInputWidget(attrs={}),
@@ -296,15 +289,15 @@ class ProductTabsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['title_en'].required = True
-        self.fields['title_uk'].required = True
-        self.fields['content_en'].required = True
-        self.fields['content_uk'].required = True
+        self.fields["title_en"].required = True
+        self.fields["title_uk"].required = True
+        self.fields["content_en"].required = True
+        self.fields["content_uk"].required = True
 
     class Meta:
         model = ProductTabs
         fields = "__all__"
-        exclude = ['title', 'content']
+        exclude = ["title", "content"]
 
         widgets = {
             "title_en": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
@@ -376,7 +369,7 @@ class FreqBoughtForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['products'].queryset = Product.objects.filter(price_type='fixed')
+        self.fields["products"].queryset = Product.objects.filter(price_type="fixed")
 
     class Meta:
         model = FreqBought

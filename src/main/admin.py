@@ -36,8 +36,8 @@ from unfold.widgets import (
 
 from src.main.models import Insta, News, PromoCode, Review, Setting, WhyChooseUs
 
-
 # Register your models here.
+
 
 class NewsForm(forms.ModelForm):
     """
@@ -50,7 +50,7 @@ class NewsForm(forms.ModelForm):
     class Meta:
         model = News
         fields = "__all__"
-        exclude = ['title', 'image_alt', 'description']
+        exclude = ["title", "image_alt", "description"]
 
 
 @admin.register(News)
@@ -75,16 +75,16 @@ class ReviewForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['author_en'].required = True
-        self.fields['author_uk'].required = True
+        self.fields["author_en"].required = True
+        self.fields["author_uk"].required = True
 
-        self.fields['comment_en'].required = True
-        self.fields['comment_uk'].required = True
+        self.fields["comment_en"].required = True
+        self.fields["comment_uk"].required = True
 
     class Meta:
         model = Review
         fields = "__all__"
-        exclude = ['author', 'comment']
+        exclude = ["author", "comment"]
 
 
 @admin.register(Review)
@@ -109,12 +109,12 @@ class WhyChooseUsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['title_en'].required = True
-        self.fields['title_uk'].required = True
-        self.fields['icon_alt_en'].required = True
-        self.fields['icon_alt_uk'].required = True
-        self.fields['description_en'].required = True
-        self.fields['description_uk'].required = True
+        self.fields["title_en"].required = True
+        self.fields["title_uk"].required = True
+        self.fields["icon_alt_en"].required = True
+        self.fields["icon_alt_uk"].required = True
+        self.fields["description_en"].required = True
+        self.fields["description_uk"].required = True
 
     class Meta:
         model = WhyChooseUs
@@ -130,6 +130,7 @@ class WhyChooseUsAdminClass(ModelAdmin):
     This class defines the behavior of the WhyChooseUs admin interface,
     For more information on Django admin customization,
     """
+
     form = WhyChooseUsForm
 
     def has_delete_permission(self, request, obj=None):
@@ -163,13 +164,15 @@ class InstaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['img_alt_en'].required = True
-        self.fields['img_alt_uk'].required = True
+        self.fields["img_alt_en"].required = True
+        self.fields["img_alt_uk"].required = True
 
     class Meta:
         model = Insta
         fields = "__all__"
-        exclude = ['img_alt', ]
+        exclude = [
+            "img_alt",
+        ]
 
 
 @admin.register(Insta)
@@ -180,6 +183,7 @@ class InstaAdminClass(ModelAdmin):
     This class defines the behavior of the Insta admin interface,
     For more information on Django admin customization,
     """
+
     form = InstaForm
 
     def has_delete_permission(self, request, obj=None):
@@ -215,10 +219,7 @@ class SettingsForm(forms.ModelForm):
     class Meta:
         model = Setting
         fields = "__all__"
-        exclude = ['header_top_text',
-                   'address1', 'address2',
-                   'subscribe_form_text',
-                   'footer_description']
+        exclude = ["header_top_text", "address1", "address2", "subscribe_form_text", "footer_description"]
 
 
 @admin.register(Setting)
@@ -254,6 +255,7 @@ class PromoCodeForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+
     class Meta:
         model = PromoCode
         fields = "__all__"
@@ -274,6 +276,8 @@ class PromoCodeAdmin(ModelAdmin):
     This class defines the behavior of the PromoCode admin interface,
     For more information on Django admin customization,
     """
+
     def has_change_permission(self, request, obj=None):
         return False
+
     form = PromoCodeForm

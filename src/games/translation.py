@@ -1,38 +1,37 @@
-from modeltranslation.translator import register, TranslationOptions
+# -*- coding: utf-8 -*-
+from modeltranslation.translator import TranslationOptions, register
 
-from src.games.models import (CatalogPage, CatalogTabs,
-                              Game, CalendarBlock,
-                              WorthLookItem, CalendarBlockItem, Team)
+from src.games.models import CalendarBlock, CalendarBlockItem, CatalogPage, CatalogTabs, Game, Team, WorthLookItem
 
 
 @register(Game)
 class GameTranslationOptions(TranslationOptions):
-    fields = ('logo_filter_alt', 'logo_product_alt')
-    required_languages = ('en', 'uk')
+    fields = ("logo_filter_alt", "logo_product_alt")
+    required_languages = ("en", "uk")
 
 
 @register(CatalogPage)
 class CatalogPageTranslationOptions(TranslationOptions):
-    fields = ('title', 'description')
-    required_languages = ('en', 'uk')
+    fields = ("title", "description")
+    required_languages = ("en", "uk")
 
 
 @register(CatalogTabs)
 class CatalogTabsTranslationOptions(TranslationOptions):
-    fields = ('title', 'content')
-    required_languages = ('en', 'uk')
+    fields = ("title", "content")
+    required_languages = ("en", "uk")
 
 
 @register(WorthLookItem)
 class WorthLookItemTranslationOptions(TranslationOptions):
-    fields = ('image_alt',)
-    required_languages = ('en', 'uk')
+    fields = ("image_alt",)
+    required_languages = ("en", "uk")
 
 
 @register(CalendarBlock)
 class CalendarBlockTranslationOptions(TranslationOptions):
-    fields = ('title', 'subtitle')
-    required_languages = ('en', 'uk')
+    fields = ("title", "subtitle")
+    required_languages = ("en", "uk")
 
 
 # @register(CalendarBlockItem)
@@ -43,5 +42,5 @@ class CalendarBlockTranslationOptions(TranslationOptions):
 
 @register(Team)
 class TeamTranslationOptions(TranslationOptions):
-    fields = ('team_img_alt',)
-    required_languages = ('en', 'uk')
+    fields = ("team_img_alt",)
+    required_languages = ("en", "uk")
