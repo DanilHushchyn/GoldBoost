@@ -17,7 +17,7 @@ from django.utils import timezone
 
 from src.games.models import CatalogPage
 from src.products.managers.product_manager import ProductManager
-from src.products.utils import get_timestamp_path
+from src.products.utils import get_timestamp_path, make_sale
 
 
 class Product(models.Model):
@@ -73,14 +73,16 @@ class Product(models.Model):
 
         Calculating includes all filters and fundamental price
         """
-        price_to = self.price
-        if self.filters.count():
-            for item in self.filters.prefetch_related("subfilters").all():
-                if item.type == "CheckBox":
-                    price_to = price_to + item.subfilters.aggregate(Sum("price", default=0))["price__sum"]
-                else:
-                    price_to = price_to + item.subfilters.aggregate(Max("price", default=0))["price__max"]
-            return price_to
+        if self.price_type == 'range':
+            price_to = self.price
+            if self.filters.count():
+                for item in self.filters.prefetch_related("subfilters").all():
+                    if item.type == "CheckBox":
+                        price_to = price_to + item.subfilters.aggregate(Sum("price", default=0))["price__sum"]
+                    else:
+                        price_to = price_to + item.subfilters.aggregate(Max("price", default=0))["price__max"]
+                return price_to
+            return self.price
         return None
 
     def price_from(self) -> float | None:
@@ -89,12 +91,14 @@ class Product(models.Model):
 
         Calculating includes all filters and fundamental price
         """
-        price_from = self.price
-        if self.filters.count():
-            for item in self.filters.prefetch_related("subfilters").all():
-                if item.type != "CheckBox":
-                    price_from = price_from + item.subfilters.aggregate(Min("price", default=0))["price__min"]
-            return price_from
+        if self.price_type == 'range':
+            price_from = self.price
+            if self.filters.count():
+                for item in self.filters.prefetch_related("subfilters").all():
+                    if item.type != "CheckBox":
+                        price_from = price_from + item.subfilters.aggregate(Min("price", default=0))["price__min"]
+                return price_from
+            return self.price
         return None
 
     def sale_price_to(self) -> float | None:
@@ -104,9 +108,16 @@ class Product(models.Model):
         Calculating includes all filters, fundamental price
         and ability of sale if sale exists
         """
-        if self.sale_active():
-            sale = (self.price_to() * self.sale_percent) / 100
-            return self.price_to() - sale
+        if self.sale_active() and self.price_type == 'range':
+            price_to = self.price
+            if self.filters.count():
+                for item in self.filters.prefetch_related("subfilters").all():
+                    if item.type == "CheckBox":
+                        price_to = price_to + item.subfilters.aggregate(Sum("price", default=0))["price__sum"]
+                    else:
+                        price_to = price_to + item.subfilters.aggregate(Max("price", default=0))["price__max"]
+                return make_sale(price_to, self.sale_percent)
+            return self.sale_price()
         return None
 
     def sale_price_from(self) -> float | None:
@@ -116,9 +127,14 @@ class Product(models.Model):
         Calculating includes all filters, fundamental price and ability
         of sale if sale exists
         """
-        if self.sale_active():
-            sale = (self.price_from() * self.sale_percent) / 100
-            return self.price_from() - sale
+        if self.sale_active() and self.price_type == 'range':
+            price_from = self.price
+            if self.filters.count():
+                for item in self.filters.prefetch_related("subfilters").all():
+                    if item.type != "CheckBox":
+                        price_from = price_from + item.subfilters.aggregate(Min("price", default=0))["price__min"]
+                return make_sale(price_from, self.sale_percent)
+            return self.sale_price()
         return None
 
     def sale_price(self) -> float | None:
@@ -127,9 +143,8 @@ class Product(models.Model):
 
         Calculating includes  ability of sale if sale exists
         """
-        if self.sale_active():
-            sale = (self.price * self.sale_percent) / 100
-            return self.price - sale
+        if self.sale_active() and self.sale_percent is not None:
+            return make_sale(self.price, self.sale_percent)
         return None
 
     def sale_active(self) -> bool:

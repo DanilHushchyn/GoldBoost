@@ -53,6 +53,10 @@ class ProductForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         instance = getattr(self, "instance", None)
+        if instance and not instance.pk:
+            self.fields["sale_percent"].widget = (
+                UnfoldAdminTextInputWidget(attrs={'value': 0}))
+
         if instance and instance.pk:
             self.fields["price_type"].widget = forms.HiddenInput()
             self.fields["catalog_page"].widget = forms.HiddenInput()
@@ -68,34 +72,27 @@ class ProductForm(forms.ModelForm):
             "bought_count",
             "is_deleted",
         ]
-        # widgets = {
-        #     "title_en": UnfoldAdminTextInputWidget(attrs={}),
-        #     "title_uk": UnfoldAdminTextInputWidget(attrs={}),
-        #     "subtitle_en": UnfoldAdminTextInputWidget(attrs={}),
-        #     "subtitle_uk": UnfoldAdminTextInputWidget(attrs={}),
-        #     "price_per_run": UnfoldAdminDecimalFieldWidget(attrs={}),
-        #     "sale_percent": UnfoldAdminIntegerFieldWidget(attrs={}),
-        #     "sale_until": UnfoldAdminSplitDateTimeWidget(attrs={}),
-        #     "sale_from": UnfoldAdminSplitDateTimeWidget(attrs={}),
-        #     "bonus_points": UnfoldAdminIntegerFieldWidget(attrs={}),
-        #     "price": UnfoldAdminDecimalFieldWidget(attrs={}),
-        #     "description_en": UnfoldAdminTextareaWidget(attrs={}),
-        #     "description_uk": UnfoldAdminTextareaWidget(attrs={}),
-        #     "tab": UnfoldAdminSelect(attrs={}),
-        #     "filter": UnfoldAdminSelect(attrs={}),
-        #     "catalog_page": UnfoldAdminSelect(attrs={}),
-        #     "tags": SelectMultiple(attrs={"style": "width: 200px;"}),
-        #     "price_type": UnfoldAdminSelect(attrs={"default": "fixed"}),
-        #     "runs": UnfoldBooleanWidget(attrs={}),
-        #     "sale": UnfoldBooleanWidget(attrs={}),
-        #     "card_img_alt_en": UnfoldAdminTextInputWidget(attrs={}),
-        #     "card_img_alt_uk": UnfoldAdminTextInputWidget(attrs={}),
-        #     "image_alt_en": UnfoldAdminTextInputWidget(attrs={}),
-        #     "image_alt_uk": UnfoldAdminTextInputWidget(attrs={}),
-        #     "card_img": UnfoldAdminImageFieldWidget(attrs={}),
-        #     "image": UnfoldAdminImageFieldWidget(attrs={}),
-        #     "tag": UnfoldAdminSelect(attrs={}),
-        # }
+
+    def clean_price(self):
+        price = self.cleaned_data["price"]
+        if price < 0.25:
+            msg = u"Min value is 0.25"
+            raise forms.ValidationError(msg)
+        return price
+
+    def clean_sale_percent(self):
+        sale_percent = self.cleaned_data["sale_percent"]
+        if sale_percent is None or sale_percent < 0:
+            msg = u"Min value is 0"
+            raise forms.ValidationError(msg)
+        return sale_percent
+
+    def clean_bonus_points(self):
+        bonus_points = self.cleaned_data["bonus_points"]
+        if bonus_points < 1:
+            msg = u"Min value is 1"
+            raise forms.ValidationError(msg)
+        return bonus_points
 
 
 class TagForm(forms.ModelForm):
@@ -207,8 +204,13 @@ class FilterForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        instance = getattr(self, "instance", None)
         self.fields["title_en"].required = True
         self.fields["title_uk"].required = True
+        self.fields["product"].queryset = Product.objects.filter(price_type='range')
+        self.fields["product"].required = True
+        if instance and instance.pk:
+            self.fields["product"].widget = forms.HiddenInput()
 
     class Meta:
         model = Filter
@@ -240,6 +242,27 @@ class SubFilterForm(forms.ModelForm):
             self.fields["title_en"].widget.attrs["readonly"] = True
             self.fields["title_uk"].widget.attrs["readonly"] = True
 
+    def clean_title_en(self):
+        title_en = self.cleaned_data["title_en"]
+        if len(title_en) > 2:
+            msg = u"Max length is 2"
+            raise forms.ValidationError(msg)
+        return title_en
+
+    def clean_title_uk(self):
+        title_uk = self.cleaned_data["title_uk"]
+        if len(title_uk) > 2:
+            msg = u"Max length is 2"
+            raise forms.ValidationError(msg)
+        return title_uk
+
+    def clean_price(self):
+        price = self.cleaned_data["price"]
+        if price > 9999:
+            msg = u"Max value is 9999"
+            raise forms.ValidationError(msg)
+        return price
+
     class Meta:
         model = SubFilter
         fields = "__all__"
@@ -263,6 +286,7 @@ class SubFilterInline(TabularInline):
 
     model = SubFilter
     extra = 1
+    max_num = 10
     form = SubFilterForm
 
 
@@ -300,11 +324,16 @@ class ProductTabsForm(forms.ModelForm):
         exclude = ["title", "content"]
 
         widgets = {
-            "title_en": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
-            "title_uk": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
-            "content_en": UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
-            "content_uk": UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
-            "order": UnfoldAdminIntegerFieldWidget(attrs={"style": "width: 80px;"}),
+            "title_en":
+                UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
+            "title_uk":
+                UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
+            "content_en":
+                UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
+            "content_uk":
+                UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
+            "order":
+                UnfoldAdminIntegerFieldWidget(attrs={"style": "width: 80px"}),
         }
 
 

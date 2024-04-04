@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-31 14:10+0300\n"
+"POT-Creation-Date: 2024-04-04 08:55+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,42 +59,42 @@ msgstr ""
 msgid "Cart items has been deleted successfully"
 msgstr ""
 
-#: src/orders/services/order_service.py:151
+#: src/orders/services/order_service.py:152
 msgid "Your cart is empty"
 msgstr ""
 
-#: src/orders/services/order_service.py:170
+#: src/orders/services/order_service.py:174
 msgid "Order issued successfully"
 msgstr ""
 
-#: src/orders/services/order_service.py:184
+#: src/orders/services/order_service.py:188
 #: src/users/services/user_service.py:33 src/users/services/user_service.py:50
 #: src/users/services/user_service.py:72 src/users/services/user_service.py:88
 msgid "Not Found: No User matches the given query."
 msgstr ""
 
-#: src/orders/services/order_service.py:201
+#: src/orders/services/order_service.py:205
 msgid "Not Found: No Order matches the given query."
 msgstr ""
 
-#: src/orders/services/order_service.py:206
-#: src/orders/services/order_service.py:213
+#: src/orders/services/order_service.py:210
+#: src/orders/services/order_service.py:217
 msgid "Cannot repeat order, some products does not exists nowadays"
 msgstr ""
 
-#: src/orders/services/order_service.py:256
+#: src/orders/services/order_service.py:260
 msgid "Order repeated successfully"
 msgstr ""
 
-#: src/orders/services/order_service.py:273
+#: src/orders/services/order_service.py:277
 msgid "Not Found: No PromoCode matches the given query."
 msgstr ""
 
-#: src/orders/services/order_service.py:281
+#: src/orders/services/order_service.py:285
 msgid "Promo code has been expired"
 msgstr ""
 
-#: src/orders/services/order_service.py:283
+#: src/orders/services/order_service.py:287
 msgid "Promo code has been already used"
 msgstr ""
 
@@ -111,15 +111,15 @@ msgstr ""
 msgid "Product added to cart successfully"
 msgstr ""
 
-#: src/products/services/product_service.py:174
+#: src/products/services/product_service.py:163
 msgid "Not Found: No ProductTabs matches the given query."
 msgstr ""
 
-#: src/products/services/product_service.py:203
+#: src/products/services/product_service.py:192
 msgid "Not Found: No FreqBought matches the given query."
 msgstr ""
 
-#: src/products/services/product_service.py:207
+#: src/products/services/product_service.py:196
 msgid "Freqbot element added to cart successfully"
 msgstr ""
 
@@ -179,11 +179,15 @@ msgstr ""
 msgid "Not more than 3 characters are possible to create"
 msgstr ""
 
-#: src/users/services/user_service.py:156
+#: src/users/services/user_service.py:154
+msgid "You are already registered"
+msgstr ""
+
+#: src/users/services/user_service.py:159
 msgid "This email has been already subscribed"
 msgstr ""
 
-#: src/users/services/user_service.py:157
+#: src/users/services/user_service.py:160
 msgid "You are successfully subscribed"
 msgstr ""
 

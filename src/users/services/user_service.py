@@ -149,6 +149,9 @@ class UserService:
         :param body: user's email
         :return: message that user subscribed
         """
+        if User.objects.filter(email=body.email).exists():
+            raise HttpError(400,
+                            _("You are already registered"))
         try:
             Subscriber.objects.create(email=body.email)
         except IntegrityError:

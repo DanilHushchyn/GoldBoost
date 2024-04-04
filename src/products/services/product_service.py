@@ -103,17 +103,6 @@ class ProductService:
             raise HttpError(404,
                             _("Not Found: No Product matches"
                               " the given query."))
-        product.bread_crumbs = [
-            {
-                'text': product.catalog_page.game.name,
-                'id': product.catalog_page.id,
-
-            },
-            {
-                'text': product.catalog_page.title,
-                'id': product.catalog_page.id,
-            },
-        ]
         return product
 
     @staticmethod
@@ -188,7 +177,7 @@ class ProductService:
         :return: dict which contains all parameters for pagination
         """
         items = Product.objects.filter(Q(title_en__icontains=search_line) |
-                                       Q(title_ua__icontains=search_line))
+                                       Q(title_uk__icontains=search_line))
 
         if game_id:
             items = items.filter(catalog_page__game_id=game_id)

@@ -23,11 +23,11 @@ class ProductManager(models.Manager):
             objects = (
                 self.get_queryset()
                 .select_related("catalog_page__game")
-                .filter(tags__id=1, catalog_page__game=game_id)
+                .filter(tag_id=1, catalog_page__game=game_id)
             )
 
         else:
-            objects = self.get_queryset().select_related("catalog_page__game").filter(tags__id=1)
+            objects = self.get_queryset().select_related("catalog_page__game").filter(tag_id=1)
         return objects
 
     def bestsellers(self):

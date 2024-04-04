@@ -360,7 +360,6 @@ class ProductController(ControllerBase):
           - **200**: Success response with the data.
           - **500**: Internal server error if an unexpected error occurs.
         """
-
         result = self.product_service.frequently_bought()
         return result
 
@@ -528,6 +527,5 @@ class ProductController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-
         result = self.product_service.get_product_by_id(request, product_id)
         return result

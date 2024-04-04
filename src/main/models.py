@@ -21,8 +21,9 @@ from src.games.models import Game
 from src.main.tasks import share_news
 from src.orders.models import Order
 from src.products.models import Product, SubFilter
-from src.products.utils import get_timestamp_path
+from src.products.utils import get_timestamp_path, make_sale
 from src.users.models import User
+
 
 # Create your models here.
 
@@ -224,10 +225,13 @@ class OrderItem(models.Model):
 
     def price_for_product(self, product: Product):
         total = product.price
-        if product.sale_active():
-            total = product.sale_price()
         for attr in self.attributes.all():
             total = total + attr.subfilter.price
+        if product.sale_active():
+            if product.price_type == 'fixed':
+                total = product.sale_price()
+            else:
+                total = make_sale(total, product.sale_percent)
         return total * self.quantity
 
     def price(self):

@@ -12,7 +12,7 @@ from ninja_extra import http_get
 from ninja_extra.controllers.base import ControllerBase, api_controller
 
 import src.products.schemas as product_schemas
-from src.games.models import CatalogTabs, Game
+from src.games.models import CatalogTabs, Game, CatalogPage
 from src.games.schemas import (
     CalendarBlockItemSchema,
     CalendarBlockSchema,
@@ -274,7 +274,7 @@ class CatalogController(ControllerBase):
     def get_catalog_page(self, request: HttpRequest, page_id: int,
                          accept_lang:
                          LangEnum = Header(alias='Accept-Language'),
-                         ) -> QuerySet:
+                         ) -> CatalogPage:
         """
         Get catalog's page content by page id.
 

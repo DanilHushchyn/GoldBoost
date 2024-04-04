@@ -16,6 +16,8 @@ from src.main.models import OrderItem, OrderItemAttribute
 from src.orders.models import Order
 from src.users.models import User, Character
 
+from django.utils.translation import gettext as _
+
 
 class UserOutSchema(ModelSchema):
     """
@@ -29,7 +31,7 @@ class UserOutSchema(ModelSchema):
         model = User
         fields = ['first_name', 'last_name', 'email',
                   'payment_method', 'communication',
-                  'notify_me', 'bonus_points']
+                  'notify_me', 'bonus_points', 'subscribe_sale_active']
 
 
 class UserUpdatedSchema(ModelSchema):
@@ -240,6 +242,11 @@ class CabinetOrdersSchema(ModelSchema):
     """
     items: list[OrdersItemSchema]
     repeat_btn: bool
+    status: str
+
+    @staticmethod
+    def resolve_status(obj):
+        return _(obj.status)
 
     @staticmethod
     def resolve_repeat_btn(obj):

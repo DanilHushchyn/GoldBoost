@@ -6,7 +6,7 @@ asynchronous logic in application orders
 from itertools import chain
 
 from celery.app import shared_task
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage, send_mass_mail
 from config import settings
 from src.users.models import User, Subscriber
 
@@ -22,14 +22,7 @@ def share_news(news_title: str,
     """
     users = User.objects.filter(notify_me=True).values_list('email', flat=True)
     subscribers = Subscriber.objects.values_list('email', flat=True)
-    # recipients = set(users + subscribers)
-    recipients = set(chain(users, subscribers))
-    # Send confirmation email
-    send_mail(
-        news_title,
-        news_descr,
-        settings.DEFAULT_FROM_EMAIL,
-        recipients,
-        fail_silently=False,
-    )
+    recipients = list(set(chain(users, subscribers)))
+    messages = [(news_title, news_descr, settings.DEFAULT_FROM_EMAIL, [recipient]) for recipient in recipients]
+    send_mass_mail(messages)
     return {"message": "News shared successfully"}

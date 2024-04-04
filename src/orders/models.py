@@ -16,7 +16,7 @@ from django.db import models
 from src.products.models import Product, SubFilter, FreqBought
 from src.products.utils import make_sale
 from src.users.models import User
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 
 # Create your models here.
@@ -108,10 +108,13 @@ class CartItem(models.Model):
 
     def price_for_product(self, product: Product):
         total = product.price
-        if product.sale_active():
-            total = product.sale_price()
         for attr in self.attributes.all():
             total = total + attr.sub_filter.price
+        if product.sale_active():
+            if product.price_type == 'fixed':
+                total = product.sale_price()
+            else:
+                total = make_sale(total, product.sale_percent)
         return total * self.quantity
 
     def price(self):
@@ -131,6 +134,7 @@ class CartItem(models.Model):
             for product in self.freqbot.products.all():
                 total = total + product.bonus_points
             return total
+
 
     class Meta:
         db_table = 'cart_items'

@@ -111,11 +111,16 @@ class CatalogPageSchema(ModelSchema):
     """
     game_logo: str
     game_logo_alt: str
+    game_id: int
     tabs: List[CatalogTabSchema]
 
     @staticmethod
     def resolve_game_logo(obj):
         return ABSOLUTE_URL + obj.game.logo_product.url
+
+    @staticmethod
+    def resolve_game_id(obj):
+        return obj.game.id
 
     @staticmethod
     def resolve_game_logo_alt(obj):

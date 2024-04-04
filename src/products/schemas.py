@@ -13,7 +13,9 @@ from pydantic.types import conint
 
 from config.settings import ABSOLUTE_URL
 from src.games.models import Game, CatalogPage
+from src.main.models import Setting
 from src.products.models import Filter, Product, ProductTabs, SubFilter, Tag, FreqBought
+from src.products.utils import make_sale
 
 
 class TagOutSchema(ModelSchema):
@@ -27,17 +29,6 @@ class TagOutSchema(ModelSchema):
     class Meta:
         model = Tag
         fields = ['name', 'color']
-
-
-class BreadCrumbSchema(Schema):
-    """
-    Pydantic schema for BreadCrumb.
-
-    Purpose of this schema to return info about tag(name,color)
-    to client side
-    """
-    text: str
-    id: int
 
 
 class ProductSchema(ModelSchema):
@@ -221,8 +212,6 @@ class ProductCardSchema(ModelSchema):
     Product model instance and related
     Filter queryset
     """
-    bread_crumbs: List[BreadCrumbSchema]
-
     filters: List[FilterItemSchema] | None
     price_from: float | None
     price_to: float | None
@@ -233,7 +222,6 @@ class ProductCardSchema(ModelSchema):
     sale_active: bool
     tabs: List[ProductTabSchema]
     catalog_page: ProductCardCatalogSchema
-    # game: ProductCardGameSchema | None
     game: ProductCardGameSchema = Field(None, alias="catalog_page.game")
 
     @staticmethod
@@ -309,6 +297,7 @@ class ProductSearchSchema(ModelSchema):
 class FreqBoughtProductSchema(ModelSchema):
     sale_price: float | None
     sale_active: bool
+    # sale_percent: int
 
     @staticmethod
     def resolve_card_img(obj):
@@ -322,7 +311,6 @@ class FreqBoughtProductSchema(ModelSchema):
             "subtitle",
             'card_img',
             'card_img_alt',
-            "price",
             "price",
         ]
 

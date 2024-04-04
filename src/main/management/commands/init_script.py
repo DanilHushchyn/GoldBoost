@@ -201,19 +201,20 @@ class Command(BaseCommand):
                         product_id=product.id,
                         order=j,
                     )
-                for j in range(4):
-                    filter_obj = Filter.objects.create(
+        for prod in Product.objects.filter(price_type='range'):
+            for j in range(4):
+                filter_obj = Filter.objects.create(
+                    title_en=self.fake_en.word().capitalize(),
+                    title_uk=self.fake_uk.word().capitalize(),
+                    type=random.choice(["Slider", "Radio", "CheckBox", "Select"]),
+                    product_id=prod.id,
+                    order=j,
+                )
+                for k in range(4):
+                    SubFilter.objects.create(
                         title_en=self.fake_en.word().capitalize(),
                         title_uk=self.fake_uk.word().capitalize(),
-                        type=random.choice(["Slider", "Radio", "CheckBox", "Select"]),
-                        product_id=product.id,
-                        order=j,
+                        filter_id=filter_obj.id,
+                        price=self.fake_en.pyint(min_value=5, max_value=100),
+                        order=k,
                     )
-                    for k in range(4):
-                        SubFilter.objects.create(
-                            title_en=self.fake_en.word().capitalize(),
-                            title_uk=self.fake_uk.word().capitalize(),
-                            filter_id=filter_obj.id,
-                            price=self.fake_en.pyint(min_value=5, max_value=100),
-                            order=k,
-                        )

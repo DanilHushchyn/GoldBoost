@@ -22,6 +22,7 @@ https://docs.djangoproject.com/en/stable/ref/contrib/admin/
 """
 from django import forms
 from django.contrib import admin
+from django.db.models import QuerySet
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.widgets import (
     UnfoldAdminImageFieldWidget,
@@ -169,9 +170,26 @@ class CatalogPageForm(forms.ModelForm):
         fields = "__all__"
         exclude = ["title", "description", "is_deleted"]
 
+    def _get_excl_ids(self, instance: CatalogPage) -> list:
+        ids = []
+        for item in instance.items.all():
+            ids.append(item.id)
+            if item.items:
+                ids.extend(self._get_excl_ids(item))
+        return ids
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["parent"].queryset = self.fields["parent"].queryset.exclude(id=self.instance.id)
+        instance = getattr(self, "instance", None)
+        self.fields["parent"].widget = forms.HiddenInput()
+        if instance and instance.pk:
+            self.fields["game"].widget = forms.HiddenInput()
+            self.fields["parent"].widget = UnfoldAdminSelect()
+            pa_queryset = CatalogPage.objects.filter(game=instance.game)
+            ids = self._get_excl_ids(instance)
+            ids.append(instance.id)
+            pa_queryset = pa_queryset.exclude(id__in=ids)
+            self.fields["parent"].queryset = pa_queryset
 
     def save(self, commit=True):
         instance = super().save(commit=False)

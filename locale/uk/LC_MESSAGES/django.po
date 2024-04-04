@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-31 14:10+0300\n"
+"POT-Creation-Date: 2024-04-04 08:55+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,42 +58,42 @@ msgstr "Не знайдено: жоден елемент корзини не в�
 msgid "Cart items has been deleted successfully"
 msgstr "Товари кошика успішно видалено"
 
-#: src/orders/services/order_service.py:151
+#: src/orders/services/order_service.py:152
 msgid "Your cart is empty"
 msgstr "Ваш кошик порожній"
 
-#: src/orders/services/order_service.py:170
+#: src/orders/services/order_service.py:174
 msgid "Order issued successfully"
 msgstr "Замовлення виконано успішно"
 
-#: src/orders/services/order_service.py:184
+#: src/orders/services/order_service.py:188
 #: src/users/services/user_service.py:33 src/users/services/user_service.py:50
 #: src/users/services/user_service.py:72 src/users/services/user_service.py:88
 msgid "Not Found: No User matches the given query."
 msgstr "Не знайдено: жоден користувач не відповідає заданому запиту."
 
-#: src/orders/services/order_service.py:201
+#: src/orders/services/order_service.py:205
 msgid "Not Found: No Order matches the given query."
 msgstr "Не знайдено: жодне замовлення не відповідає заданому запиту."
 
-#: src/orders/services/order_service.py:206
-#: src/orders/services/order_service.py:213
+#: src/orders/services/order_service.py:210
+#: src/orders/services/order_service.py:217
 msgid "Cannot repeat order, some products does not exists nowadays"
 msgstr "Неможливо повторити замовлення, деяких товарів зараз немає"
 
-#: src/orders/services/order_service.py:256
+#: src/orders/services/order_service.py:260
 msgid "Order repeated successfully"
 msgstr "Замовлення повторено успішно"
 
-#: src/orders/services/order_service.py:273
+#: src/orders/services/order_service.py:277
 msgid "Not Found: No PromoCode matches the given query."
 msgstr "Не знайдено: жоден промо код не відповідає заданому запиту."
 
-#: src/orders/services/order_service.py:281
+#: src/orders/services/order_service.py:285
 msgid "Promo code has been expired"
 msgstr "Термін дії промокоду закінчився"
 
-#: src/orders/services/order_service.py:283
+#: src/orders/services/order_service.py:287
 msgid "Promo code has been already used"
 msgstr "Промокод вже використано"
 
@@ -110,15 +110,15 @@ msgstr "Підфільтри вибрано неправильно"
 msgid "Product added to cart successfully"
 msgstr "Товар успішно додано в кошик"
 
-#: src/products/services/product_service.py:174
+#: src/products/services/product_service.py:163
 msgid "Not Found: No ProductTabs matches the given query."
 msgstr "Не знайдено: жодна вкладка продукту не відповідає заданому запиту."
 
-#: src/products/services/product_service.py:203
+#: src/products/services/product_service.py:192
 msgid "Not Found: No FreqBought matches the given query."
 msgstr "Не знайдено: жодена колекція не відповідає заданому запиту."
 
-#: src/products/services/product_service.py:207
+#: src/products/services/product_service.py:196
 msgid "Freqbot element added to cart successfully"
 msgstr "Колекцію успішно додано в кошик"
 
@@ -181,10 +181,14 @@ msgstr "Персонаж успішно видалено"
 msgid "Not more than 3 characters are possible to create"
 msgstr "Можна створити не більше 3х персонажів"
 
-#: src/users/services/user_service.py:156
+#: src/users/services/user_service.py:154
+msgid "You are already registered"
+msgstr "Ви вже зареєстровані"
+
+#: src/users/services/user_service.py:159
 msgid "This email has been already subscribed"
 msgstr "Ця пошта вже використовується"
 
-#: src/users/services/user_service.py:157
+#: src/users/services/user_service.py:160
 msgid "You are successfully subscribed"
 msgstr "Ви успішно підписані"

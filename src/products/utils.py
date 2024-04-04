@@ -71,11 +71,11 @@ def get_current_user(token: str):
             raise ValueError
         payload = jwt.decode(token, settings.NINJA_JWT["SIGNING_KEY"], algorithms=[settings.NINJA_JWT["ALGORITHM"]])
     except (PyJWTError, ValueError):
-        raise HttpError(401, "Token is invalid or expired")
+        return False
 
     token_exp = datetime.fromtimestamp(int(payload["exp"]))
     if token_exp < datetime.utcnow():
-        raise HttpError(401, "Token is invalid or expired")
+        return False
 
     user = get_object_or_404(get_user_model(), id=payload["user_id"])
     return user

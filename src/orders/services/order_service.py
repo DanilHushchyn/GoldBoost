@@ -11,7 +11,7 @@ from django.forms import model_to_dict
 
 from ninja.errors import HttpError
 
-from src.main.models import OrderItem, PromoCode, OrderItemAttribute
+from src.main.models import OrderItem, PromoCode, OrderItemAttribute, Setting
 from src.main.schemas import OrderOutSchema
 from src.main.services.main_service import MainService
 from src.orders.models import Cart, CartItem, Order
@@ -82,11 +82,12 @@ class OrderService:
         user.bonus_points = user.bonus_points + bonuses
         user.save()
         if promo_code:
-            order.total_price = make_sale(total_price, promo_code.discount)
-            order.promo_code = promo_code
+            total_price = make_sale(total_price, promo_code.discount)
             user.promo_codes.add(promo_code)
-        else:
-            order.total_price = total_price
+        if user.subscribe_sale_active:
+            setting = Setting.objects.first()
+            total_price = make_sale(total_price, setting.subscribe_sale)
+        order.total_price = total_price
         order.save()
         change_order_status.delay(order_id=order.id)
 
@@ -124,7 +125,7 @@ class OrderService:
             for attr in cart_item.attributes.all():
                 OrderItemAttribute.objects.create(
                     title_en=attr.sub_filter.title_en,
-                    title_ua=attr.sub_filter.title_ua,
+                    title_uk=attr.sub_filter.title_uk,
                     price=attr.sub_filter.price,
                     subfilter_id=attr.sub_filter.id,
                     order_item=order_item,
@@ -167,6 +168,9 @@ class OrderService:
                                            promo_code=promo_code)
             # clean user's cart
             # cart.items.all().delete()
+            if user.subscribe_sale_active:
+                user.subscribe_sale_active = False
+                user.save()
         return OrderOutSchema(message=_('Order issued successfully'),
                               auth_user=auth_user)
 
