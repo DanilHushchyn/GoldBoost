@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "corsheaders",
     "imagekit",
+    'django_extensions',
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -73,8 +74,9 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "users.User"
 PASSWORD_RESET_TIMEOUT = 1800  # 30 minutes
 ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Change the token expiration time to 30 minutes
-GOOGLE_OAUTH_CLIENT_ID = env("GOOGLE_OAUTH_CLIENT_ID")
-GOOGLE_OAUTH_CLIENT_SECRET = env("GOOGLE_OAUTH_CLIENT_SECRET")
+# GOOGLE_OAUTH_CLIENT_ID = env("GOOGLE_OAUTH_CLIENT_ID")
+# GOOGLE_OAUTH_CLIENT_SECRET = env("GOOGLE_OAUTH_CLIENT_SECRET")
+SITE_ID = 1
 
 NINJA_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
@@ -278,11 +280,20 @@ UNFOLD = {
         ],
     },
 }
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
+SOCIALACCOUNT_AUTO_SIGNUP = True   # This automatically signs up a user after using google to sign in
 
-# AUTHENTICATION_BACKENDS = [
-#     # `allauth` specific authentication methods, such as login by email
-#     'allauth.account.auth_backends.AuthenticationBackend',
-# ]
+#
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'src.users.authentication.EmailBackend',
+
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -302,8 +313,20 @@ SOCIALACCOUNT_PROVIDERS = {
         # For each OAuth based provider, either add a ``SocialApp``
         # (``socialaccount`` app) containing the required client
         # credentials, or list them here:
-        "EMAIL_AUTHENTICATION": True,
-        "APP": {"client_id": env("GOOGLE_OAUTH_CLIENT_ID"), "secret": env("GOOGLE_OAUTH_CLIENT_SECRET"), "key": ""},
+        # "APP": {
+        #     'EMAIL_AUTHENTICATION': True,
+        #     "client_id": env("GOOGLE_OAUTH_CLIENT_ID"),
+        #     "secret": env("GOOGLE_OAUTH_CLIENT_SECRET"),
+        #     "key": ""
+        # },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+        "VERIFIED_EMAIL": True,
     }
 }
 CORS_ORIGIN_ALLOW_ALL = True
@@ -314,7 +337,6 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 ROOT_URLCONF = "config.urls"
 
-SITE_ID = 1
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_USE_TLS = True
 EMAIL_HOST = "smtp.gmail.com"
@@ -401,7 +423,6 @@ LANGUAGES = [
     ("en", "English"),
     ("uk", "Ukrainian"),
 ]
-
 
 MODELTRANSLATION_LANGUAGES = ("en", "uk")
 # MODELTRANSLATION_FALLBACK_LANGUAGES = {'default': ('en',)}

@@ -19,7 +19,7 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import HttpRequest, HttpResponse
-from django.urls import path
+from django.urls import path, include
 from ninja_extra import NinjaExtraAPI
 from config import settings
 from src.games.api import CatalogController, GamesController
@@ -73,7 +73,6 @@ def http_exceptions_handler(request: HttpRequest, exc: ValidationError) -> HttpR
     )
 
 
-# main_api.register_controllers(NinjaJWTDefaultController)
 main_api.register_controllers(CustomTokenObtainPairController)
 main_api.register_controllers(ProductController)
 main_api.register_controllers(OrderController)
@@ -85,6 +84,7 @@ main_api.register_controllers(MainController)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", main_api.urls),
+    # path("accounts/", include('allauth.urls')),
 
 ]
 if settings.DEBUG:

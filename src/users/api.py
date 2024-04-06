@@ -18,7 +18,10 @@ from src.users.schemas import MessageOutSchema
 from src.users.services.auth_service import AuthService
 from src.users.services.user_service import UserService
 from ninja import Header
-
+from allauth.socialaccount.helpers import complete_social_login
+from allauth.socialaccount.models import SocialAccount, SocialApp, SocialLogin
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 
 @api_controller("/users", tags=['Users'])
 class UsersController(ControllerBase):
@@ -556,18 +559,18 @@ class AuthController(ControllerBase):
         result = self.auth_service.register_user(user_body=user)
         return result
 
-    # @http_post("/google-login/", tags=["token"],
-    #            response=MessageOutSchema)
-    # def google_login_by_token(self,request, token: str) -> MessageOutSchema:
-    #     """
-    #     Endpoint for registration new users.
-    #
-    #     :return: message that email send
-    #     """
-    #     credential = request.POST.get("credential")
-    #     identity_data = _verify_and_decode(app=self.provider.app, credential=credential)
-    #     login = self.provider.sociallogin_from_response(request, identity_data)
-    #     return result
+    @http_post(
+        "/google-login",
+        response={200: SocialAccountSchema, 404: Error, 400: Error},
+        auth=None,
+    )
+    def google_login(self,request, payload: SocialLoginSchema):
+        try:
+            app = SocialApp.objects.get(name="Google")
+        except SocialApp.DoesNotExist:
+            return 404, {"message": "Google app does not exist"}
+        adapter = GoogleOAuth2Adapter(request)
+        return self.auth_service.social_login(request, app, adapter, payload.access_token)
 
     @http_post(
         "/reset-password/",

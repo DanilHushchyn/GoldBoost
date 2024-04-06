@@ -20,17 +20,27 @@ dumpdata:
 	$(MANAGE) dumpdata > db.json
 
 
-dock-build:
-	sudo docker-compose -f docker-compose.yml build
+extensions-install:
+	poetry add django-extensions
+	poetry add ipython
+	# 'django_extensions'                                | add to the INSTALLED_APPS in settings.py
 
-dock-up:
-	sudo docker-compose -f docker-compose.yml up
-
+fix:
+	$(MANAGE) reset_db --noinput
+	$(MANAGE) migrate
+	$(MANAGE) init_script
+	$(MANAGE) runserver
 down:
 	sudo docker compose down -v
-prune:
-	sudo docker  system prune -a
 
+up:
+	sudo docker-compose up
+
+up+:
+	sudo docker-compose up --build
+
+prune:
+	sudo docker system prune -a --volumes --force
 startapp:
 	$(MANAGE) migrate --no-input
 	$(MANAGE) loaddata db.json

@@ -124,8 +124,8 @@ class CatalogTabsForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["title_en"].required = True
         self.fields["title_uk"].required = True
-        self.fields["content_en"].required = True
-        self.fields["content_uk"].required = True
+        self.fields["content_en"].required = False
+        self.fields["content_uk"].required = False
 
     class Meta:
         model = CatalogTabs

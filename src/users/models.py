@@ -88,7 +88,8 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=255, null=True)
     last_name = models.CharField(max_length=255, null=True)
 
-    username = (None,)
+    # username = (None,)
+    username = models.CharField(max_length=255, null=True)
     email = models.EmailField(max_length=255, unique=True)
     notify_me = models.BooleanField(default=False)
     bonus_points = models.PositiveIntegerField(default=0)

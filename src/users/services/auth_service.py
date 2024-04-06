@@ -3,7 +3,9 @@
     Module contains class for managing access control system in the site.
 
 """
+from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
+from django.http import HttpRequest
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from ninja.errors import HttpError
@@ -14,6 +16,10 @@ from src.users.tasks import email_verification, reset_password_confirm
 
 from django.utils.translation import gettext as _
 
+from allauth.socialaccount.helpers import complete_social_login
+from allauth.socialaccount.models import SocialAccount, SocialApp, SocialLogin
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 
 class AuthService:
     """
@@ -49,6 +55,44 @@ class AuthService:
         email_verification.delay(user_id=user.id, token=token)
         return MessageOutSchema(
             message=_("Please confirm " "your registration. " "We have send letter " "to your email"))
+    @staticmethod
+    def social_login(
+            request,
+            app: SocialApp,
+            adapter: OAuth2Adapter,
+            access_token: str,
+            response=None,
+            connect=True,
+    ):
+        """
+        Uses allauth to complete a social login
+        If connect is True, then a new social account will be connected to an existing user
+        Otherwise, raises an error if the email already exists
+        If the email does not exist, then a new user will be created
+        Apparently, its not very secure to use connect = True for lesser known social apps
+        """
+        if not isinstance(request, HttpRequest):
+            request = request._request
+        token = adapter.parse_token({"access_token": access_token})
+        token.app = app
+        try:
+            response = response or {}
+            login: SocialLogin = adapter.complete_login(request, app, token, response)
+            login.token = token
+            complete_social_login(request, login)
+        except Exception as e:
+            return 400, {"message": f"Could not complete social login: {e}"}
+        if not login.is_existing:
+            user = User.objects.filter(email=login.user.email).first()
+            if user:
+                if connect:
+                    login.connect(request, user)
+                else:
+                    return 400, {"errors": ["Email already exists"]}
+            else:
+                login.lookup()
+                login.save(request)
+        return 200, login.account
 
     @staticmethod
     def confirm_email(body: ConfirmationSchema) -> MessageOutSchema:

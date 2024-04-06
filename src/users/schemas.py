@@ -8,6 +8,7 @@ object and json
 from enum import Enum
 from typing import List
 
+from allauth.socialaccount.models import SocialAccount
 from ninja import ModelSchema, Schema
 from pydantic import EmailStr
 
@@ -17,6 +18,27 @@ from src.orders.models import Order
 from src.users.models import User, Character
 
 from django.utils.translation import gettext as _
+
+
+class Error(Schema):
+    message: str
+
+
+class SocialAccountSchema(ModelSchema):
+    class Meta:
+        model = SocialAccount
+        fields = (
+            "id",
+            "provider",
+            "uid",
+            "last_login",
+            "date_joined",
+        )
+
+
+class SocialLoginSchema(Schema):
+    access_token: str
+
 
 
 class UserOutSchema(ModelSchema):

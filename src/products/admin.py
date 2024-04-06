@@ -224,6 +224,22 @@ class FilterForm(forms.ModelForm):
             "order": UnfoldAdminTextInputWidget(attrs={}),
         }
 
+    def clean_type(self):
+        type = self.cleaned_data["type"]
+        if type == 'Slider':
+            msg = (f"If you want type Slider. \n"
+                   f"Firstly remove all current "
+                   f"sub filters and left old filter type, "
+                   f"than return to set type Slider and new subfilters."
+                   )
+            for sub in self.instance.subfilters.all():
+                sub: SubFilter
+                if len(sub.title_en) > 2 \
+                   or len(sub.title_en) > 2\
+                   or sub.price > 9999:
+                    raise forms.ValidationError(msg)
+        return type
+
 
 class SubFilterForm(forms.ModelForm):
     """
@@ -244,21 +260,21 @@ class SubFilterForm(forms.ModelForm):
 
     def clean_title_en(self):
         title_en = self.cleaned_data["title_en"]
-        if len(title_en) > 2:
+        if len(title_en) > 2 and self.instance.filter.type == 'Slider':
             msg = u"Max length is 2"
             raise forms.ValidationError(msg)
         return title_en
 
     def clean_title_uk(self):
         title_uk = self.cleaned_data["title_uk"]
-        if len(title_uk) > 2:
+        if len(title_uk) > 2 and self.instance.filter.type == 'Slider':
             msg = u"Max length is 2"
             raise forms.ValidationError(msg)
         return title_uk
 
     def clean_price(self):
         price = self.cleaned_data["price"]
-        if price > 9999:
+        if price > 9999 and self.instance.filter.type == 'Slider':
             msg = u"Max value is 9999"
             raise forms.ValidationError(msg)
         return price
@@ -315,8 +331,8 @@ class ProductTabsForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["title_en"].required = True
         self.fields["title_uk"].required = True
-        self.fields["content_en"].required = True
-        self.fields["content_uk"].required = True
+        self.fields["content_en"].required = False
+        self.fields["content_uk"].required = False
 
     class Meta:
         model = ProductTabs

@@ -22,10 +22,10 @@ class GameService:
 
     @staticmethod
     def get_games_carousel(
-        game_id: int,
-        page: int,
-        page_size: int,
-        catalog_id: int = None,
+            game_id: int,
+            page: int,
+            page_size: int,
+            catalog_id: int = None,
     ) -> dict:
         """
         Gets all products for game carousel.
@@ -59,6 +59,9 @@ class GameService:
                        queryset=CatalogPage.objects.filter(parent=None),
                        to_attr="filters")
         objects = Game.objects.prefetch_related(pr2).all()
+        for obj in objects:
+            if not Product.objects.filter(catalog_page__game=obj).exists():
+                objects = objects.exclude(id=obj.id)
         return objects
 
     @staticmethod
