@@ -18,11 +18,14 @@ Usage:
 For more information on the Django admin site, see the Django documentation:
 https://docs.djangoproject.com/en/stable/ref/contrib/admin/
 """
-
+from allauth.socialaccount.models import SocialAccount, SocialToken, SocialApp,EmailAddress
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserCreationForm, AdminPasswordChangeForm
+from ninja_jwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from unfold.admin import ModelAdmin
-
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import Group
+from ninja_jwt.models import TokenUser
 from django import forms
 from unfold.widgets import UnfoldAdminTextInputWidget, UnfoldAdminSplitDateTimeWidget, UnfoldAdminSelect
 
@@ -42,6 +45,8 @@ class UserForm(forms.ModelForm):
             "first_name": UnfoldAdminTextInputWidget(attrs={}),
             "last_name": UnfoldAdminTextInputWidget(attrs={}),
             "password": UnfoldAdminTextInputWidget(attrs={}),
+            "password1": UnfoldAdminTextInputWidget(attrs={}),
+            "password2": UnfoldAdminTextInputWidget(attrs={}),
             "payment_method": UnfoldAdminTextInputWidget(attrs={}),
             "communication": UnfoldAdminTextInputWidget(attrs={}),
             "last_login": UnfoldAdminSplitDateTimeWidget(attrs={}),
@@ -49,8 +54,8 @@ class UserForm(forms.ModelForm):
         }
 
 
-# Register your models here.
-class CustomUserAdmin(UserAdmin):
+@admin.register(User)
+class CustomUserAdmin(BaseUserAdmin, ModelAdmin):
     """
     Admin configuration for model User.
     This class defines the behavior of the User admin interface,
@@ -81,5 +86,55 @@ class CustomUserAdmin(UserAdmin):
 
     form = UserForm
 
+    def has_add_permission(self, request):
+        return False
 
-admin.site.register(User, CustomUserAdmin)
+
+admin.site.unregister(SocialAccount)
+
+
+# admin.site.register(User, CustomUserAdmin)
+@admin.register(SocialAccount)
+class CustomSocialAccountAdmin(ModelAdmin):
+    pass
+
+
+admin.site.unregister(SocialToken)
+
+
+# admin.site.register(User, CustomUserAdmin)
+@admin.register(SocialToken)
+class CustomSocialAccountAdmin(ModelAdmin):
+    pass
+
+
+admin.site.unregister(SocialApp)
+
+
+# admin.site.register(User, CustomUserAdmin)
+@admin.register(SocialApp)
+class CustomSocialAccountAdmin(ModelAdmin):
+    pass
+
+
+admin.site.unregister(BlacklistedToken)
+
+
+# admin.site.register(User, CustomUserAdmin)
+@admin.register(BlacklistedToken)
+class CustomBlackAdmin(ModelAdmin):
+    pass
+
+
+admin.site.unregister(OutstandingToken)
+
+
+# admin.site.register(User, CustomUserAdmin)
+@admin.register(OutstandingToken)
+class CustomBlackAdmin(ModelAdmin):
+    pass
+
+
+admin.site.unregister(EmailAddress)
+admin.site.unregister(Group)
+

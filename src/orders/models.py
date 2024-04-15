@@ -41,8 +41,6 @@ class Order(models.Model):
                               default='CANCELED')
     date_created = models.DateTimeField(auto_now_add=True)
     total_price = models.FloatField()
-    # repeat_btn = models.BooleanField(default=True)
-    # first_sale_active = models.BooleanField(default=False)
     freqbot = models.ForeignKey(FreqBought,
                                 on_delete=models.SET_NULL,
                                 null=True,
@@ -62,26 +60,8 @@ class Cart(models.Model):
 
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
     session_key = models.CharField(max_length=500, null=True)
-
-    # freqbought_items = models.ManyToManyField(FreqBought, blank=True, through=)
-
     class Meta:
         db_table = 'carts'
-
-
-# class CartFreqBot(models.Model):
-#     freqbot = models.ForeignKey(
-#         FreqBought,
-#         on_delete=models.CASCADE,
-#         null=True,
-#         related_name='cart_items'
-#     )
-#     cart = models.ForeignKey(Cart, null=True,
-#                              on_delete=models.CASCADE,
-#                              related_name='cart')
-#
-#     class Meta:
-#         db_table = 'cart_freqbot'
 
 
 class CartItem(models.Model):
@@ -134,7 +114,6 @@ class CartItem(models.Model):
             for product in self.freqbot.products.all():
                 total = total + product.bonus_points
             return total
-
 
     class Meta:
         db_table = 'cart_items'

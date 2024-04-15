@@ -158,6 +158,8 @@ class NewsSectionSchema(Schema):
 
 
 class PromoCodeSchema(ModelSchema):
+    discount: int
+
     class Meta:
         model = PromoCode
         fields = ["discount"]

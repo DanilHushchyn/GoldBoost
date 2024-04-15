@@ -4,6 +4,7 @@
 
     to Games models.
 """
+import json
 from typing import List
 
 from django.db.models import QuerySet
@@ -25,6 +26,7 @@ from src.games.services.games_service import GameService
 from src.main.utils import LangEnum
 from ninja import Header
 
+from jsonschema import validate
 
 @api_controller("/games", tags=["Game"], permissions=[])
 class GamesController(ControllerBase):
@@ -161,21 +163,6 @@ class GamesController(ControllerBase):
         response=List[GamesSchema],
         openapi_extra={
             "responses": {
-                404: {
-                    "description": "Error: Not Found",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "detail": {
-                                        "type": "string",
-                                    }
-                                },
-                                "example": {"detail": "Not Found: " "No CatalogPage matches " "the given query."},
-                            }
-                        }
-                    },
-                },
                 422: {
                     "description": "Error: Unprocessable Entity",
                     "content": {

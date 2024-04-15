@@ -209,7 +209,7 @@ class OrderItem(models.Model):
 
     """
 
-    # price = models.PositiveIntegerField(null=True)
+    cost = models.FloatField(null=True)
     quantity = models.PositiveIntegerField(null=True)
     product = models.ForeignKey(
         Product,

@@ -30,12 +30,13 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from unfold.admin import ModelAdmin
+from unfold.contrib.filters.admin import RangeDateTimeFilter
 from unfold.widgets import (
     UnfoldAdminDecimalFieldWidget,
     UnfoldAdminIntegerFieldWidget,
     UnfoldAdminSelect,
     UnfoldAdminTextareaWidget,
-    UnfoldAdminTextInputWidget,
+    UnfoldAdminTextInputWidget, UnfoldAdminSplitDateTimeWidget,
 )
 
 from src.products.models import Filter, FreqBought, Product, ProductTabs, SubFilter, Tag
@@ -54,8 +55,7 @@ class ProductForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         instance = getattr(self, "instance", None)
         if instance and not instance.pk:
-            self.fields["sale_percent"].widget = (
-                UnfoldAdminTextInputWidget(attrs={'value': 0}))
+            self.fields["sale_percent"].widget = UnfoldAdminTextInputWidget(attrs={"value": 0})
 
         if instance and instance.pk:
             self.fields["price_type"].widget = forms.HiddenInput()
@@ -76,21 +76,21 @@ class ProductForm(forms.ModelForm):
     def clean_price(self):
         price = self.cleaned_data["price"]
         if price < 0.25:
-            msg = u"Min value is 0.25"
+            msg = "Min value is 0.25"
             raise forms.ValidationError(msg)
         return price
 
     def clean_sale_percent(self):
         sale_percent = self.cleaned_data["sale_percent"]
         if sale_percent is None or sale_percent < 0:
-            msg = u"Min value is 0"
+            msg = "Min value is 0"
             raise forms.ValidationError(msg)
         return sale_percent
 
     def clean_bonus_points(self):
         bonus_points = self.cleaned_data["bonus_points"]
         if bonus_points < 1:
-            msg = u"Min value is 1"
+            msg = "Min value is 1"
             raise forms.ValidationError(msg)
         return bonus_points
 
@@ -207,7 +207,8 @@ class FilterForm(forms.ModelForm):
         instance = getattr(self, "instance", None)
         self.fields["title_en"].required = True
         self.fields["title_uk"].required = True
-        self.fields["product"].queryset = Product.objects.filter(price_type='range')
+        products = Product.objects.filter(price_type="range")
+        self.fields["product"].queryset = products
         self.fields["product"].required = True
         if instance and instance.pk:
             self.fields["product"].widget = forms.HiddenInput()
@@ -226,17 +227,17 @@ class FilterForm(forms.ModelForm):
 
     def clean_type(self):
         type = self.cleaned_data["type"]
-        if type == 'Slider':
-            msg = (f"If you want type Slider. \n"
-                   f"Firstly remove all current "
-                   f"sub filters and left old filter type, "
-                   f"than return to set type Slider and new subfilters."
-                   )
+        if type == "Slider":
+            msg = (
+                f"If you want type Slider. \n"
+                f"Firstly remove all current "
+                f"sub filters and left old filter type, "
+                f"than return to set type Slider and new subfilters."
+            )
             for sub in self.instance.subfilters.all():
-                sub: SubFilter
-                if len(sub.title_en) > 2 \
-                   or len(sub.title_en) > 2\
-                   or sub.price > 9999:
+                if (len(sub.title_en) > 2 or
+                        len(sub.title_en) > 2 or
+                        sub.price > 9999):
                     raise forms.ValidationError(msg)
         return type
 
@@ -260,22 +261,22 @@ class SubFilterForm(forms.ModelForm):
 
     def clean_title_en(self):
         title_en = self.cleaned_data["title_en"]
-        if len(title_en) > 2 and self.instance.filter.type == 'Slider':
-            msg = u"Max length is 2"
+        if len(title_en) > 2 and self.instance.filter.type == "Slider":
+            msg = "Max length is 2"
             raise forms.ValidationError(msg)
         return title_en
 
     def clean_title_uk(self):
         title_uk = self.cleaned_data["title_uk"]
-        if len(title_uk) > 2 and self.instance.filter.type == 'Slider':
-            msg = u"Max length is 2"
+        if len(title_uk) > 2 and self.instance.filter.type == "Slider":
+            msg = "Max length is 2"
             raise forms.ValidationError(msg)
         return title_uk
 
     def clean_price(self):
         price = self.cleaned_data["price"]
-        if price > 9999 and self.instance.filter.type == 'Slider':
-            msg = u"Max value is 9999"
+        if price > 9999 and self.instance.filter.type == "Slider":
+            msg = "Max value is 9999"
             raise forms.ValidationError(msg)
         return price
 
@@ -340,16 +341,11 @@ class ProductTabsForm(forms.ModelForm):
         exclude = ["title", "content"]
 
         widgets = {
-            "title_en":
-                UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
-            "title_uk":
-                UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
-            "content_en":
-                UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
-            "content_uk":
-                UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
-            "order":
-                UnfoldAdminIntegerFieldWidget(attrs={"style": "width: 80px"}),
+            "title_en": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
+            "title_uk": UnfoldAdminTextInputWidget(attrs={"style": "width: 200px;"}),
+            "content_en": UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
+            "content_uk": UnfoldAdminTextareaWidget(attrs={"summernote": "true"}),
+            "order": UnfoldAdminIntegerFieldWidget(attrs={"style": "width: 80px"}),
         }
 
 
@@ -372,18 +368,11 @@ class ProductAdmin(ModelAdmin):
     Admin configuration for model Product.
 
     """
-
-    # def get_form(self, request, obj=None, **kwargs):
-    #     if obj is None:
-    #         # Use a different form for adding new records
-    #         self.form = ProductForm
-    #
-    #         return ProductForm
-    #
-    #     else:
-    #         # Use a different form for updating existing records
-    #         self.form = UpdateProductForm
-    #         return UpdateProductForm
+    list_display = ["title", "price_type", "catalog_page", ]
+    list_filter = ("price_type", "catalog_page", "tag",
+                   "sale_from",
+                   "sale_until",)
+    search_fields = ["title"]
 
     def delete_queryset(self, request, queryset):
         """Given a queryset, delete it from the database."""

@@ -6,15 +6,15 @@ from django.contrib.auth import get_user_model
 from django.core.files import File
 from django.core.management.base import BaseCommand
 from faker import Faker
-from psycopg2.sql import NULL
-
+from faker.providers import date_time
 from src.games.models import *
 from src.main.models import *
 from src.products.models import *
+from src.users.models import Character
 
 User = get_user_model()
 fake = Faker()
-fake.word()
+fake.add_provider(date_time)
 
 
 class Command(BaseCommand):
@@ -27,6 +27,8 @@ class Command(BaseCommand):
         self._create_superuser()
         self._create_games()
         self._create_main_page()
+        self._create_teams()
+        self._create_calendar()
         self._create_pages()
         self._create_products()
 
@@ -41,14 +43,22 @@ class Command(BaseCommand):
         )
         user.set_password("sword123")
         user.save()
+        Character.objects.create(
+            battle_tag='battle_tag',
+            name='name',
+            faction='Horde',
+            additional_info='...',
+            class_and_spec='Warrior',
+            realm='realm',
+            user=user,
+        )
 
     def _create_games(self):
-        random_filter_logo = random.choice(os.listdir(os.path.join("seed", "filter_logo")))
-        random_product_logo = random.choice(os.listdir(os.path.join("seed", "product_logo")))
-        filter_logo = open(os.path.join("seed", "filter_logo", random_filter_logo), "rb")
-        product_logo = open(os.path.join("seed", "product_logo", random_product_logo), "rb")
-        print(filter_logo.name)
         for i in range(3):
+            random_filter_logo = random.choice(os.listdir(os.path.join("seed", "filter_logo")))
+            random_product_logo = random.choice(os.listdir(os.path.join("seed", "product_logo")))
+            filter_logo = open(os.path.join("seed", "filter_logo", random_filter_logo), "rb")
+            product_logo = open(os.path.join("seed", "product_logo", random_product_logo), "rb")
             game = Game.objects.create(
                 name=self.fake_en.unique.word().capitalize(),
                 logo_filter=File(filter_logo, "/media/" + filter_logo.name),
@@ -61,17 +71,58 @@ class Command(BaseCommand):
             )
             game.save()
 
+    def _create_teams(self):
+        for i in range(2):
+            random_team_img = random.choice(os.listdir(os.path.join("seed", "team")))
+            team_img = open(os.path.join("seed", "team", random_team_img), "rb")
+            Team.objects.create(
+                team_img=File(team_img, "/media/" + team_img.name),
+                team_img_alt_en=self.fake_en.word(),
+                team_img_alt_uk=self.fake_uk.word(),
+            )
+
+    def _create_calendar(self):
+        calendar = Calendar.objects.create(title="Calendar")
+        for i in range(3):
+            block = CalendarBlock.objects.create(
+                title_en=self.fake_en.word().capitalize(),
+                title_uk=self.fake_uk.word().capitalize(),
+                subtitle_en=self.fake_en.word().capitalize(),
+                subtitle_uk=self.fake_uk.word().capitalize(),
+                calendar=calendar
+            )
+            for j in range(3):
+                team1 = Team.objects.first()
+                team2 = Team.objects.last()
+                CalendarBlockItem.objects.create(
+                    date=self.fake_en.date(),
+                    team1_from=self.fake_en.time(),
+                    team1_until=self.fake_en.time(),
+                    team2_from=self.fake_en.time(),
+                    team2_until=self.fake_en.time(),
+                    block=block,
+                    team1=team1,
+                    team2=team2,
+                )
+
     def _create_pages(self):
         for game in Game.objects.all():
             for j in range(5):
+                worth_look = WorthLook.objects.create(
+                    title=self.fake_en.word().capitalize(),
+                )
+                calendar = Calendar.objects.first()
                 page = CatalogPage.objects.create(
                     title_en=self.fake_en.word().capitalize(),
                     title_uk=self.fake_uk.word().capitalize(),
                     description_en=self.fake_en.text(max_nb_chars=500).capitalize(),
                     description_uk=self.fake_uk.text(max_nb_chars=500).capitalize(),
                     parent=None,
-                    game_id=game.id,
+                    game=game,
                     order=j,
+                    worth_look=worth_look,
+                    calendar=calendar,
+
                 )
                 for i in range(4):
                     CatalogTabs.objects.create(
@@ -82,6 +133,19 @@ class Command(BaseCommand):
                         order=i,
                         catalog_id=page.id,
                     )
+        for item in WorthLook.objects.all():
+            item: WorthLook
+            ids = CatalogPage.objects.values_list('id', flat=True)
+            for i in range(3):
+                random_card_image = random.choice(os.listdir(os.path.join("seed", "card_image")))
+                card_image = open(os.path.join("seed", "card_image", random_card_image), "rb")
+                WorthLookItem.objects.create(
+                    image=File(card_image, "/media/" + card_image.name),
+                    image_alt_en=self.fake_en.word(),
+                    image_alt_uk=self.fake_uk.word(),
+                    carousel=item,
+                    catalog_page_id=random.choice(ids),
+                )
 
     def _create_main_page(self):
         obj = {
@@ -102,20 +166,20 @@ class Command(BaseCommand):
             "address2_en": "Ukraine, Odessa, st. Kosmonavtov, 32",
             "address2_uk": "Українa, м. Одеса, вул. Космонавтів, 32",
             "footer_description_en": "We cooperate only with qualified and experienced top world players who participate "
-            "personally in each event and ready to provide you with the best boosting service and "
-            "gaming experience in your favorite online games. We ensure that every customer is "
-            "highly satisfied and 100% positive feedback of our work pretty much sums it up ;) Get "
-            "the most relevant eu boost and power leveling.",
+                                     "personally in each event and ready to provide you with the best boosting service and "
+                                     "gaming experience in your favorite online games. We ensure that every customer is "
+                                     "highly satisfied and 100% positive feedback of our work pretty much sums it up ;) Get "
+                                     "the most relevant eu boost and power leveling.",
             "footer_description_uk": "Ми співпрацюємо лише з кваліфікованими та досвідченими провідними світовими гравцями, "
-            "які особисто беруть участь у кожній події та готові надати вам найкращі послуги "
-            "підвищення та ігровий досвід у ваших улюблених онлайн-іграх. Ми гарантуємо, "
-            "що кожен клієнт буде дуже задоволений, і 100% позитивний відгук про нашу роботу майже "
-            "підсумовує це ;) Отримайте найрелевантнішу підтримку та підвищення потужності для ЄС.",
+                                     "які особисто беруть участь у кожній події та готові надати вам найкращі послуги "
+                                     "підвищення та ігровий досвід у ваших улюблених онлайн-іграх. Ми гарантуємо, "
+                                     "що кожен клієнт буде дуже задоволений, і 100% позитивний відгук про нашу роботу майже "
+                                     "підсумовує це ;) Отримайте найрелевантнішу підтримку та підвищення потужності для ЄС.",
             "header_top_text_en": "leave a trustpilot review and get an extra 10% off your next order!",
             "header_top_text_uk": "залиште відгук Trustpilot і отримайте додаткову знижку 10% на наступне замовлення!",
             "subscribe_form_text_en": "Sing up to our email newsteller and get 10% DISCOUNT on your first order!",
             "subscribe_form_text_uk": "Підпишіться на нашу електронну розсилку та отримайте ЗНИЖКУ 10% на перше "
-            "замовлення!",
+                                      "замовлення!",
             "address1_link": "https://www.youtube.com/",
             "address2_link": "https://www.youtube.com/",
         }
@@ -166,12 +230,12 @@ class Command(BaseCommand):
             )
 
     def _create_products(self):
-        random_card_image = random.choice(os.listdir(os.path.join("seed", "card_image")))
-        random_image = random.choice(os.listdir(os.path.join("seed", "banner")))
-        card_image = open(os.path.join("seed", "card_image", random_card_image), "rb")
-        image = open(os.path.join("seed", "banner", random_image), "rb")
         for page in CatalogPage.objects.all():
             for i in range(3):
+                random_card_image = random.choice(os.listdir(os.path.join("seed", "card_image")))
+                random_image = random.choice(os.listdir(os.path.join("seed", "banner")))
+                card_image = open(os.path.join("seed", "card_image", random_card_image), "rb")
+                image = open(os.path.join("seed", "banner", random_image), "rb")
                 product = Product.objects.create(
                     title_en=self.fake_en.sentence(nb_words=3).capitalize(),
                     title_uk=self.fake_uk.sentence(nb_words=3).capitalize(),
@@ -189,6 +253,7 @@ class Command(BaseCommand):
                     card_img_alt_uk=self.fake_uk.word(),
                     image_alt_en=self.fake_en.word(),
                     image_alt_uk=self.fake_uk.word(),
+
                 )
                 product.save()
 
@@ -206,7 +271,8 @@ class Command(BaseCommand):
                 filter_obj = Filter.objects.create(
                     title_en=self.fake_en.word().capitalize(),
                     title_uk=self.fake_uk.word().capitalize(),
-                    type=random.choice(["Slider", "Radio", "CheckBox", "Select"]),
+                    type=random.choice(["Slider", "Radio",
+                                        "CheckBox", "Select"]),
                     product_id=prod.id,
                     order=j,
                 )
@@ -215,6 +281,21 @@ class Command(BaseCommand):
                         title_en=self.fake_en.word().capitalize(),
                         title_uk=self.fake_uk.word().capitalize(),
                         filter_id=filter_obj.id,
-                        price=self.fake_en.pyint(min_value=5, max_value=100),
+                        price=self.fake_en.pyint(min_value=5,
+                                                 max_value=100),
                         order=k,
                     )
+        products_ids = (
+            Product.objects
+            .filter(price_type='fixed')
+            .values_list('id', flat=True)
+        )
+        for i in range(1, 4):
+            freqbot = FreqBought.objects.create(
+                title=f'Freqbot {i}',
+                order=i,
+                discount=self.fake_en.pyint(min_value=5,
+                                            max_value=100),
+            )
+            for j in range(1, 4):
+                freqbot.products.add(random.choice(products_ids))

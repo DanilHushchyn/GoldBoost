@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 
 from src.main.models import Setting
 from src.orders.models import Order
+from src.users.models import User
 
 
 @shared_task
@@ -20,13 +21,13 @@ def change_order_status(order_id: int) -> dict:
     :param order_id: order's id for changing status
     """
     order = get_object_or_404(Order, id=order_id)
-    sleep(30)
+    sleep(10)
     if random.choice([True, True, True, False]):
         order.status = 'COMPLETED'
         msg = "ORDER COMPLETED"
     else:
+
         order.status = 'CANCELED'
         msg = "ORDER CANCELED"
-        # order.first_sale_active = True
     order.save()
     return {"message": msg}

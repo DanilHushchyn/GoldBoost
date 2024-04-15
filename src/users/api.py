@@ -3,8 +3,13 @@
     Module contains class for managing users in the site
 """
 
+from allauth.socialaccount.helpers import complete_social_login
+from allauth.socialaccount.models import SocialAccount, SocialApp, SocialLogin
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 from django.db.models import QuerySet
 from django.http import HttpRequest
+from ninja import Header
 from ninja_extra import http_delete, http_get, http_patch, http_post
 from ninja_extra.controllers.base import ControllerBase, api_controller
 from ninja_extra.permissions.common import AllowAny
@@ -17,13 +22,8 @@ from src.users.schemas import *
 from src.users.schemas import MessageOutSchema
 from src.users.services.auth_service import AuthService
 from src.users.services.user_service import UserService
-from ninja import Header
-from allauth.socialaccount.helpers import complete_social_login
-from allauth.socialaccount.models import SocialAccount, SocialApp, SocialLogin
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 
-@api_controller("/users", tags=['Users'])
+@api_controller("/users", tags=["Users"])
 class UsersController(ControllerBase):
     """
     A controller class for managing users.
@@ -94,11 +94,12 @@ class UsersController(ControllerBase):
             },
         },
     )
-    def subscribe(self, request: HttpRequest,
-                  body: EmailSchema,
-                  accept_lang:
-                  LangEnum = Header(alias='Accept-Language'),
-                  ) -> MessageOutSchema:
+    def subscribe(
+        self,
+        request: HttpRequest,
+        body: EmailSchema,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> MessageOutSchema:
         """
         Subscribe user to news by user's email
 
@@ -151,16 +152,17 @@ class UsersController(ControllerBase):
                     },
                 },
                 500: {
-                    "description": "Internal server error if" 
-                                   " an unexpected error occurs.",
+                    "description": "Internal server error if" " an unexpected error occurs.",
                 },
             },
         },
     )
-    def update_my_profile(self, request: HttpRequest, user_body: UserInSchema,
-                          accept_lang:
-                          LangEnum = Header(alias='Accept-Language'),
-                          ) -> User:
+    def update_my_profile(
+        self,
+        request: HttpRequest,
+        user_body: UserInSchema,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> User:
         """
         Update user's personal data.
         Please provide:
@@ -203,10 +205,11 @@ class UsersController(ControllerBase):
             },
         },
     )
-    def get_my_profile(self, request: HttpRequest,
-                       accept_lang:
-                       LangEnum = Header(alias='Accept-Language'),
-                       ) -> User:
+    def get_my_profile(
+        self,
+        request: HttpRequest,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> User:
         """
         Get user's personal data for cabinet.
 
@@ -215,7 +218,7 @@ class UsersController(ControllerBase):
           - **401**: Unauthorized.
           - **500**: Internal server error if an unexpected error occurs.
         """
-
+        print(request.headers)
         result = self.user_service.get_my_profile(request.user.id)
         return result
 
@@ -261,10 +264,11 @@ class UsersController(ControllerBase):
             },
         },
     )
-    def create_default_character(self, request: HttpRequest,
-                                 accept_lang:
-                                 LangEnum = Header(alias='Accept-Language'),
-                                 ) -> Character:
+    def create_default_character(
+        self,
+        request: HttpRequest,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> Character:
         """
         Create default user's characters.
 
@@ -335,11 +339,10 @@ class UsersController(ControllerBase):
         },
     )
     def delete_character_by_id(
-            self,
-            request: HttpRequest,
-            character_id: int,
-            accept_lang:
-            LangEnum = Header(alias='Accept-Language'),
+        self,
+        request: HttpRequest,
+        character_id: int,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
     ) -> MessageOutSchema:
         """
         Delete user's character by id.
@@ -412,13 +415,13 @@ class UsersController(ControllerBase):
             },
         },
     )
-    def update_character_by_id(self,
-                               request: HttpRequest,
-                               character_id: int,
-                               character: CharacterInSchema,
-                               accept_lang:
-                               LangEnum = Header(alias='Accept-Language'),
-                               ) -> Character:
+    def update_character_by_id(
+        self,
+        request: HttpRequest,
+        character_id: int,
+        character: CharacterInSchema,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> Character:
         """
         Update user's character by id.
 
@@ -464,10 +467,11 @@ class UsersController(ControllerBase):
             },
         },
     )
-    def get_my_characters(self, request: HttpRequest,
-                          accept_lang:
-                          LangEnum = Header(alias='Accept-Language'),
-                          ) -> QuerySet:
+    def get_my_characters(
+        self,
+        request: HttpRequest,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> QuerySet:
         """
         Get records of user's characters.
 
@@ -539,10 +543,12 @@ class AuthController(ControllerBase):
             },
         },
     )
-    def registration(self, request: HttpRequest, user: RegisterSchema,
-                     accept_lang:
-                     LangEnum = Header(alias='Accept-Language'),
-                     ) -> MessageOutSchema:
+    def registration(
+        self,
+        request: HttpRequest,
+        user: RegisterSchema,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> MessageOutSchema:
         """
         Register new user.
 
@@ -561,10 +567,10 @@ class AuthController(ControllerBase):
 
     @http_post(
         "/google-login",
-        response={200: SocialAccountSchema, 404: Error, 400: Error},
+        response=SocialAccountSchema,
         auth=None,
     )
-    def google_login(self,request, payload: SocialLoginSchema):
+    def google_login(self, request, payload: SocialLoginSchema):
         try:
             app = SocialApp.objects.get(name="Google")
         except SocialApp.DoesNotExist:
@@ -612,11 +618,12 @@ class AuthController(ControllerBase):
             },
         },
     )
-    def reset_password(self, request: HttpRequest,
-                       body: EmailSchema,
-                       accept_lang:
-                       LangEnum = Header(alias='Accept-Language'),
-                       ) -> MessageOutSchema:
+    def reset_password(
+        self,
+        request: HttpRequest,
+        body: EmailSchema,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> MessageOutSchema:
         """
         Reset user's password.
 
@@ -674,11 +681,12 @@ class AuthController(ControllerBase):
             },
         },
     )
-    def check_change_password(self, request: HttpRequest,
-                              body: ConfirmationSchema,
-                              accept_lang:
-                              LangEnum = Header(alias='Accept-Language'),
-                              ) -> MessageOutSchema:
+    def check_change_password(
+        self,
+        request: HttpRequest,
+        body: ConfirmationSchema,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> MessageOutSchema:
         """
         Check data for reset user's password.
 
@@ -750,11 +758,12 @@ class AuthController(ControllerBase):
             },
         },
     )
-    def change_password(self, request: HttpRequest,
-                        body: ChangePasswordSchema,
-                        accept_lang:
-                        LangEnum = Header(alias='Accept-Language'),
-                        ) -> MessageOutSchema:
+    def change_password(
+        self,
+        request: HttpRequest,
+        body: ChangePasswordSchema,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> MessageOutSchema:
         """
         Change user's password.
 
@@ -813,11 +822,12 @@ class AuthController(ControllerBase):
             },
         },
     )
-    def confirm_email(self, request: HttpRequest,
-                      body: ConfirmationSchema,
-                      accept_lang:
-                      LangEnum = Header(alias='Accept-Language'),
-                      ) -> MessageOutSchema:
+    def confirm_email(
+        self,
+        request: HttpRequest,
+        body: ConfirmationSchema,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> MessageOutSchema:
         """
         Activate user account in the site.
 
@@ -838,7 +848,12 @@ class AuthController(ControllerBase):
 schema = SchemaControl(api_settings)
 
 
-@api_controller("/token", permissions=[AllowAny], tags=["token"], auth=None, )
+@api_controller(
+    "/token",
+    permissions=[AllowAny],
+    tags=["token"],
+    auth=None,
+)
 class CustomTokenObtainPairController(ControllerBase):
     @http_post(
         "/pair",
@@ -881,9 +896,7 @@ class CustomTokenObtainPairController(ControllerBase):
             },
         },
     )
-    def obtain_token(self, request: HttpRequest,
-                     user_token:
-                     schema.obtain_pair_schema):
+    def obtain_token(self, request: HttpRequest, user_token: schema.obtain_pair_schema):
         """
         Get user's token by provided credentials.
 
@@ -941,9 +954,11 @@ class CustomTokenObtainPairController(ControllerBase):
             },
         },
     )
-    def refresh_token(self, request: HttpRequest,
-                      refresh_token: schema.obtain_pair_refresh_schema,
-                      ):
+    def refresh_token(
+        self,
+        request: HttpRequest,
+        refresh_token: schema.obtain_pair_refresh_schema,
+    ):
         """
         Get user's new access token by provided refresh token.
 
@@ -1000,9 +1015,11 @@ class CustomTokenObtainPairController(ControllerBase):
             },
         },
     )
-    def verify_token(self, request: HttpRequest,
-                     token: schema.verify_schema,
-                     ):
+    def verify_token(
+        self,
+        request: HttpRequest,
+        token: schema.verify_schema,
+    ):
         """
         Check if user's token is valid.
 

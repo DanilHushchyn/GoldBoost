@@ -28,8 +28,16 @@ extensions-install:
 fix:
 	$(MANAGE) reset_db --noinput
 	$(MANAGE) migrate
+	rm -rf ./media/*
 	$(MANAGE) init_script
 	$(MANAGE) runserver
+
+#test-fix:
+#	$(MANAGE) reset_db --noinput --database=test
+#	$(MANAGE) migrate --database=test
+##	rm -rf ./media/*
+#	$(MANAGE) init_script --database=test
+#	$(MANAGE) runserver
 down:
 	sudo docker compose down -v
 

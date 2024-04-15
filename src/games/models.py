@@ -4,6 +4,8 @@
 
     The main model here is Main and also initialized related to it models
 """
+import json
+
 from django.db import models
 from meta.models import ModelMeta
 
@@ -119,6 +121,9 @@ class WorthLookItem(models.Model):
     def __str__(self):
         return self.catalog_page.title
 
+
+
+
     class Meta:
         verbose_name = "Worth look item"
         verbose_name_plural = "Worth look items"
@@ -169,12 +174,8 @@ class CalendarBlockItem(models.Model):
     """
 
     date = models.DateField()
-    # team1_img = models.ImageField()
-    # team1_img_alt = models.CharField(max_length=255, null=True)
     team1_from = models.TimeField()
     team1_until = models.TimeField()
-    #     team2_img = models.ImageField()
-    #     team2_img_alt = models.CharField(max_length=255, null=True)
     team2_from = models.TimeField()
     team2_until = models.TimeField()
     block = models.ForeignKey("CalendarBlock", on_delete=models.CASCADE, null=True)
@@ -194,11 +195,11 @@ class Team(models.Model):
     Model is storing specific event in calendar.
     """
 
-    team_img = models.ImageField()
+    team_img = models.ImageField(upload_to=get_timestamp_path, null=True)
     team_img_alt = models.CharField(max_length=255, null=True)
 
     def __str__(self):
         return self.team_img_alt
 
     class Meta:
-        db_table = "teams"
+        db_table = "team"

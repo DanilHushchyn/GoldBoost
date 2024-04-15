@@ -255,7 +255,6 @@ class SubFilter(models.Model):
 
     with specific title and price
     """
-
     title = models.CharField(max_length=255)
     price = models.FloatField()
     filter = models.ForeignKey("Filter",

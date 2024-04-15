@@ -1,5 +1,6 @@
-from django.contrib.auth.backends import ModelBackend
+# -*- coding: utf-8 -*-
 from django.contrib.auth import get_user_model, logout
+from django.contrib.auth.backends import ModelBackend
 
 
 class EmailBackend(ModelBackend):

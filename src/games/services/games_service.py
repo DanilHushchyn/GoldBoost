@@ -4,12 +4,12 @@
 
 """
 from django.db.models import Prefetch, QuerySet
+from django.utils.translation import gettext as _
 from ninja.errors import HttpError
 
 from src.games.models import CalendarBlock, CalendarBlockItem, CatalogPage, CatalogTabs, Game
 from src.products.models import Product
 from src.products.utils import paginate
-from django.utils.translation import gettext as _
 
 
 class GameService:
@@ -22,10 +22,10 @@ class GameService:
 
     @staticmethod
     def get_games_carousel(
-            game_id: int,
-            page: int,
-            page_size: int,
-            catalog_id: int = None,
+        game_id: int,
+        page: int,
+        page_size: int,
+        catalog_id: int = None,
     ) -> dict:
         """
         Gets all products for game carousel.
@@ -55,9 +55,7 @@ class GameService:
         also related queryset of filters(root catalog_pages)
         :return: Game queryset
         """
-        pr2 = Prefetch("catalog_pages",
-                       queryset=CatalogPage.objects.filter(parent=None),
-                       to_attr="filters")
+        pr2 = Prefetch("catalog_pages", queryset=CatalogPage.objects.filter(parent=None), to_attr="items")
         objects = Game.objects.prefetch_related(pr2).all()
         for obj in objects:
             if not Product.objects.filter(catalog_page__game=obj).exists():
@@ -75,9 +73,7 @@ class GameService:
         try:
             Game.objects.get(id=game_id)
         except Game.DoesNotExist:
-            raise HttpError(404,
-                            _("Not Found: No Game matches"
-                              " the given query."))
+            raise HttpError(404, _("Not Found: No Game matches" " the given query."))
         pages = CatalogPage.objects.prefetch_related("items").filter(game_id=game_id, parent=None)
         return pages
 
@@ -92,9 +88,7 @@ class GameService:
         try:
             page = CatalogPage.objects.get(id=page_id)
         except CatalogPage.DoesNotExist:
-            raise HttpError(404,
-                            _("Not Found: No CatalogPage matches"
-                              " the given query."))
+            raise HttpError(404, _("Not Found: No CatalogPage matches" " the given query."))
         return page
 
     @staticmethod
@@ -108,12 +102,10 @@ class GameService:
         try:
             page = CatalogPage.objects.get(id=page_id)
         except CatalogPage.DoesNotExist:
-            raise HttpError(404,
-                            _("Not Found: No CatalogPage matches"
-                              " the given query."))
+            raise HttpError(404, _("Not Found: No CatalogPage matches" " the given query."))
         worth_look = page.worth_look
         if worth_look:
-            return worth_look.items
+            return worth_look.items.all()
         raise HttpError(404, _("Not found section WorthLook" " for this catalog's page"))
 
     @staticmethod
@@ -154,7 +146,5 @@ class GameService:
         try:
             tab = CatalogTabs.objects.get(id=tab_id)
         except CatalogTabs.DoesNotExist:
-            raise HttpError(404,
-                            _("Not Found: No CatalogTab matches"
-                              " the given query."))
+            raise HttpError(404, _("Not Found: No CatalogTab matches" " the given query."))
         return tab

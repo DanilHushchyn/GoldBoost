@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # django-environ
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, ".env.prod"))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "corsheaders",
     "imagekit",
-    'django_extensions',
+    "django_extensions",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -155,6 +155,12 @@ UNFOLD = {
                         "title": "Users",
                         "icon": "people",
                         "link": f"{env('MEDIA_URL')}/admin/users/user/",
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Orders",
+                        "icon": "receipt",
+                        "link": f"{env('MEDIA_URL')}/admin/orders/order/",
                         "permission": lambda request: request.user.is_superuser,
                     },
                 ],
@@ -282,17 +288,16 @@ UNFOLD = {
 }
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
-SOCIALACCOUNT_AUTO_SIGNUP = True   # This automatically signs up a user after using google to sign in
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+SOCIALACCOUNT_AUTO_SIGNUP = True  # This automatically signs up a user after using google to sign in
 
 #
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
-    'src.users.authentication.EmailBackend',
-
+    "src.users.authentication.EmailBackend",
     # `allauth` specific authentication methods, such as login by email
-    'allauth.account.auth_backends.AuthenticationBackend',
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -381,9 +386,12 @@ DATABASES = {
         "NAME": env("DB_NAME"),
         "USER": env("DB_USER"),
         "PASSWORD": env("DB_PASSWORD"),
+        "TEST": {
+            "NAME": env("DB_NAME_TEST"),
+        },
         "HOST": env("DB_HOST"),
         "PORT": env("DB_PORT"),
-    }
+    },
 }
 
 # Password validation

@@ -195,7 +195,6 @@ class MainController(ControllerBase):
           - **200**: Success response with the data.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        print('xxx')
         result = self.main_service.get_settings()
         return result
 

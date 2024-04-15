@@ -66,7 +66,7 @@ class GamesSchema(ModelSchema):
     game CatalogPages queryset
     """
 
-    filters: List[FilterSchema]
+    items: List[FilterSchema]
 
     @staticmethod
     def resolve_logo_filter(obj):

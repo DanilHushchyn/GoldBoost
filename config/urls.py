@@ -19,17 +19,17 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import HttpRequest, HttpResponse
-from django.urls import path, include
-from ninja_extra import NinjaExtraAPI
+from django.urls import include, path
+from django.utils.translation import gettext as _
+from ninja.errors import AuthenticationError, ValidationError
+from ninja_extra import NinjaExtraAPI, status
+
 from config import settings
 from src.games.api import CatalogController, GamesController
 from src.main.api import MainController
 from src.orders.api import OrderController
 from src.products.api import ProductController
 from src.users.api import AuthController, CustomTokenObtainPairController, UsersController
-from ninja.errors import AuthenticationError, ValidationError
-from django.utils.translation import gettext as _
-from ninja_extra import status
 
 main_api = NinjaExtraAPI()
 
@@ -64,10 +64,7 @@ def http_exceptions_handler(request: HttpRequest, exc: ValidationError) -> HttpR
     return main_api.create_response(
         request,
         data={
-            "error": {
-                "status": status.HTTP_422_UNPROCESSABLE_ENTITY,
-                "details": error_list
-            },
+            "error": {"status": status.HTTP_422_UNPROCESSABLE_ENTITY, "details": error_list},
         },
         status=status.HTTP_422_UNPROCESSABLE_ENTITY,
     )
@@ -85,7 +82,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", main_api.urls),
     # path("accounts/", include('allauth.urls')),
-
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

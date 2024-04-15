@@ -19,8 +19,7 @@ class CustomUserManager(UserManager):
     user and superuser with email instead of username
     """
 
-    def _create_user(self, email: str, password: str, **extra_fields) \
-            -> object:
+    def _create_user(self, email: str, password: str, **extra_fields) -> object:
         """
         Create and save a user with the given username, email, and password.
         :rtype: User
@@ -54,11 +53,7 @@ class CustomUserManager(UserManager):
         extra_fields.setdefault("is_active", False)
         return self._create_user(email, password, **extra_fields)
 
-    def create_superuser(self,
-                         email: str = None,
-                         password: str = None,
-                         **extra_fields)\
-            -> object:
+    def create_superuser(self, email: str = None, password: str = None, **extra_fields) -> object:
         """
         Create and save a superuser with the given email,
         password and extra fields.
@@ -85,6 +80,7 @@ class User(AbstractUser):
     It's stores all data about users and provides
     some methods for creating users
     """
+
     first_name = models.CharField(max_length=255, null=True)
     last_name = models.CharField(max_length=255, null=True)
 
@@ -108,13 +104,9 @@ class User(AbstractUser):
         ("Facebook", "Facebook"),
         ("WhatsApp", "WhatsApp"),
     )
-    payment_method = models.CharField(max_length=255,
-                                      choices=PAYMENT_METHOD,
-                                      default='PayPal')
-    communication = models.CharField(max_length=255,
-                                     choices=COMMUNICATION_METHOD,
-                                     default='Discord')
-    subscribe_sale_active = models.BooleanField(null=True,blank=True)
+    payment_method = models.CharField(max_length=255, choices=PAYMENT_METHOD, default="PayPal")
+    communication = models.CharField(max_length=255, choices=COMMUNICATION_METHOD, default="Discord")
+    subscribe_sale_active = models.BooleanField(null=True, blank=True)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
@@ -122,7 +114,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = "Users"
         verbose_name_plural = "Users"
-        db_table = 'users'
+        db_table = "users"
 
 
 class Character(models.Model):
@@ -150,22 +142,18 @@ class Character(models.Model):
         ("Druid", "Druid"),
     )
 
-    battle_tag = models.CharField(max_length=255, default='battle_tag')
-    name = models.CharField(max_length=255, default='name')
-    faction = models.CharField(max_length=10,
-                               choices=FACTION_CHOICES,
-                               default='Alliance')
-    additional_info = models.TextField(default='')
-    class_and_spec = models.CharField(max_length=255,
-                                      choices=CLASS_SPEC_CHOICES,
-                                      default='Warrior')
-    realm = models.CharField(max_length=255, default='')
+    battle_tag = models.CharField(max_length=255, default="battle_tag")
+    name = models.CharField(max_length=255, default="name")
+    faction = models.CharField(max_length=10, choices=FACTION_CHOICES, default="Alliance")
+    additional_info = models.TextField(default="")
+    class_and_spec = models.CharField(max_length=255, choices=CLASS_SPEC_CHOICES, default="Warrior")
+    realm = models.CharField(max_length=255, default="")
     user = models.ForeignKey("User", on_delete=models.CASCADE, null=True)
     date_published = models.DateTimeField(auto_now_add=True, null=True)
 
     class Meta:
         db_table = "characters"
-        ordering = ['-date_published']
+        ordering = ["-date_published"]
 
 
 class PasswordResetToken(models.Model):
