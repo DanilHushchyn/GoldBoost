@@ -2,9 +2,6 @@
 """
     Module contains class(set of endpoints) for managing orders and carts.
 """
-from typing import Annotated
-
-from django.db.models import QuerySet
 from django.http import HttpRequest
 from ninja_extra import http_delete, http_get, http_post
 from ninja_extra.controllers.base import ControllerBase, api_controller
@@ -13,11 +10,11 @@ from ninja_jwt.authentication import JWTAuth
 from src.main.models import PromoCode
 from src.main.schemas import OrderOutSchema, PromoCodeSchema
 from src.main.utils import LangEnum
-from src.orders.models import Cart, Order
-from src.orders.schemas import CartOutSchema, CreateOrderInSchema
+from src.orders.models import Cart
+from src.orders.schemas import CartOutSchema
 from src.orders.services.order_service import OrderService
-from src.products.utils import get_current_user
-from src.users.schemas import CabinetOrdersSchema, MessageOutSchema
+from src.users.schemas import (MessageOutSchema,
+                               CabinetOrdersSection, OrdersItemSchema)
 from src.users.utils import OptionalJWTAuth
 from ninja import Header
 
@@ -94,7 +91,7 @@ class OrderController(ControllerBase):
         if not request.auth.is_anonymous:
             user = request.auth
         else:
-            request.session.save()
+            # request.session.save()
             user = request.session.session_key
 
         result = self.order_service.get_my_cart(
@@ -428,7 +425,7 @@ class OrderController(ControllerBase):
 
     @http_get(
         "/my-orders/",
-        response=list[CabinetOrdersSchema],
+        response=CabinetOrdersSection,
         auth=JWTAuth(),
         openapi_extra={
             "responses": {
@@ -468,16 +465,81 @@ class OrderController(ControllerBase):
         },
     )
     def get_my_orders(self, request: HttpRequest,
+                      page: int, page_size: int,
                       accept_lang:
                       LangEnum = Header(alias='Accept-Language'),
-                      ) -> QuerySet:
+                      ) -> dict:
         """
         Get user's orders.
 
         Returns:
           - **200**: Success response with the data.
+          - **404**: ERROR: Not Found.
           - **401**: ERROR: Unauthorized.
+          - **422**: ERROR: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        result = self.order_service.get_my_orders(user_id=request.user.id)
+        result = self.order_service.get_my_orders(user_id=request.user.id,
+                                                  page=page,
+                                                  page_size=page_size, )
+        return result
+
+    @http_get(
+        "/{number}/detail/",
+        response=list[OrdersItemSchema],
+        auth=JWTAuth(),
+        openapi_extra={
+            "responses": {
+                401: {
+                    "description": "ERROR: Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                                "example": {"detail": "Unauthorized"},
+                            }
+                        }
+                    },
+                },
+                422: {
+                    "description": "Error: Unprocessable Entity",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "detail": {
+                                        "type": "string",
+                                    }
+                                },
+                            }
+                        }
+                    },
+                },
+                500: {
+                    "description": "Internal server error if" " an unexpected error occurs.",
+                },
+            },
+        },
+    )
+    def get_order_detail(self, request: HttpRequest,
+                         number: int,
+                         accept_lang:
+                         LangEnum = Header(alias='Accept-Language'),
+                         ) -> dict:
+        """
+        Get user's order detail.
+
+        Returns:
+          - **200**: Success response with the data.
+          - **401**: ERROR: Unauthorized.
+          - **404**: ERROR: Not Found.
+          - **422**: ERROR: Unprocessable Entity.
+          - **500**: Internal server error if an unexpected error occurs.
+        """
+        result = self.order_service.get_order_detail(user_id=request.user.id,
+                                                     number=number)
         return result

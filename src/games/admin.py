@@ -46,6 +46,8 @@ from src.games.models import (
     WorthLookItem,
 )
 
+from django.core.exceptions import ValidationError
+
 
 class WorthLookItemInline(TabularInline):
     model = WorthLookItem
@@ -68,6 +70,15 @@ class GameForm(forms.ModelForm):
         self.fields["logo_filter_alt_uk"].required = True
         self.fields["logo_product_alt_en"].required = True
         self.fields["logo_product_alt_uk"].required = True
+
+    def clean_name(self):
+        data = self.cleaned_data["name"]
+        starts_with_uppercase = data[0].isupper()
+        if starts_with_uppercase is not True:
+            msg = "The string have to start with an uppercase letter"
+            raise ValidationError(msg)
+
+        return data
 
     class Meta:
         model = Game
@@ -100,6 +111,10 @@ class CalendarBlockItemInline(TabularInline):
 @admin.register(CalendarBlock)
 class CalendarBlockModelAdmin(ModelAdmin):
     model = CalendarBlock
+    list_display = ["title", "subtitle",
+                    'calendar', ]
+    list_filter = ["calendar", ]
+    search_fields = ["title", "subtitle"]
     exclude = ["title", "subtitle"]
 
     inlines = [
@@ -109,7 +124,7 @@ class CalendarBlockModelAdmin(ModelAdmin):
 
 @admin.register(Calendar)
 class CalendarAdminClass(ModelAdmin):
-    pass
+    search_fields = ["title"]
 
 
 class CatalogTabsForm(forms.ModelForm):
@@ -203,6 +218,10 @@ class CatalogPageForm(forms.ModelForm):
 class CatalogPagesAdminClass(ModelAdmin):
     form = CatalogPageForm
     inlines = [CatalogTabsInline]
+    list_display = ["title", "description",
+                    'game', "calendar", 'worth_look']
+    list_filter = ["game", ]
+    search_fields = ["title", "description", ]
 
     def delete_model(self, request, obj: CatalogPage):
         for product in obj.products.all():
@@ -226,6 +245,7 @@ class CatalogPagesAdminClass(ModelAdmin):
 @admin.register(Game)
 class GameAdminClass(ModelAdmin):
     form = GameForm
+    search_fields = ["name"]
 
     def delete_model(self, request, obj: Game):
         for page in obj.catalog_pages.all():

@@ -32,20 +32,17 @@ import httpx
 # print(f"Name: {fake.sentence(nb_words=3)}")
 # print(f"Email: {fake_email}")
 # print(f"Address: {fake_address}")
-
-payload = {
-    "first_name": "string",
-    "last_name": "string",
-    "payment_method": "PayPal",
-    "communication": "Telegram",
-    "notify_me": True
+headers = {
+    'Accept-Language': 'uk'
 }
-for i in range(1, 4):
-    a ={
-        'pk': int(f'{i}0{i}'),
-        'title_en': '...',
-        'title_uk': '...',
-        'order': i,
-        'price': i * 10,
-    }
-    print(a)
+# print(httpx.post('http://127.0.0.1:8000/api/products/1/to-cart/', headers=headers, json={
+#     'quantity': 1,
+#     'attributes': []
+# }).json())
+client = httpx.Client()
+
+print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
+
+print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
+print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
+print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)

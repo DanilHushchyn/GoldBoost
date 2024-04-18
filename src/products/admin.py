@@ -26,6 +26,7 @@ from django import forms
 from django.contrib import admin, messages
 from django.contrib.admin import TabularInline
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
+from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -36,7 +37,7 @@ from unfold.widgets import (
     UnfoldAdminIntegerFieldWidget,
     UnfoldAdminSelect,
     UnfoldAdminTextareaWidget,
-    UnfoldAdminTextInputWidget, UnfoldAdminSplitDateTimeWidget,
+    UnfoldAdminTextInputWidget, UnfoldAdminSplitDateTimeWidget, UnfoldAdminImageFieldWidget,
 )
 
 from src.products.models import Filter, FreqBought, Product, ProductTabs, SubFilter, Tag
@@ -313,6 +314,9 @@ class FilterAdmin(ModelAdmin):
     Admin configuration for model Filter.
 
     """
+    list_display = ["title", "type", "product"]
+    list_filter = ["type", "product", ]
+    search_fields = ["title"]
 
     form = FilterForm
     inlines = [
@@ -368,7 +372,7 @@ class ProductAdmin(ModelAdmin):
     Admin configuration for model Product.
 
     """
-    list_display = ["title", "price_type", "catalog_page", ]
+    list_display = ["title", "catalog_page", ]
     list_filter = ("price_type", "catalog_page", "tag",
                    "sale_from",
                    "sale_until",)
@@ -408,6 +412,9 @@ class FreqBoughtForm(forms.ModelForm):
     class Meta:
         model = FreqBought
         fields = "__all__"
+        widgets = {
+            'products': FilteredSelectMultiple(verbose_name='Products with fixed price', is_stacked=True)
+        }
 
 
 @admin.register(FreqBought)
@@ -416,5 +423,6 @@ class FreqBoughtAdmin(ModelAdmin):
     Admin configuration for model FreqBought.
 
     """
-
+    list_display = ["title", "discount", ]
+    search_fields = ["title"]
     form = FreqBoughtForm

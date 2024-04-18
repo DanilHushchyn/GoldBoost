@@ -147,7 +147,7 @@ class ProductController(ControllerBase):
         if not request.auth.is_anonymous:
             user = request.auth
         else:
-            request.session.save()
+            # request.session.save()
             user = request.session.session_key
         result = self.product_service.add_product_to_cart(product_id=product_id, user=user, body=body)
         return result

@@ -282,13 +282,41 @@ class OrdersItemSchema(ModelSchema):
         exclude = ["order", "product", "id"]
 
 
+# class CabinetOrdersSchema(ModelSchema):
+#     """
+#     Pydantic schema for return orders to cabinet.
+#
+#     """
+#
+#     items: list[OrdersItemSchema]
+#     repeat_btn: bool
+#     status: str
+#
+#     @staticmethod
+#     def resolve_status(obj):
+#         return _(obj.status)
+#
+#     @staticmethod
+#     def resolve_repeat_btn(obj):
+#         for item in obj.items.all():
+#             if item.product.is_deleted:
+#                 return False
+#
+#             for attr in item.attributes.all():
+#                 if attr.subfilter is None or attr.subfilter.filter.product.id != item.product.id:
+#                     return False
+#         return True
+#
+#     class Meta:
+#         model = Order
+#         fields = "__all__"
+#         exclude = ["user", "freqbot", "id"]
 class CabinetOrdersSchema(ModelSchema):
     """
     Pydantic schema for return orders to cabinet.
 
     """
 
-    items: list[OrdersItemSchema]
     repeat_btn: bool
     status: str
 
@@ -311,6 +339,20 @@ class CabinetOrdersSchema(ModelSchema):
         model = Order
         fields = "__all__"
         exclude = ["user", "freqbot", "id"]
+
+
+class CabinetOrdersSection(Schema):
+    """
+    Pydantic schema for section Reviews.
+
+    Purpose of this schema to return
+    paginated queryset of Review
+    """
+
+    items: List[CabinetOrdersSchema]
+    count: int
+    next: bool
+    previous: bool
 
 
 class ConfirmationSchema(Schema):

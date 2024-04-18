@@ -26,6 +26,7 @@ from django import forms
 from django.contrib import admin
 from imagekit.admin import AdminThumbnail
 from unfold.admin import ModelAdmin
+from unfold.contrib.filters.admin import RangeDateTimeFilter, RangeDateFilter
 from unfold.widgets import (
     UnfoldAdminEmailInputWidget,
     UnfoldAdminIntegerFieldWidget,
@@ -35,6 +36,7 @@ from unfold.widgets import (
 )
 
 from src.main.models import Insta, News, PromoCode, Review, Setting, WhyChooseUs
+
 
 # Register your models here.
 
@@ -61,7 +63,9 @@ class NewsAdminClass(ModelAdmin):
     This class defines the behavior of the News admin interface,
     For more information on Django admin customization,
     """
-
+    list_display = ["title", "game", "date_published"]
+    list_filter = ["game", "date_published", ]
+    search_fields = ["title"]
     form = NewsForm
 
 
@@ -95,7 +99,10 @@ class ReviewAdminClass(ModelAdmin):
     This class defines the behavior of the Review admin interface,
     For more information on Django admin customization,
     """
-
+    list_display = ["author", 'stars_count', "comment",
+                    'source_of_review', "date_published"]
+    list_filter = ["stars_count", "source_of_review", "author", ]
+    search_fields = ["author", 'comment']
     form = ReviewForm
 
 
@@ -276,6 +283,10 @@ class PromoCodeAdmin(ModelAdmin):
     This class defines the behavior of the PromoCode admin interface,
     For more information on Django admin customization,
     """
+    list_display = ["code", 'from_date', "until_date",
+                    'discount']
+    list_filter = ["from_date", "until_date", "discount",]
+    search_fields = ["code", 'comment']
 
     def has_change_permission(self, request, obj=None):
         return False

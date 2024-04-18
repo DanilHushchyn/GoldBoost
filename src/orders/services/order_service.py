@@ -16,7 +16,7 @@ from src.main.schemas import OrderOutSchema
 from src.main.services.main_service import MainService
 from src.orders.models import Cart, CartItem, Order
 from src.orders.tasks import change_order_status
-from src.products.utils import make_sale
+from src.products.utils import make_sale, paginate
 from src.users.schemas import MessageOutSchema
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
@@ -191,11 +191,13 @@ class OrderService:
                               auth_user=auth_user)
 
     @staticmethod
-    def get_my_orders(user_id: int) -> QuerySet:
+    def get_my_orders(user_id: int, page: int, page_size: int) -> dict:
         """
         Get user's orders by user's id.
+        :param page: the page number we want to get
+        :param page_size: length of queryset per page
         :param user_id: user id
-        :return: User model instance
+        :return: paginated orders
         """
         try:
             user = User.objects.get(id=user_id)
@@ -204,7 +206,30 @@ class OrderService:
                             _("Not Found: No User matches"
                               " the given query."))
         orders = user.order_set.all()
-        return orders
+        return paginate(items=orders, page=page, page_size=page_size)
+
+    @staticmethod
+    def get_order_detail(user_id: int, number: int) -> dict:
+        """
+        Get user's order by order's number.
+        :param number: number of order
+        :param user_id: user id
+        :return: paginated orders
+        """
+        try:
+            user = User.objects.get(id=user_id)
+            order = (Order.objects.prefetch_related('items')
+                     .get(user=user, number=number))
+
+        except User.DoesNotExist:
+            raise HttpError(404,
+                            _("Not Found: No User matches"
+                              " the given query."))
+        except Order.DoesNotExist:
+            raise HttpError(404,
+                            _("Not Found: No Order matches"
+                              " the given query."))
+        return order.items.all()
 
     def repeat_order(self, user: User, number: str) -> MessageOutSchema:
         """

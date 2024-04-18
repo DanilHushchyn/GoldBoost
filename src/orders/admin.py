@@ -59,6 +59,10 @@ class OrderAdmin(ModelAdmin):
     Admin configuration for model Order.
 
     """
+    list_display = ["number", "status",
+                    'total_price', 'date_created']
+    list_filter = ["status", "date_created", ]
+    search_fields = ["number", 'total_price']
 
     def has_change_permission(self, request, obj=None):
         return False

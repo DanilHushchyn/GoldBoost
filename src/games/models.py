@@ -25,7 +25,7 @@ class Game(models.Model):
     logo_product = models.ImageField(upload_to=get_timestamp_path, null=True)
     logo_filter_alt = models.CharField(max_length=255, null=True)
     logo_product_alt = models.CharField(max_length=255, null=True)
-    order = models.IntegerField(null=True)
+    order = models.PositiveIntegerField(null=True)
     is_deleted = models.BooleanField(default=False)
     objects = GameManager()
 
@@ -53,7 +53,7 @@ class CatalogPage(ModelMeta, models.Model):
     )
     calendar = models.ForeignKey("Calendar", on_delete=models.SET_NULL, null=True, blank=True)
     worth_look = models.ForeignKey("WorthLook", on_delete=models.SET_NULL, null=True, blank=True)
-    order = models.IntegerField(null=True)
+    order = models.PositiveIntegerField(null=True)
     is_deleted = models.BooleanField(default=False)
     objects = CatalogPageManager()
 

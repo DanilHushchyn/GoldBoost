@@ -1,4 +1,4 @@
-MANAGE = python manage.py
+MANAGE = python3 manage.py
 ccc:
 	ls
 run:
