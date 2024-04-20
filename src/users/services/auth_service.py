@@ -10,7 +10,7 @@ from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpRequest
-from ninja_jwt.tokens import RefreshToken,AccessToken
+from ninja_jwt.tokens import RefreshToken, AccessToken
 
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
@@ -60,12 +60,12 @@ class AuthService:
 
     @staticmethod
     def social_login(
-        request: HttpRequest,
-        app: SocialApp,
-        adapter: OAuth2Adapter,
-        access_token: str,
-        response=None,
-        connect=True,
+            request: HttpRequest,
+            app: SocialApp,
+            adapter: OAuth2Adapter,
+            access_token: str,
+            response=None,
+            connect=True,
     ):
         """
         Uses allauth to complete a social login
@@ -96,12 +96,13 @@ class AuthService:
                 login.lookup()
                 login.save(request)
         try:
-           user = User.objects.get(email=login.account.extra_data['email'])
+            user = User.objects.get(email=login.account.extra_data['email'])
         except Exception as e:
             return 400, {"detail": f"Could not complete social login: {e}"}
 
         refresh = RefreshToken.for_user(user)
         return refresh
+
     @staticmethod
     def confirm_email(body: ConfirmationSchema) -> MessageOutSchema:
         """

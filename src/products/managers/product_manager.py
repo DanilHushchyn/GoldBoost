@@ -33,3 +33,14 @@ class ProductManager(models.Manager):
     def bestsellers(self):
         objects = self.get_queryset().order_by("-bought_count")
         return objects
+
+
+class FreqBoughtManager(models.Manager):
+    """
+    A Manager class for managing freqbots.
+
+    This class provides methods for ordering and filtering products with db queries.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)

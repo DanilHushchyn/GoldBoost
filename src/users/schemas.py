@@ -16,6 +16,8 @@ from pydantic import EmailStr
 from config.settings import ABSOLUTE_URL
 from src.main.models import OrderItem, OrderItemAttribute
 from src.orders.models import Order
+from src.orders.schemas import AttributeSchema
+from src.products.models import Product
 from src.users.models import Character, User
 
 
@@ -225,92 +227,56 @@ class OrderItemAttributeSchema(ModelSchema):
         fields = ["title", "price"]
 
 
-class OrdersItemSchema(ModelSchema):
-    card_img: str | None = None
-    card_img_alt: str | None = None
-    game_logo: str | None = None
-    game_logo_alt: str | None = None
-    title: str | None = None
-    subtitle: str | None = None
+class OrderItemProductSchema(ModelSchema):
+    """
+    Pydantic schema for Product.
+
+    Purpose of this schema to return info about product
+    for product element in carousel in client side
+    """
+    game_logo: str
+    game_logo_alt: str
     attributes: List[OrderItemAttributeSchema] = []
 
     @staticmethod
-    def resolve_card_img(obj):
-        if obj.product is None:
-            return None
-        return ABSOLUTE_URL + obj.product.card_img.url
-
-    @staticmethod
     def resolve_game_logo(obj):
-        if obj.product is None:
-            return None
-        return ABSOLUTE_URL + obj.product.catalog_page.game.logo_product.url
+        return f"{ABSOLUTE_URL}{obj.catalog_page.game.logo_product.url}"
 
     @staticmethod
     def resolve_game_logo_alt(obj):
-        if obj.product is None:
-            return None
-        return obj.product.catalog_page.game.logo_product_alt
+        return obj.catalog_page.game.logo_product_alt
 
     @staticmethod
-    def resolve_card_img_alt(obj):
-        if obj.product is None:
-            return None
-        return obj.product.card_img_alt
+    def resolve_card_img(obj):
+        return ABSOLUTE_URL + obj.card_img.url
+
+    class Meta:
+        model = Product
+        fields = [
+            'id',
+            'title',
+            'subtitle',
+            'card_img',
+            'card_img_alt',
+        ]
+
+
+class OrdersItemSchema(ModelSchema):
+    items: List[OrderItemProductSchema]
 
     @staticmethod
-    def resolve_title(obj):
-        if obj.product is None:
-            return None
-        return obj.product.title
-
-    @staticmethod
-    def resolve_subtitle(obj):
-        if obj.product is None:
-            return None
-        return obj.product.subtitle
-
-    # @staticmethod
-    # def resolve_subtitle(obj):
-    #     if obj.product is None:
-    #         return None
-    #     return obj.product.subtitle
+    def resolve_items(obj: OrderItem):
+        if obj.product:
+            obj.product.attributes = obj.attributes
+            return [obj.product]
+        return obj.freqbot.products
 
     class Meta:
         model = OrderItem
         fields = "__all__"
-        exclude = ["order", "product", "id"]
+        exclude = ["order", "product", "id", 'freqbot']
 
 
-# class CabinetOrdersSchema(ModelSchema):
-#     """
-#     Pydantic schema for return orders to cabinet.
-#
-#     """
-#
-#     items: list[OrdersItemSchema]
-#     repeat_btn: bool
-#     status: str
-#
-#     @staticmethod
-#     def resolve_status(obj):
-#         return _(obj.status)
-#
-#     @staticmethod
-#     def resolve_repeat_btn(obj):
-#         for item in obj.items.all():
-#             if item.product.is_deleted:
-#                 return False
-#
-#             for attr in item.attributes.all():
-#                 if attr.subfilter is None or attr.subfilter.filter.product.id != item.product.id:
-#                     return False
-#         return True
-#
-#     class Meta:
-#         model = Order
-#         fields = "__all__"
-#         exclude = ["user", "freqbot", "id"]
 class CabinetOrdersSchema(ModelSchema):
     """
     Pydantic schema for return orders to cabinet.
@@ -327,7 +293,7 @@ class CabinetOrdersSchema(ModelSchema):
     @staticmethod
     def resolve_repeat_btn(obj):
         for item in obj.items.all():
-            if item.product.is_deleted:
+            if item.product and item.product.is_deleted:
                 return False
 
             for attr in item.attributes.all():
@@ -338,7 +304,7 @@ class CabinetOrdersSchema(ModelSchema):
     class Meta:
         model = Order
         fields = "__all__"
-        exclude = ["user", "freqbot", "id"]
+        exclude = ["user", "id"]
 
 
 class CabinetOrdersSection(Schema):

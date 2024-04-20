@@ -100,59 +100,41 @@ class OrderService:
         order.save()
         change_order_status.delay(order_id=order.id)
 
-    def create_freq_order(self, user, cart_item: CartItem, promo_code: PromoCode = None):
-        freq_order = Order.objects.create(status='IN PROGRESS',
-                                          user_id=user.id,
-                                          number=self.create_number(),
-                                          freqbot=cart_item.freqbot,
-                                          total_price=0)
-        for item in cart_item.freqbot.products.all():
-            order_item = OrderItem.objects.create(order_id=freq_order.id,
-                                                  quantity=1,
-                                                  product_id=item.id)
-            order_item.cost = make_sale(order_item.price(),
-                                        cart_item.freqbot.discount)
-            order_item.save()
-        total_price = cart_item.price()
-        bonuses = cart_item.bonus_points()
-        self.finish_order(user=user,
-                          order=freq_order,
-                          promo_code=promo_code,
-                          total_price=total_price,
-                          bonuses=bonuses)
-
-    def create_ordinary_order(self, user, cart: Cart,
-                              promo_code: PromoCode = None):
-        total_price = 0
-        total_bonuses = 0
-        order = Order.objects.create(status='IN PROGRESS',
-                                     user_id=user.id,
-                                     number=self.create_number(),
-                                     total_price=0)
-        for cart_item in cart.items.exclude(product=None):
-            order_item = OrderItem.objects.create(order_id=order.id,
-                                                  quantity=cart_item.quantity,
-                                                  product_id=cart_item.product.id)
-            for attr in cart_item.attributes.all():
-                OrderItemAttribute.objects.create(
-                    title_en=attr.sub_filter.title_en,
-                    title_uk=attr.sub_filter.title_uk,
-                    price=attr.sub_filter.price,
-                    subfilter_id=attr.sub_filter.id,
-                    order_item=order_item,
-                )
-            order_item.cost = order_item.price()
-            order_item.save()
-
-            # cart_item.attributes.all()
-            total_price = total_price + cart_item.price()
-            bonuses = cart_item.bonus_points()
-            total_bonuses = total_bonuses + bonuses
-        self.finish_order(user=user,
-                          order=order,
-                          promo_code=promo_code,
-                          total_price=total_price,
-                          bonuses=total_bonuses)
+    # def create_order(self, user: User | str,
+    #                  code: str | None = None) \
+    #         -> OrderOutSchema:
+    #     """
+    #     Create order for user.
+    #
+    #     :param code: promo code for order if exists
+    #     :param user: User model instance or session key
+    #     """
+    #     cart = self.get_my_cart(user=user)
+    #     if cart.items.count() <= 0:
+    #         raise HttpError(400, _('Your cart is empty'))
+    #     auth_user = False
+    #     if isinstance(user, User):
+    #         auth_user = True
+    #         promo_code = None
+    #         if code:
+    #             promo_code = self.check_promo_code(code=code,
+    #                                                user=user)
+    #         for cart_item in cart.items.filter(product=None):
+    #             self.create_freq_order(user=user,
+    #                                    cart_item=cart_item,
+    #                                    promo_code=promo_code)
+    #
+    #         if cart.items.exclude(product=None).exists():
+    #             self.create_ordinary_order(user=user,
+    #                                        cart=cart,
+    #                                        promo_code=promo_code)
+    #         # clean user's cart
+    #         # cart.items.all().delete()
+    #         if user.subscribe_sale_active:
+    #             user.subscribe_sale_active = False
+    #             user.save()
+    #     return OrderOutSchema(message=_('Order issued successfully'),
+    #                           auth_user=auth_user)
 
     def create_order(self, user: User | str,
                      code: str | None = None) \
@@ -167,23 +149,54 @@ class OrderService:
         if cart.items.count() <= 0:
             raise HttpError(400, _('Your cart is empty'))
         auth_user = False
+
         if isinstance(user, User):
             auth_user = True
             promo_code = None
             if code:
                 promo_code = self.check_promo_code(code=code,
                                                    user=user)
+            total_price = 0
+            total_bonuses = 0
+            order = Order.objects.create(status='IN PROGRESS',
+                                         user_id=user.id,
+                                         number=self.create_number(),
+                                         total_price=0)
             for cart_item in cart.items.filter(product=None):
-                self.create_freq_order(user=user,
-                                       cart_item=cart_item,
-                                       promo_code=promo_code)
+                OrderItem.objects.create(
+                    order=order,
+                    freqbot=cart_item.freqbot,
+                    quantity=cart_item.quantity,
+                    cost=cart_item.price()
+                )
+                total_bonuses = total_bonuses + cart_item.bonus_points()
+                total_price = total_price + cart_item.price()
+            for cart_item in cart.items.filter(freqbot=None):
+                order_item = OrderItem.objects.create(
+                    order=order,
+                    product=cart_item.product,
+                    quantity=cart_item.quantity,
+                    cost=cart_item.price()
+                )
+                for attr in cart_item.attributes.all():
+                    OrderItemAttribute.objects.create(
+                        title_en=attr.sub_filter.title_en,
+                        title_uk=attr.sub_filter.title_uk,
+                        price=attr.sub_filter.price,
+                        subfilter_id=attr.sub_filter.id,
+                        order_item=order_item,
+                    )
+                total_bonuses = total_bonuses + cart_item.bonus_points()
+                total_price = total_price + cart_item.price()
 
-            if cart.items.exclude(product=None).exists():
-                self.create_ordinary_order(user=user,
-                                           cart=cart,
-                                           promo_code=promo_code)
-            # clean user's cart
-            # cart.items.all().delete()
+            order.total_price = total_price
+            order.total_bonuses = total_bonuses
+            order.save()
+            self.finish_order(user=user,
+                              order=order,
+                              promo_code=promo_code,
+                              total_price=total_price,
+                              bonuses=total_bonuses)
             if user.subscribe_sale_active:
                 user.subscribe_sale_active = False
                 user.save()
@@ -250,7 +263,7 @@ class OrderService:
                               " the given query."))
 
         for item in order.items.all():
-            if item.product.is_deleted:
+            if item.product and item.product.is_deleted:
                 raise HttpError(404, _('Cannot repeat order, '
                                        'some products does '
                                        'not exists nowadays'))
@@ -266,11 +279,10 @@ class OrderService:
                                                'user',
                                                'status',
                                                'number',
-                                               'freqbot'])
+                                               ])
 
         new_order = Order.objects.create(**kwargs,
                                          user=user,
-                                         freqbot=order.freqbot,
                                          status='IN PROGRESS',
                                          number=self.create_number())
         total_bonuses = 0
@@ -278,12 +290,19 @@ class OrderService:
         for item in order.items.all():
             kwargs = model_to_dict(item, exclude=['id',
                                                   'order',
+                                                  'freqbot',
                                                   'product'])
-            new_order_item = OrderItem.objects.create(**kwargs,
-                                                      order_id=new_order.id,
-                                                      product=item.product)
+            new_order_item = (OrderItem.objects
+                              .create(**kwargs,
+                                      order=new_order,
+                                      product=item.product,
+                                      freqbot=item.freqbot,
+                                      ))
             for attr in item.attributes.all():
-                kwargs = model_to_dict(attr, exclude=['id', 'price', 'subfilter', 'order_item'])
+                kwargs = model_to_dict(attr, exclude=['id',
+                                                      'price',
+                                                      'subfilter',
+                                                      'order_item'])
                 price = attr.subfilter.price
                 OrderItemAttribute.objects.create(
                     **kwargs,
@@ -293,15 +312,8 @@ class OrderService:
                 )
             new_order_item.cost = new_order_item.price()
             new_order_item.save()
-
-            total_price = total_price + item.price()
-            total_bonuses = total_bonuses + item.bonus_points()
-        if new_order.freqbot:
-            discount = new_order.freqbot.discount
-            for item in new_order.items.all():
-                item.cost = make_sale(item.cost, discount)
-                item.save()
-            total_price = make_sale(total_price, discount)
+            total_price = total_price + new_order_item.price()
+            total_bonuses = total_bonuses + new_order_item.bonus_points()
         self.finish_order(user=user,
                           order=new_order,
                           promo_code=None,

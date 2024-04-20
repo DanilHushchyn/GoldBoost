@@ -16,7 +16,7 @@ from django.db.models import Max, Min, Sum
 from django.utils import timezone
 
 from src.games.models import CatalogPage
-from src.products.managers.product_manager import ProductManager
+from src.products.managers.product_manager import ProductManager, FreqBoughtManager
 from src.products.utils import get_timestamp_path, make_sale
 
 
@@ -190,6 +190,9 @@ class FreqBought(models.Model):
 
     def __str__(self):
         return self.title
+
+    is_deleted = models.BooleanField(default=False)
+    objects = FreqBoughtManager()
 
     class Meta:
         ordering = ["order"]

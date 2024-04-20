@@ -44,7 +44,8 @@ services:
       - static_volume:/usr/src/GoldBoost/static
       - media_volume:/usr/src/GoldBoost/media
     ports:
-      - "127.0.0.1:8150:80"
+#      - "127.0.0.1:8150:80"
+      - "80:80"
     depends_on:
       - web
 volumes:

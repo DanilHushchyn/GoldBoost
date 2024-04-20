@@ -20,7 +20,7 @@ from imagekit.processors import ResizeToFill
 from src.games.models import Game
 from src.main.tasks import share_news
 from src.orders.models import Order
-from src.products.models import Product, SubFilter
+from src.products.models import Product, SubFilter, FreqBought
 from src.products.utils import get_timestamp_path, make_sale
 from src.users.models import User
 
@@ -216,6 +216,11 @@ class OrderItem(models.Model):
         on_delete=models.SET_NULL,
         null=True,
     )
+    freqbot = models.ForeignKey(
+        FreqBought,
+        on_delete=models.SET_NULL,
+        null=True,
+    )
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
@@ -237,10 +242,20 @@ class OrderItem(models.Model):
     def price(self):
         if self.product:
             return self.price_for_product(self.product)
+        else:
+            total = 0
+            for product in self.freqbot.products.all():
+                total = total + self.price_for_product(product)
+            return make_sale(total, self.freqbot.discount)
 
     def bonus_points(self):
         if self.product:
             return self.product.bonus_points * self.quantity
+        else:
+            total = 0
+            for product in self.freqbot.products.all():
+                total = total + product.bonus_points
+            return total
 
     class Meta:
         db_table = "sub_orders"

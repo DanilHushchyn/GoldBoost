@@ -41,10 +41,7 @@ class Order(models.Model):
                               default='CANCELED')
     date_created = models.DateTimeField(auto_now_add=True)
     total_price = models.FloatField()
-    freqbot = models.ForeignKey(FreqBought,
-                                on_delete=models.SET_NULL,
-                                null=True,
-                                related_name='orders')
+
 
     class Meta:
         ordering = ['-date_created']
@@ -60,6 +57,7 @@ class Cart(models.Model):
 
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
     session_key = models.CharField(max_length=500, null=True)
+
     class Meta:
         db_table = 'carts'
 

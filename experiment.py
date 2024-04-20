@@ -35,14 +35,14 @@ import httpx
 headers = {
     'Accept-Language': 'uk'
 }
-# print(httpx.post('http://127.0.0.1:8000/api/products/1/to-cart/', headers=headers, json={
-#     'quantity': 1,
-#     'attributes': []
-# }).json())
+
 client = httpx.Client()
 
 print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
-
+print(client.post('http://127.0.0.1:8000/api/products/1/to-cart/', headers=headers, json={
+    'quantity': 1,
+    'attributes': []
+}).json())
 print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
 print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
 print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)

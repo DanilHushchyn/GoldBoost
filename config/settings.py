@@ -111,6 +111,12 @@ NINJA_JWT = {
     "TOKEN_BLACKLIST_INPUT_SCHEMA": "ninja_jwt.schema.TokenBlacklistInputSchema",
     "TOKEN_VERIFY_INPUT_SCHEMA": "ninja_jwt.schema.TokenVerifyInputSchema",
 }
+# django settings.py
+NINJA_EXTRA = {
+    'THROTTLE_RATES': {
+        'repeat': '1/10s',
+    }
+}
 UNFOLD = {
     "SITE_TITLE": "GoldBoost",
     "SITE_HEADER": "GoldBoost",

@@ -2,9 +2,13 @@
 """
     Module contains class(set of endpoints) for managing orders and carts.
 """
+from typing import Optional
+
 from django.http import HttpRequest
 from ninja_extra import http_delete, http_get, http_post
 from ninja_extra.controllers.base import ControllerBase, api_controller
+from ninja_extra.throttling.decorator import throttle
+from ninja_extra.throttling.model import UserRateThrottle, DynamicRateThrottle, BaseThrottle
 from ninja_jwt.authentication import JWTAuth
 
 from src.main.models import PromoCode
@@ -17,6 +21,8 @@ from src.users.schemas import (MessageOutSchema,
                                CabinetOrdersSection, OrdersItemSchema)
 from src.users.utils import OptionalJWTAuth
 from ninja import Header
+
+
 
 
 @api_controller("/orders/", tags=["Orders"], permissions=[])
@@ -88,11 +94,16 @@ class OrderController(ControllerBase):
           - **401**: ERROR: Unauthorized.
           - **500**: Internal server error if an unexpected error occurs.
         """
+        print(request.session.session_key)
         if not request.auth.is_anonymous:
             user = request.auth
         else:
             # request.session.save()
             user = request.session.session_key
+            if user is None:
+                print(111)
+                request.session.save()
+                user = request.session.session_key
 
         result = self.order_service.get_my_cart(
             user=user,

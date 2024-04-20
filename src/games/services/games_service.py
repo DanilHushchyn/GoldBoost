@@ -7,7 +7,7 @@ from django.db.models import Prefetch, QuerySet
 from django.utils.translation import gettext as _
 from ninja.errors import HttpError
 
-from src.games.models import CalendarBlock, CalendarBlockItem, CatalogPage, CatalogTabs, Game
+from src.games.models import CalendarBlock, CalendarBlockItem, CatalogPage, CatalogTabs, Game, WorthLookItem
 from src.products.models import Product
 from src.products.utils import paginate
 
@@ -103,10 +103,8 @@ class GameService:
             page = CatalogPage.objects.get(id=page_id)
         except CatalogPage.DoesNotExist:
             raise HttpError(404, _("Not Found: No CatalogPage matches" " the given query."))
-        worth_look = page.worth_look
-        if worth_look:
-            return worth_look.items.all()
-        raise HttpError(404, _("Not found section WorthLook" " for this catalog's page"))
+        items = WorthLookItem.objects.filter(carousel__catalogpage=page)
+        return items
 
     @staticmethod
     def get_calendar(page_id: int) -> QuerySet:

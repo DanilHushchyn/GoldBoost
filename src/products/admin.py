@@ -426,3 +426,16 @@ class FreqBoughtAdmin(ModelAdmin):
     list_display = ["title", "discount", ]
     search_fields = ["title"]
     form = FreqBoughtForm
+
+    def delete_queryset(self, request, queryset):
+        """Given a queryset, delete it from the database."""
+        for freqbot in queryset:
+            [item.delete() for item in freqbot.cart_items.all()]
+            freqbot.is_deleted = True
+            freqbot.save()
+
+    def delete_model(self, request, obj: FreqBought):
+        [item.delete() for item in obj.cart_items.all()]
+        obj.is_deleted = True
+        obj.save()
+        return True
