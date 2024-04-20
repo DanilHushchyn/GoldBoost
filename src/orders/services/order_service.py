@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 # -*- coding: utf-8 -*-
 from django.db.models import QuerySet
 from django.forms import model_to_dict
+from django.http import HttpRequest
 
 from ninja.errors import HttpError
 
@@ -35,19 +36,28 @@ class OrderService:
     """
 
     @staticmethod
-    def get_my_cart(user: User | str) -> Cart:
+    def get_my_cart(request: HttpRequest) -> Cart:
         """
         Gets info for user's cart.
 
-        :param user:
+        :param request:
         :return: Cart model instance
         """
-        if isinstance(user, User):
-            cart, status = (Cart.objects.prefetch_related('items', 'items__attributes')
-                            .get_or_create(user=user))
-        else:
-            cart, status = (Cart.objects.prefetch_related('items', 'items__attributes')
-                            .get_or_create(session_key=user))
+        # if not request.auth.is_anonymous:
+        #     user = request.auth
+        # else:
+        print('key' not in request.session.keys())
+        if 'key' not in request.session.keys():
+            num = random.randint(100_000_000, 999_999_999)
+            request.session['key'] = num
+            key = request.session['key']
+
+        # if isinstance(user, User):
+        #     cart, status = (Cart.objects.prefetch_related('items', 'items__attributes')
+        #                     .get_or_create(user=user))
+        # else:
+        cart, status = (Cart.objects.prefetch_related('items', 'items__attributes')
+                        .get_or_create(session_key=request.session['key']))
         return cart
 
     def delete_cart_item(self, user: User | str, item_id: int) -> MessageOutSchema:
