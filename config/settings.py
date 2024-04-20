@@ -393,9 +393,6 @@ DATABASES = {
         "NAME": env("DB_NAME"),
         "USER": env("DB_USER"),
         "PASSWORD": env("DB_PASSWORD"),
-        "TEST": {
-            "NAME": env("DB_NAME_TEST"),
-        },
         "HOST": env("DB_HOST"),
         "PORT": env("DB_PORT"),
     },
