@@ -22,6 +22,10 @@ https://docs.djangoproject.com/en/stable/ref/contrib/admin/
 """
 import json
 
+from celery.utils.dispatch.signal import Signal
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from loguru import logger
 from django import forms
 from django.contrib import admin, messages
 from django.contrib.admin import TabularInline
@@ -213,6 +217,10 @@ class FilterForm(forms.ModelForm):
         self.fields["product"].required = True
         if instance and instance.pk:
             self.fields["product"].widget = forms.HiddenInput()
+            self.fields["type"].widget = UnfoldAdminTextInputWidget(attrs={})
+            self.fields["type"].widget.attrs["readonly"] = True
+
+            # self.fields["type"].widget.attrs["isDisabled"] = True
 
     class Meta:
         model = Filter
@@ -383,11 +391,17 @@ class ProductAdmin(ModelAdmin):
         for product in queryset:
             [item.delete() for item in product.cart_items.all()]
             product.is_deleted = True
+            [tab.delete() for tab in product.tabs.all()]
+            freqbots = product.freqbought_set.all()
+            FreqBoughtAdmin.delete_queryset(self, request, freqbots)
             product.save()
 
     def delete_model(self, request, obj: Product):
         [item.delete() for item in obj.cart_items.all()]
         obj.is_deleted = True
+        [tab.delete() for tab in obj.tabs.all()]
+        freqbots = obj.freqbought_set.all()
+        FreqBoughtAdmin.delete_queryset(self, request, freqbots)
         obj.save()
         return True
 
@@ -407,13 +421,29 @@ class FreqBoughtForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["products"].queryset = Product.objects.filter(price_type="fixed")
+        self.fields["products"].queryset = (
+            Product.objects.filter(price_type="fixed"))
+
+    def clean_products(self):
+        products = self.cleaned_data["products"]
+        if len(products) < 2:
+            msg = "You have to choose minimum 2 products"
+            raise forms.ValidationError(msg)
+        return products
 
     class Meta:
         model = FreqBought
-        fields = "__all__"
+        fields = [
+            'title',
+            'order',
+            'products',
+            'discount',
+        ]
         widgets = {
-            'products': FilteredSelectMultiple(verbose_name='Products with fixed price', is_stacked=True)
+            'products': FilteredSelectMultiple(
+
+                verbose_name='Products with fixed price',
+                is_stacked=True)
         }
 
 

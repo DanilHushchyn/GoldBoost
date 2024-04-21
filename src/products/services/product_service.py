@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 
 from src.orders.models import Attribute, Cart, CartItem
+from src.orders.services.order_service import OrderService
 from src.products.models import Filter, Product, ProductTabs, SubFilter, FreqBought
 from src.products.schemas import AddToCartSchema
 from src.products.utils import paginate
@@ -30,28 +31,25 @@ class ProductService:
 
     @staticmethod
     def add_product_to_cart(product_id: int,
-                            user: User | str,
+                            request: HttpRequest,
                             body: AddToCartSchema) -> MessageOutSchema:
         """
         Gets info for product's card page.
 
+        :param request: HttpRequest
         :param body: list of attributes
-        :param user: user object or sessionKey
         for product with range price
         :param product_id: id of Product model's instance
         :return: Product model's instance with related filters
         """
         try:
-            product = Product.objects.prefetch_related("filters__subfilters").get(id=product_id)
+            product = (Product.objects
+                       .prefetch_related("filters__subfilters")
+                       .get(id=product_id))
         except Product.DoesNotExist:
             raise HttpError(404, _("Not Found: No Product"
                                    " matches the given query."))
-
-        if isinstance(user, User):
-            cart, status = Cart.objects.get_or_create(user=user)
-        else:
-            cart, status = Cart.objects.get_or_create(session_key=user)
-
+        cart = OrderService().get_my_cart(request=request)
         if product.price_type == "range":
             attributes = set(body.attributes)
             for subfilter_id in attributes:
@@ -69,23 +67,42 @@ class ProductService:
                           f" chosen elements "
                           f"but 1 have to be choosing)"),
                     )
-            cart_item = CartItem.objects.create(product=product,
-                                                quantity=body.quantity,
-                                                cart=cart)
-            for subfilter_id in attributes:
-                Attribute.objects.create(sub_filter_id=subfilter_id,
-                                         cart_item=cart_item)
 
+            create_item = True
+            cart_items = cart.items.filter(product=product)
+            for cart_item in cart_items:
+                attrs = (cart_item.attributes
+                         .values_list('sub_filter_id', flat=True))
+                attrs1 = set(attrs)
+                attrs2 = set(body.attributes)
+                if attrs1 == attrs2:
+                    total_q = cart_item.quantity + body.quantity
+                    cart_item.quantity = total_q
+                    cart_item.save()
+                    create_item = False
+                    break
+            if create_item:
+                cart_item = CartItem.objects.create(product=product,
+                                                    quantity=body.quantity,
+                                                    cart=cart)
+                for subfilter_id in attributes:
+                    Attribute.objects.create(sub_filter_id=subfilter_id,
+                                             cart_item=cart_item)
         if product.price_type == "fixed":
-            (CartItem.objects.create(product=product,
-                                     quantity=body.quantity,
-                                     cart=cart))
-
+            try:
+                cart_item = cart.items.get(product=product)
+                cart_item.quantity = cart_item.quantity + body.quantity
+                cart_item.save()
+            except CartItem.DoesNotExist:
+                (CartItem.objects.create(product=product,
+                                         quantity=body.quantity,
+                                         cart=cart))
         return MessageOutSchema(message=_("Product added to cart "
                                           "successfully"))
 
     @staticmethod
-    def get_product_by_id(request: HttpRequest, product_id: int) -> Product:
+    def get_product_by_id(request: HttpRequest, product_id: int) \
+            -> Product:
         """
         Gets info for product's card page.
 
@@ -98,7 +115,9 @@ class ProductService:
             queryset=Filter.objects.all(),
         )
         try:
-            product = Product.objects.prefetch_related(pr_filters).get(id=product_id)
+            product = (Product.objects
+                       .prefetch_related(pr_filters)
+                       .get(id=product_id))
         except Product.DoesNotExist:
             raise HttpError(404,
                             _("Not Found: No Product matches"
@@ -184,14 +203,21 @@ class ProductService:
         return items[:10]
 
     @staticmethod
-    def freqbot_to_cart(freqbot_id: int, cart: Cart) -> MessageOutSchema:
+    def freqbot_to_cart(freqbot_id: int, request: HttpRequest) -> MessageOutSchema:
+        cart = OrderService().get_my_cart(request=request)
         try:
             freqbot = FreqBought.objects.get(id=freqbot_id)
         except FreqBought.DoesNotExist:
             raise HttpError(404,
                             _("Not Found: No FreqBought matches"
                               " the given query."))
-        CartItem.objects.create(freqbot_id=freqbot.id, quantity=1,
-                                cart_id=cart.id)
+
+        try:
+            cart_item = cart.items.get(freqbot=freqbot)
+            cart_item.quantity = cart_item.quantity + 1
+            cart_item.save()
+        except CartItem.DoesNotExist:
+            CartItem.objects.create(freqbot_id=freqbot.id, quantity=1,
+                                    cart_id=cart.id)
         return MessageOutSchema(message=_("Freqbot element added to cart "
                                           "successfully"))

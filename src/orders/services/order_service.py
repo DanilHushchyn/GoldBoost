@@ -43,32 +43,33 @@ class OrderService:
         :param request:
         :return: Cart model instance
         """
-        # if not request.auth.is_anonymous:
-        #     user = request.auth
-        # else:
-        print('key' not in request.session.keys())
-        if 'key' not in request.session.keys():
-            num = random.randint(100_000_000, 999_999_999)
-            request.session['key'] = num
-            key = request.session['key']
-
-        # if isinstance(user, User):
-        #     cart, status = (Cart.objects.prefetch_related('items', 'items__attributes')
-        #                     .get_or_create(user=user))
-        # else:
-        cart, status = (Cart.objects.prefetch_related('items', 'items__attributes')
-                        .get_or_create(session_key=request.session['key']))
+        if not request.auth.is_anonymous:
+            user = request.auth
+            cart, status = (Cart.objects
+                            .prefetch_related('items',
+                                              'items__attributes')
+                            .get_or_create(user=user))
+        else:
+            if not request.session.session_key:
+                request.session.create()
+                request.session.save()
+            session_id = request.session.session_key
+            cart, status = (Cart.objects
+                            .prefetch_related('items',
+                                              'items__attributes')
+                            .get_or_create(session_key=session_id))
         return cart
 
-    def delete_cart_item(self, user: User | str, item_id: int) -> MessageOutSchema:
+    def delete_cart_item(self, request: HttpRequest, item_id: int) \
+            -> MessageOutSchema:
         """
         Delete cart's item it's by id.
 
+        :param request: HttpRequest
         :param item_id: cart's item id
-        :param user:
         :return: Cart model instance
         """
-        cart = self.get_my_cart(user=user)
+        cart = self.get_my_cart(request=request)
         try:
             item = CartItem.objects.get(cart_id=cart.id, id=item_id)
         except CartItem.DoesNotExist:
@@ -110,56 +111,20 @@ class OrderService:
         order.save()
         change_order_status.delay(order_id=order.id)
 
-    # def create_order(self, user: User | str,
-    #                  code: str | None = None) \
-    #         -> OrderOutSchema:
-    #     """
-    #     Create order for user.
-    #
-    #     :param code: promo code for order if exists
-    #     :param user: User model instance or session key
-    #     """
-    #     cart = self.get_my_cart(user=user)
-    #     if cart.items.count() <= 0:
-    #         raise HttpError(400, _('Your cart is empty'))
-    #     auth_user = False
-    #     if isinstance(user, User):
-    #         auth_user = True
-    #         promo_code = None
-    #         if code:
-    #             promo_code = self.check_promo_code(code=code,
-    #                                                user=user)
-    #         for cart_item in cart.items.filter(product=None):
-    #             self.create_freq_order(user=user,
-    #                                    cart_item=cart_item,
-    #                                    promo_code=promo_code)
-    #
-    #         if cart.items.exclude(product=None).exists():
-    #             self.create_ordinary_order(user=user,
-    #                                        cart=cart,
-    #                                        promo_code=promo_code)
-    #         # clean user's cart
-    #         # cart.items.all().delete()
-    #         if user.subscribe_sale_active:
-    #             user.subscribe_sale_active = False
-    #             user.save()
-    #     return OrderOutSchema(message=_('Order issued successfully'),
-    #                           auth_user=auth_user)
-
-    def create_order(self, user: User | str,
+    def create_order(self, request: HttpRequest,
                      code: str | None = None) \
             -> OrderOutSchema:
         """
         Create order for user.
 
+        :param request: HttpRequest
         :param code: promo code for order if exists
-        :param user: User model instance or session key
         """
-        cart = self.get_my_cart(user=user)
+        cart = self.get_my_cart(request=request)
         if cart.items.count() <= 0:
             raise HttpError(400, _('Your cart is empty'))
         auth_user = False
-
+        user = request.auth
         if isinstance(user, User):
             auth_user = True
             promo_code = None
@@ -190,9 +155,10 @@ class OrderService:
                 )
                 for attr in cart_item.attributes.all():
                     OrderItemAttribute.objects.create(
-                        title_en=attr.sub_filter.title_en,
-                        title_uk=attr.sub_filter.title_uk,
-                        price=attr.sub_filter.price,
+                        title_en=attr.sub_filter.filter.title_en,
+                        title_uk=attr.sub_filter.filter.title_uk,
+                        subtitle_en=attr.sub_filter.title_en,
+                        subtitle_uk=attr.sub_filter.title_uk,
                         subfilter_id=attr.sub_filter.id,
                         order_item=order_item,
                     )
@@ -273,7 +239,9 @@ class OrderService:
                               " the given query."))
 
         for item in order.items.all():
-            if item.product and item.product.is_deleted:
+            condition1 = (item.freqbot and item.freqbot.is_deleted)
+            condition2 = (item.product and item.product.is_deleted)
+            if condition1 or condition2:
                 raise HttpError(404, _('Cannot repeat order, '
                                        'some products does '
                                        'not exists nowadays'))
@@ -301,6 +269,7 @@ class OrderService:
             kwargs = model_to_dict(item, exclude=['id',
                                                   'order',
                                                   'freqbot',
+                                                  'date_created',
                                                   'product'])
             new_order_item = (OrderItem.objects
                               .create(**kwargs,
@@ -310,13 +279,10 @@ class OrderService:
                                       ))
             for attr in item.attributes.all():
                 kwargs = model_to_dict(attr, exclude=['id',
-                                                      'price',
                                                       'subfilter',
                                                       'order_item'])
-                price = attr.subfilter.price
                 OrderItemAttribute.objects.create(
                     **kwargs,
-                    price=price,
                     subfilter=attr.subfilter,
                     order_item=new_order_item,
                 )

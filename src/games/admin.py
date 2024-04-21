@@ -48,6 +48,8 @@ from src.games.models import (
 
 from django.core.exceptions import ValidationError
 
+from src.products.admin import ProductAdmin
+
 
 class WorthLookItemInline(TabularInline):
     model = WorthLookItem
@@ -224,20 +226,16 @@ class CatalogPagesAdminClass(ModelAdmin):
     search_fields = ["title", "description", ]
 
     def delete_model(self, request, obj: CatalogPage):
-        for product in obj.products.all():
-            product.is_deleted = True
-            [tab.delete() for tab in product.tabs.all()]
-            product.save()
+        products = obj.products.all()
+        ProductAdmin.delete_queryset(self, request, products)
         obj.is_deleted = True
         obj.save()
 
     def delete_queryset(self, request, queryset):
         """Given a queryset, delete it from the database."""
         for page in queryset:
-            for product in page.products.all():
-                product.is_deleted = True
-                [tab.delete() for tab in product.tabs.all()]
-                product.save()
+            products = page.products.all()
+            ProductAdmin.delete_queryset(self, request, products)
             page.is_deleted = True
             page.save()
 
@@ -248,16 +246,20 @@ class GameAdminClass(ModelAdmin):
     search_fields = ["name"]
 
     def delete_model(self, request, obj: Game):
-        for page in obj.catalog_pages.all():
-            CatalogPagesAdminClass.delete_model(self, request, page)
+        pages = obj.catalog_pages.all()
+        CatalogPagesAdminClass.delete_queryset(self,
+                                               request,
+                                               pages)
         obj.is_deleted = True
         obj.save()
 
     def delete_queryset(self, request, queryset):
         """Given a queryset, delete it from the database."""
         for game in queryset:
-            for page in game.catalog_pages.all():
-                CatalogPagesAdminClass.delete_model(self, request, page)
+            pages = game.catalog_pages.all()
+            CatalogPagesAdminClass.delete_queryset(self,
+                                                   request,
+                                                   pages)
             game.is_deleted = True
             game.save()
 

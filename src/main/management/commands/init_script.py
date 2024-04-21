@@ -30,6 +30,7 @@ class Command(BaseCommand):
         self._create_teams()
         self._create_calendar()
         self._create_pages()
+        self._create_tags()
         self._create_products()
 
     def _create_superuser(self):
@@ -72,14 +73,18 @@ class Command(BaseCommand):
             game.save()
 
     def _create_teams(self):
-        for i in range(2):
-            random_team_img = random.choice(os.listdir(os.path.join("seed", "team")))
-            team_img = open(os.path.join("seed", "team", random_team_img), "rb")
-            Team.objects.create(
-                team_img=File(team_img, "/media/" + team_img.name),
-                team_img_alt_en=self.fake_en.word(),
-                team_img_alt_uk=self.fake_uk.word(),
-            )
+        random_team_img = random.choice(os.listdir(os.path.join("seed", "team")))
+        team_img = open(os.path.join("seed", "team", random_team_img), "rb")
+        Team.objects.create(
+            team_img=File(team_img, "/media/" + team_img.name),
+            team_img_alt_en="Alliance",
+            team_img_alt_uk="Альянс",
+        )
+        Team.objects.create(
+            team_img=File(team_img, "/media/" + team_img.name),
+            team_img_alt_en="Horde",
+            team_img_alt_uk="Орда",
+        )
 
     def _create_calendar(self):
         calendar = Calendar.objects.create(title="Calendar")
@@ -91,7 +96,7 @@ class Command(BaseCommand):
                 subtitle_uk=self.fake_uk.word().capitalize(),
                 calendar=calendar
             )
-            for j in range(3):
+            for j in range(4):
                 team1 = Team.objects.first()
                 team2 = Team.objects.last()
                 CalendarBlockItem.objects.create(
@@ -136,7 +141,7 @@ class Command(BaseCommand):
         for item in WorthLook.objects.all():
             item: WorthLook
             ids = CatalogPage.objects.values_list('id', flat=True)
-            for i in range(3):
+            for i in range(4):
                 random_card_image = random.choice(os.listdir(os.path.join("seed", "card_image")))
                 card_image = open(os.path.join("seed", "card_image", random_card_image), "rb")
                 WorthLookItem.objects.create(
@@ -194,13 +199,13 @@ class Command(BaseCommand):
             )
         for j in range(20):
             Review.objects.create(
-                author_en=self.fake_en.name().capitalize(),
-                author_uk=self.fake_uk.name().capitalize(),
+                author_en=self.fake_en.name(),
+                author_uk=self.fake_uk.name(),
                 source_of_review="dving.net",
                 stars_count=self.fake_en.pyint(min_value=1, max_value=5),
                 source_of_review_url="https://meet.google.com/",
-                comment_en=self.fake_en.text(max_nb_chars=120).capitalize(),
-                comment_uk=self.fake_uk.text(max_nb_chars=120).capitalize(),
+                comment_en=self.fake_en.text(max_nb_chars=300),
+                comment_uk=self.fake_uk.text(max_nb_chars=300),
             )
         for game in Game.objects.all():
             random_image = random.choice(os.listdir(os.path.join("seed", "news")))
@@ -209,8 +214,8 @@ class Command(BaseCommand):
                 News.objects.create(
                     title_en=self.fake_en.word().capitalize(),
                     title_uk=self.fake_uk.word().capitalize(),
-                    description_en=self.fake_en.text(max_nb_chars=150).capitalize(),
-                    description_uk=self.fake_uk.text(max_nb_chars=150).capitalize(),
+                    description_en=self.fake_en.text(max_nb_chars=500),
+                    description_uk=self.fake_uk.text(max_nb_chars=500),
                     image_alt_en=self.fake_en.word(),
                     image_alt_uk=self.fake_uk.word(),
                     game_id=game.id,
@@ -222,29 +227,40 @@ class Command(BaseCommand):
             WhyChooseUs.objects.create(
                 title_en=self.fake_en.word().capitalize(),
                 title_uk=self.fake_uk.word().capitalize(),
-                description_en=self.fake_en.text(max_nb_chars=150).capitalize(),
-                description_uk=self.fake_uk.text(max_nb_chars=150).capitalize(),
+                description_en=self.fake_en.text(max_nb_chars=200),
+                description_uk=self.fake_uk.text(max_nb_chars=200),
                 icon=File(icon, "/media/" + icon.name),
                 icon_alt_en=self.fake_en.word().capitalize(),
                 icon_alt_uk=self.fake_uk.word().capitalize(),
             )
 
+    def _create_tags(self):
+        tags = [
+            Tag(name_en='Hot', name_uk='Гаряче', color='#f63a3a'),
+            Tag(name_en='New', name_uk='Новинка', color='#27ae60'),
+            Tag(name_en='Limited', name_uk='Обмежено', color='#FFFFFF'),
+        ]
+        Tag.objects.bulk_create(tags)
+
     def _create_products(self):
-        for page in CatalogPage.objects.all():
-            for i in range(3):
+        tags = Tag.objects.values_list('id', flat=True)
+        for key, page in enumerate(CatalogPage.objects.all()):
+            for i in range(1, 4):
                 random_card_image = random.choice(os.listdir(os.path.join("seed", "card_image")))
                 random_image = random.choice(os.listdir(os.path.join("seed", "banner")))
                 card_image = open(os.path.join("seed", "card_image", random_card_image), "rb")
                 image = open(os.path.join("seed", "banner", random_image), "rb")
                 product = Product.objects.create(
-                    title_en=self.fake_en.sentence(nb_words=3).capitalize(),
-                    title_uk=self.fake_uk.sentence(nb_words=3).capitalize(),
+                    title_en=f"Product {key}{i}",
+                    title_uk=f"Продукт {key}{i}",
                     subtitle_en=self.fake_en.sentence(nb_words=3).capitalize(),
                     subtitle_uk=self.fake_uk.sentence(nb_words=3).capitalize(),
-                    description_en=self.fake_en.text(max_nb_chars=150).capitalize(),
-                    description_uk=self.fake_uk.text(max_nb_chars=150).capitalize(),
+                    description_en=self.fake_en.text(max_nb_chars=600).capitalize(),
+                    description_uk=self.fake_uk.text(max_nb_chars=600).capitalize(),
                     bonus_points=self.fake_en.pyint(min_value=10, max_value=150),
                     catalog_page_id=page.id,
+                    sale_percent=0,
+                    tag_id=random.choice(tags),
                     price_type="range" if i == 1 else "fixed",
                     price=self.fake_en.pyint(min_value=5, max_value=600),
                     image=File(image, "/media/" + image.name),
@@ -276,10 +292,15 @@ class Command(BaseCommand):
                     product_id=prod.id,
                     order=j,
                 )
-                for k in range(4):
+                for k in range(1, 5):
+                    title_en = self.fake_en.word().capitalize()
+                    title_uk = self.fake_uk.word().capitalize()
+                    if filter_obj.type == 'Slider':
+                        title_en = k
+                        title_uk = k
                     SubFilter.objects.create(
-                        title_en=self.fake_en.word().capitalize(),
-                        title_uk=self.fake_uk.word().capitalize(),
+                        title_en=title_en,
+                        title_uk=title_uk,
                         filter_id=filter_obj.id,
                         price=self.fake_en.pyint(min_value=5,
                                                  max_value=100),

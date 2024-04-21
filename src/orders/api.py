@@ -23,8 +23,6 @@ from src.users.utils import OptionalJWTAuth
 from ninja import Header
 
 
-
-
 @api_controller("/orders/", tags=["Orders"], permissions=[])
 class OrderController(ControllerBase):
     """
@@ -179,12 +177,8 @@ class OrderController(ControllerBase):
           - **404**: ERROR: Not Found.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        if not request.auth.is_anonymous:
-            user = request.auth
-        else:
-            request.session.save()
-            user = request.session.session_key
-        result = self.order_service.delete_cart_item(user=user, item_id=item_id)
+        result = self.order_service.delete_cart_item(request=request,
+                                                     item_id=item_id)
         return result
 
     @http_post(
@@ -258,13 +252,7 @@ class OrderController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-
-        if not request.auth.is_anonymous:
-            user = request.auth
-        else:
-            request.session.save()
-            user = request.session.session_key
-        result = self.order_service.create_order(user=user, code=promo_code)
+        result = self.order_service.create_order(request=request, code=promo_code)
         return result
 
     @http_get(

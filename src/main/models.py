@@ -227,6 +227,7 @@ class OrderItem(models.Model):
         related_name="items",
         null=True,
     )
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     def price_for_product(self, product: Product):
         total = product.price
@@ -258,6 +259,7 @@ class OrderItem(models.Model):
             return total
 
     class Meta:
+        ordering = ['-date_created']
         db_table = "sub_orders"
 
 
@@ -268,7 +270,7 @@ class OrderItemAttribute(models.Model):
     """
 
     title = models.CharField(max_length=255, null=True)
-    price = models.FloatField()
+    subtitle = models.CharField(max_length=255, null=True)
     subfilter = models.ForeignKey(
         SubFilter,
         on_delete=models.SET_NULL,

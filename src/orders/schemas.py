@@ -145,7 +145,7 @@ class CartItemSchema(ModelSchema):
     class Meta:
         model = CartItem
         fields = "__all__"
-        exclude = ("cart", 'product', 'freqbot')
+        exclude = ("cart", 'product', 'freqbot', 'date_created')
 
 
 class CartOutSchema(ModelSchema):

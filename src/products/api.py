@@ -144,12 +144,8 @@ class ProductController(ControllerBase):
           - **500**: Internal server error if an unexpected error occurs.
         """
 
-        if not request.auth.is_anonymous:
-            user = request.auth
-        else:
-            # request.session.save()
-            user = request.session.session_key
-        result = self.product_service.add_product_to_cart(product_id=product_id, user=user, body=body)
+        result = self.product_service.add_product_to_cart(
+            product_id=product_id, request=request, body=body)
         return result
 
     @http_post(
@@ -226,13 +222,14 @@ class ProductController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        if not request.auth.is_anonymous:
-            user = request.auth
-        else:
-            request.session.save()
-            user = request.session.session_key
-        cart = self.order_service.get_my_cart(user)
-        result = self.product_service.freqbot_to_cart(freqbot_id, cart)
+        # if not request.auth.is_anonymous:
+        #     user = request.auth
+        # else:
+        #     request.session.save()
+        #     user = request.session.session_key
+        # cart = self.order_service.get_my_cart(user)
+        result = self.product_service.freqbot_to_cart(freqbot_id,
+                                                      request=request)
         return result
 
     @http_get(

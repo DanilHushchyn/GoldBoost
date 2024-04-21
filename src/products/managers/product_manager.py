@@ -18,6 +18,9 @@ class ProductManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(is_deleted=False)
 
+    def get_history(self):
+        return super().get_queryset()
+
     def hot_all(self, game_id: int = None):
         if game_id:
             objects = (

@@ -42,7 +42,6 @@ class Order(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     total_price = models.FloatField()
 
-
     class Meta:
         ordering = ['-date_created']
         verbose_name = "Orders"
@@ -83,6 +82,7 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, null=True,
                              on_delete=models.CASCADE,
                              related_name='items')
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     def price_for_product(self, product: Product):
         total = product.price
@@ -114,6 +114,7 @@ class CartItem(models.Model):
             return total
 
     class Meta:
+        ordering = ['-date_created']
         db_table = 'cart_items'
 
 

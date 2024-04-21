@@ -19,7 +19,7 @@ def change_order_status(order_id: int) -> dict:
     """
     order = get_object_or_404(Order, id=order_id)
     sleep(10)
-    if random.choice([False, False, True, False]):
+    if random.choice([True, True, True, False]):
         order.status = 'COMPLETED'
         msg = "ORDER COMPLETED"
     else:

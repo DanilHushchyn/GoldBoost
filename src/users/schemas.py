@@ -224,7 +224,7 @@ class OrderItemAttributeSchema(ModelSchema):
 
     class Meta:
         model = OrderItemAttribute
-        fields = ["title", "price"]
+        fields = ["title", "subtitle"]
 
 
 class OrderItemProductSchema(ModelSchema):
@@ -269,12 +269,15 @@ class OrdersItemSchema(ModelSchema):
         if obj.product:
             obj.product.attributes = obj.attributes
             return [obj.product]
-        return obj.freqbot.products
+        products = (Product.objects
+                    .get_history()
+                    .filter(freqbought=obj.freqbot))
+        return products
 
     class Meta:
         model = OrderItem
         fields = "__all__"
-        exclude = ["order", "product", "id", 'freqbot']
+        exclude = ["order", "product", "id", 'freqbot','date_created']
 
 
 class CabinetOrdersSchema(ModelSchema):
@@ -293,7 +296,9 @@ class CabinetOrdersSchema(ModelSchema):
     @staticmethod
     def resolve_repeat_btn(obj):
         for item in obj.items.all():
-            if item.product and item.product.is_deleted:
+            condition1 = (item.freqbot and item.freqbot.is_deleted)
+            condition2 = (item.product and item.product.is_deleted)
+            if condition1 or condition2:
                 return False
 
             for attr in item.attributes.all():

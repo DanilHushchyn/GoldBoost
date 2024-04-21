@@ -36,5 +36,5 @@ class SettingTranslationOptions(TranslationOptions):
 
 @register(OrderItemAttribute)
 class OrderItemAttributeTranslationOptions(TranslationOptions):
-    fields = ("title",)
+    fields = ("title", 'subtitle')
     required_languages = ("en", "uk")

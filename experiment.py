@@ -12,13 +12,19 @@ import random
 import httpx
 
 # In your Django project, import the Faker library
-# from faker import Faker
-# from faker.providers import internet, person,date_time
+from faker import Faker
+from faker.providers import internet, person,date_time
 #
-# # Create an instance of the Faker class
+# Create an instance of the Faker class
 # fake = Faker("en_US")
-# fake.add_provider(internet)
+# fake_ua = Faker("uk_UA")
+# print(' '.join(fake.name().split()))
+# print(fake.name())
+# print(fake_ua.name())
+# print(str([word.capitalize() for word in fake.name().split()]))
 # fake.add_provider(person)
+# print(fake.text(max_nb_chars=600))
+# print(fake_ua.name())
 # fake.add_provider(date_time)
 # # Generate a fake name, email and address
 # fake_name = fake.name()
@@ -33,16 +39,21 @@ import httpx
 # print(f"Email: {fake_email}")
 # print(f"Address: {fake_address}")
 headers = {
-    'Accept-Language': 'uk'
+    'Accept-Language': 'uk',
+    # 'Cookie': 'sessionid=oztrs4ue7rmd2mdfihilc8o28jjj9lc0'
 }
-
+#
 client = httpx.Client()
+#
+# # print(client.post('http://127.0.0.1:8000/api/products/1/to-cart/', headers=headers, json={
+# #     'quantity': 1,
+# #     'attributes': []
+# # }).json())
+# print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
+# print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
+# print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
+# print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
+print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).cookies)
+# print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
+# print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
 
-print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
-# print(client.post('http://127.0.0.1:8000/api/products/1/to-cart/', headers=headers, json={
-#     'quantity': 1,
-#     'attributes': []
-# }).json())
-print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
-print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
-print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
