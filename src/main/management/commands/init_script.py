@@ -7,6 +7,7 @@ from django.core.files import File
 from django.core.management.base import BaseCommand
 from faker import Faker
 from faker.providers import date_time
+
 from src.games.models import *
 from src.main.models import *
 from src.products.models import *
@@ -45,12 +46,12 @@ class Command(BaseCommand):
         user.set_password("sword123")
         user.save()
         Character.objects.create(
-            battle_tag='battle_tag',
-            name='name',
-            faction='Horde',
-            additional_info='...',
-            class_and_spec='Warrior',
-            realm='realm',
+            battle_tag="battle_tag",
+            name="name",
+            faction="Horde",
+            additional_info="...",
+            class_and_spec="Warrior",
+            realm="realm",
             user=user,
         )
 
@@ -94,7 +95,7 @@ class Command(BaseCommand):
                 title_uk=self.fake_uk.word().capitalize(),
                 subtitle_en=self.fake_en.word().capitalize(),
                 subtitle_uk=self.fake_uk.word().capitalize(),
-                calendar=calendar
+                calendar=calendar,
             )
             for j in range(4):
                 team1 = Team.objects.first()
@@ -127,7 +128,6 @@ class Command(BaseCommand):
                     order=j,
                     worth_look=worth_look,
                     calendar=calendar,
-
                 )
                 for i in range(4):
                     CatalogTabs.objects.create(
@@ -140,7 +140,7 @@ class Command(BaseCommand):
                     )
         for item in WorthLook.objects.all():
             item: WorthLook
-            ids = CatalogPage.objects.values_list('id', flat=True)
+            ids = CatalogPage.objects.values_list("id", flat=True)
             for i in range(4):
                 random_card_image = random.choice(os.listdir(os.path.join("seed", "card_image")))
                 card_image = open(os.path.join("seed", "card_image", random_card_image), "rb")
@@ -171,20 +171,20 @@ class Command(BaseCommand):
             "address2_en": "Ukraine, Odessa, st. Kosmonavtov, 32",
             "address2_uk": "Українa, м. Одеса, вул. Космонавтів, 32",
             "footer_description_en": "We cooperate only with qualified and experienced top world players who participate "
-                                     "personally in each event and ready to provide you with the best boosting service and "
-                                     "gaming experience in your favorite online games. We ensure that every customer is "
-                                     "highly satisfied and 100% positive feedback of our work pretty much sums it up ;) Get "
-                                     "the most relevant eu boost and power leveling.",
+            "personally in each event and ready to provide you with the best boosting service and "
+            "gaming experience in your favorite online games. We ensure that every customer is "
+            "highly satisfied and 100% positive feedback of our work pretty much sums it up ;) Get "
+            "the most relevant eu boost and power leveling.",
             "footer_description_uk": "Ми співпрацюємо лише з кваліфікованими та досвідченими провідними світовими гравцями, "
-                                     "які особисто беруть участь у кожній події та готові надати вам найкращі послуги "
-                                     "підвищення та ігровий досвід у ваших улюблених онлайн-іграх. Ми гарантуємо, "
-                                     "що кожен клієнт буде дуже задоволений, і 100% позитивний відгук про нашу роботу майже "
-                                     "підсумовує це ;) Отримайте найрелевантнішу підтримку та підвищення потужності для ЄС.",
+            "які особисто беруть участь у кожній події та готові надати вам найкращі послуги "
+            "підвищення та ігровий досвід у ваших улюблених онлайн-іграх. Ми гарантуємо, "
+            "що кожен клієнт буде дуже задоволений, і 100% позитивний відгук про нашу роботу майже "
+            "підсумовує це ;) Отримайте найрелевантнішу підтримку та підвищення потужності для ЄС.",
             "header_top_text_en": "leave a trustpilot review and get an extra 10% off your next order!",
             "header_top_text_uk": "залиште відгук Trustpilot і отримайте додаткову знижку 10% на наступне замовлення!",
             "subscribe_form_text_en": "Sing up to our email newsteller and get 10% DISCOUNT on your first order!",
             "subscribe_form_text_uk": "Підпишіться на нашу електронну розсилку та отримайте ЗНИЖКУ 10% на перше "
-                                      "замовлення!",
+            "замовлення!",
             "address1_link": "https://www.youtube.com/",
             "address2_link": "https://www.youtube.com/",
         }
@@ -236,14 +236,14 @@ class Command(BaseCommand):
 
     def _create_tags(self):
         tags = [
-            Tag(name_en='Hot', name_uk='Гаряче', color='#f63a3a'),
-            Tag(name_en='New', name_uk='Новинка', color='#27ae60'),
-            Tag(name_en='Limited', name_uk='Обмежено', color='#FFFFFF'),
+            Tag(name_en="Hot", name_uk="Гаряче", color="#f63a3a"),
+            Tag(name_en="New", name_uk="Новинка", color="#27ae60"),
+            Tag(name_en="Limited", name_uk="Обмежено", color="#FFFFFF"),
         ]
         Tag.objects.bulk_create(tags)
 
     def _create_products(self):
-        tags = Tag.objects.values_list('id', flat=True)
+        tags = Tag.objects.values_list("id", flat=True)
         for key, page in enumerate(CatalogPage.objects.all()):
             for i in range(1, 4):
                 random_card_image = random.choice(os.listdir(os.path.join("seed", "card_image")))
@@ -269,7 +269,6 @@ class Command(BaseCommand):
                     card_img_alt_uk=self.fake_uk.word(),
                     image_alt_en=self.fake_en.word(),
                     image_alt_uk=self.fake_uk.word(),
-
                 )
                 product.save()
 
@@ -282,41 +281,34 @@ class Command(BaseCommand):
                         product_id=product.id,
                         order=j,
                     )
-        for prod in Product.objects.filter(price_type='range'):
+        for prod in Product.objects.filter(price_type="range"):
             for j in range(4):
                 filter_obj = Filter.objects.create(
                     title_en=self.fake_en.word().capitalize(),
                     title_uk=self.fake_uk.word().capitalize(),
-                    type=random.choice(["Slider", "Radio",
-                                        "CheckBox", "Select"]),
+                    type=random.choice(["Slider", "Radio", "CheckBox", "Select"]),
                     product_id=prod.id,
                     order=j,
                 )
                 for k in range(1, 5):
                     title_en = self.fake_en.word().capitalize()
                     title_uk = self.fake_uk.word().capitalize()
-                    if filter_obj.type == 'Slider':
+                    if filter_obj.type == "Slider":
                         title_en = k
                         title_uk = k
                     SubFilter.objects.create(
                         title_en=title_en,
                         title_uk=title_uk,
                         filter_id=filter_obj.id,
-                        price=self.fake_en.pyint(min_value=5,
-                                                 max_value=100),
+                        price=self.fake_en.pyint(min_value=5, max_value=100),
                         order=k,
                     )
-        products_ids = (
-            Product.objects
-            .filter(price_type='fixed')
-            .values_list('id', flat=True)
-        )
+        products_ids = Product.objects.filter(price_type="fixed").values_list("id", flat=True)
         for i in range(1, 4):
             freqbot = FreqBought.objects.create(
-                title=f'Freqbot {i}',
+                title=f"Freqbot {i}",
                 order=i,
-                discount=self.fake_en.pyint(min_value=5,
-                                            max_value=100),
+                discount=self.fake_en.pyint(min_value=5, max_value=100),
             )
             for j in range(1, 4):
                 freqbot.products.add(random.choice(products_ids))

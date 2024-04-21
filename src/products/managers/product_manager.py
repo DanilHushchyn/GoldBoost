@@ -24,9 +24,7 @@ class ProductManager(models.Manager):
     def hot_all(self, game_id: int = None):
         if game_id:
             objects = (
-                self.get_queryset()
-                .select_related("catalog_page__game")
-                .filter(tag_id=1, catalog_page__game=game_id)
+                self.get_queryset().select_related("catalog_page__game").filter(tag_id=1, catalog_page__game=game_id)
             )
 
         else:

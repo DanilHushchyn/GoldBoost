@@ -23,25 +23,27 @@ https://docs.djangoproject.com/en/stable/ref/contrib/admin/
 import json
 
 from celery.utils.dispatch.signal import Signal
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from loguru import logger
 from django import forms
 from django.contrib import admin, messages
 from django.contrib.admin import TabularInline
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from loguru import logger
 from unfold.admin import ModelAdmin
 from unfold.contrib.filters.admin import RangeDateTimeFilter
 from unfold.widgets import (
     UnfoldAdminDecimalFieldWidget,
+    UnfoldAdminImageFieldWidget,
     UnfoldAdminIntegerFieldWidget,
     UnfoldAdminSelect,
+    UnfoldAdminSplitDateTimeWidget,
     UnfoldAdminTextareaWidget,
-    UnfoldAdminTextInputWidget, UnfoldAdminSplitDateTimeWidget, UnfoldAdminImageFieldWidget,
+    UnfoldAdminTextInputWidget,
 )
 
 from src.products.models import Filter, FreqBought, Product, ProductTabs, SubFilter, Tag
@@ -244,9 +246,7 @@ class FilterForm(forms.ModelForm):
                 f"than return to set type Slider and new subfilters."
             )
             for sub in self.instance.subfilters.all():
-                if (len(sub.title_en) > 2 or
-                        len(sub.title_en) > 2 or
-                        sub.price > 9999):
+                if len(sub.title_en) > 2 or len(sub.title_en) > 2 or sub.price > 9999:
                     raise forms.ValidationError(msg)
         return type
 
@@ -322,8 +322,12 @@ class FilterAdmin(ModelAdmin):
     Admin configuration for model Filter.
 
     """
+
     list_display = ["title", "type", "product"]
-    list_filter = ["type", "product", ]
+    list_filter = [
+        "type",
+        "product",
+    ]
     search_fields = ["title"]
 
     form = FilterForm
@@ -380,10 +384,18 @@ class ProductAdmin(ModelAdmin):
     Admin configuration for model Product.
 
     """
-    list_display = ["title", "catalog_page", ]
-    list_filter = ("price_type", "catalog_page", "tag",
-                   "sale_from",
-                   "sale_until",)
+
+    list_display = [
+        "title",
+        "catalog_page",
+    ]
+    list_filter = (
+        "price_type",
+        "catalog_page",
+        "tag",
+        "sale_from",
+        "sale_until",
+    )
     search_fields = ["title"]
 
     def delete_queryset(self, request, queryset):
@@ -421,8 +433,7 @@ class FreqBoughtForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["products"].queryset = (
-            Product.objects.filter(price_type="fixed"))
+        self.fields["products"].queryset = Product.objects.filter(price_type="fixed")
 
     def clean_products(self):
         products = self.cleaned_data["products"]
@@ -434,17 +445,12 @@ class FreqBoughtForm(forms.ModelForm):
     class Meta:
         model = FreqBought
         fields = [
-            'title',
-            'order',
-            'products',
-            'discount',
+            "title",
+            "order",
+            "products",
+            "discount",
         ]
-        widgets = {
-            'products': FilteredSelectMultiple(
-
-                verbose_name='Products with fixed price',
-                is_stacked=True)
-        }
+        widgets = {"products": FilteredSelectMultiple(verbose_name="Products with fixed price", is_stacked=True)}
 
 
 @admin.register(FreqBought)
@@ -453,7 +459,11 @@ class FreqBoughtAdmin(ModelAdmin):
     Admin configuration for model FreqBought.
 
     """
-    list_display = ["title", "discount", ]
+
+    list_display = [
+        "title",
+        "discount",
+    ]
     search_fields = ["title"]
     form = FreqBoughtForm
 

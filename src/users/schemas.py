@@ -6,11 +6,11 @@ implement logic for encoding and decoding data into python
 object and json
 """
 from enum import Enum
-from typing import List, Any
+from typing import Any, List
 
 from allauth.socialaccount.models import SocialAccount
 from django.utils.translation import gettext as _
-from ninja import ModelSchema, Schema, Field
+from ninja import Field, ModelSchema, Schema
 from pydantic import EmailStr
 
 from config.settings import ABSOLUTE_URL
@@ -91,6 +91,7 @@ class CharacterOutSchema(ModelSchema):
     Purpose of this schema to return user's
     characters
     """
+
     battle_tag: str
 
     class Meta:
@@ -234,6 +235,7 @@ class OrderItemProductSchema(ModelSchema):
     Purpose of this schema to return info about product
     for product element in carousel in client side
     """
+
     game_logo: str
     game_logo_alt: str
     attributes: List[OrderItemAttributeSchema] = []
@@ -253,11 +255,11 @@ class OrderItemProductSchema(ModelSchema):
     class Meta:
         model = Product
         fields = [
-            'id',
-            'title',
-            'subtitle',
-            'card_img',
-            'card_img_alt',
+            "id",
+            "title",
+            "subtitle",
+            "card_img",
+            "card_img_alt",
         ]
 
 
@@ -269,15 +271,13 @@ class OrdersItemSchema(ModelSchema):
         if obj.product:
             obj.product.attributes = obj.attributes
             return [obj.product]
-        products = (Product.objects
-                    .get_history()
-                    .filter(freqbought=obj.freqbot))
+        products = Product.objects.get_history().filter(freqbought=obj.freqbot)
         return products
 
     class Meta:
         model = OrderItem
         fields = "__all__"
-        exclude = ["order", "product", "id", 'freqbot','date_created']
+        exclude = ["order", "product", "id", "freqbot", "date_created"]
 
 
 class CabinetOrdersSchema(ModelSchema):
@@ -296,8 +296,8 @@ class CabinetOrdersSchema(ModelSchema):
     @staticmethod
     def resolve_repeat_btn(obj):
         for item in obj.items.all():
-            condition1 = (item.freqbot and item.freqbot.is_deleted)
-            condition2 = (item.product and item.product.is_deleted)
+            condition1 = item.freqbot and item.freqbot.is_deleted
+            condition2 = item.product and item.product.is_deleted
             if condition1 or condition2:
                 return False
 

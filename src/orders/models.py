@@ -12,11 +12,11 @@ import uuid
 
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
-from src.products.models import Product, SubFilter, FreqBought
+from src.products.models import FreqBought, Product, SubFilter
 from src.products.utils import make_sale
 from src.users.models import User
-from django.utils.translation import gettext_lazy as _
 
 
 # Create your models here.
@@ -24,8 +24,8 @@ class Order(models.Model):
     """
     Model is storing order of users in the site
     """
-    id = models.UUIDField(primary_key=True,
-                          default=uuid.uuid4, editable=False)
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # Foreign Key to User model
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -36,17 +36,15 @@ class Order(models.Model):
         ("CANCELED", _("CANCELED")),
         ("COMPLETED", _("COMPLETED")),
     )
-    status = models.CharField(max_length=20,
-                              choices=ORDER_STATUS_CHOICES,
-                              default='CANCELED')
+    status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default="CANCELED")
     date_created = models.DateTimeField(auto_now_add=True)
     total_price = models.FloatField()
 
     class Meta:
-        ordering = ['-date_created']
+        ordering = ["-date_created"]
         verbose_name = "Orders"
         verbose_name_plural = "Orders"
-        db_table = 'orders'
+        db_table = "orders"
 
 
 class Cart(models.Model):
@@ -58,7 +56,7 @@ class Cart(models.Model):
     session_key = models.CharField(max_length=500, null=True)
 
     class Meta:
-        db_table = 'carts'
+        db_table = "carts"
 
 
 class CartItem(models.Model):
@@ -66,22 +64,10 @@ class CartItem(models.Model):
     Model represents cart's items in the site
     """
 
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='cart_items'
-    )
-    freqbot = models.ForeignKey(
-        FreqBought,
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='cart_items'
-    )
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, related_name="cart_items")
+    freqbot = models.ForeignKey(FreqBought, on_delete=models.CASCADE, null=True, related_name="cart_items")
     quantity = models.PositiveIntegerField()
-    cart = models.ForeignKey(Cart, null=True,
-                             on_delete=models.CASCADE,
-                             related_name='items')
+    cart = models.ForeignKey(Cart, null=True, on_delete=models.CASCADE, related_name="items")
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     def price_for_product(self, product: Product):
@@ -89,7 +75,7 @@ class CartItem(models.Model):
         for attr in self.attributes.all():
             total = total + attr.sub_filter.price
         if product.sale_active():
-            if product.price_type == 'fixed':
+            if product.price_type == "fixed":
                 total = product.sale_price()
             else:
                 total = make_sale(total, product.sale_percent)
@@ -114,8 +100,8 @@ class CartItem(models.Model):
             return total
 
     class Meta:
-        ordering = ['-date_created']
-        db_table = 'cart_items'
+        ordering = ["-date_created"]
+        db_table = "cart_items"
 
 
 class Attribute(models.Model):
@@ -125,12 +111,8 @@ class Attribute(models.Model):
     for ordered product
     """
 
-    sub_filter = models.ForeignKey(SubFilter,
-                                   on_delete=models.CASCADE,
-                                   null=True)
-    cart_item = models.ForeignKey("CartItem",
-                                  on_delete=models.CASCADE,
-                                  null=True, related_name='attributes')
+    sub_filter = models.ForeignKey(SubFilter, on_delete=models.CASCADE, null=True)
+    cart_item = models.ForeignKey("CartItem", on_delete=models.CASCADE, null=True, related_name="attributes")
 
     class Meta:
-        db_table = 'attributes'
+        db_table = "attributes"

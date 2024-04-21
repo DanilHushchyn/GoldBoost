@@ -22,6 +22,7 @@ https://docs.djangoproject.com/en/stable/ref/contrib/admin/
 """
 from django import forms
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.widgets import (
@@ -45,9 +46,6 @@ from src.games.models import (
     WorthLook,
     WorthLookItem,
 )
-
-from django.core.exceptions import ValidationError
-
 from src.products.admin import ProductAdmin
 
 
@@ -113,9 +111,14 @@ class CalendarBlockItemInline(TabularInline):
 @admin.register(CalendarBlock)
 class CalendarBlockModelAdmin(ModelAdmin):
     model = CalendarBlock
-    list_display = ["title", "subtitle",
-                    'calendar', ]
-    list_filter = ["calendar", ]
+    list_display = [
+        "title",
+        "subtitle",
+        "calendar",
+    ]
+    list_filter = [
+        "calendar",
+    ]
     search_fields = ["title", "subtitle"]
     exclude = ["title", "subtitle"]
 
@@ -220,10 +223,14 @@ class CatalogPageForm(forms.ModelForm):
 class CatalogPagesAdminClass(ModelAdmin):
     form = CatalogPageForm
     inlines = [CatalogTabsInline]
-    list_display = ["title", "description",
-                    'game', "calendar", 'worth_look']
-    list_filter = ["game", ]
-    search_fields = ["title", "description", ]
+    list_display = ["title", "description", "game", "calendar", "worth_look"]
+    list_filter = [
+        "game",
+    ]
+    search_fields = [
+        "title",
+        "description",
+    ]
 
     def delete_model(self, request, obj: CatalogPage):
         products = obj.products.all()
@@ -247,9 +254,7 @@ class GameAdminClass(ModelAdmin):
 
     def delete_model(self, request, obj: Game):
         pages = obj.catalog_pages.all()
-        CatalogPagesAdminClass.delete_queryset(self,
-                                               request,
-                                               pages)
+        CatalogPagesAdminClass.delete_queryset(self, request, pages)
         obj.is_deleted = True
         obj.save()
 
@@ -257,9 +262,7 @@ class GameAdminClass(ModelAdmin):
         """Given a queryset, delete it from the database."""
         for game in queryset:
             pages = game.catalog_pages.all()
-            CatalogPagesAdminClass.delete_queryset(self,
-                                                   request,
-                                                   pages)
+            CatalogPagesAdminClass.delete_queryset(self, request, pages)
             game.is_deleted = True
             game.save()
 

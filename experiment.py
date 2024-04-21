@@ -13,7 +13,8 @@ import httpx
 
 # In your Django project, import the Faker library
 from faker import Faker
-from faker.providers import internet, person,date_time
+from faker.providers import date_time, internet, person
+
 #
 # Create an instance of the Faker class
 # fake = Faker("en_US")
@@ -39,7 +40,7 @@ from faker.providers import internet, person,date_time
 # print(f"Email: {fake_email}")
 # print(f"Address: {fake_address}")
 headers = {
-    'Accept-Language': 'uk',
+    "Accept-Language": "uk",
     # 'Cookie': 'sessionid=oztrs4ue7rmd2mdfihilc8o28jjj9lc0'
 }
 #
@@ -53,7 +54,6 @@ client = httpx.Client()
 # print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
 # print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
 # print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
-print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).cookies)
+print(client.get(url="http://127.0.0.1:8000/api/orders/my-cart/", headers=headers).cookies)
 # print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
 # print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
-

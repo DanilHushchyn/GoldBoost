@@ -17,10 +17,11 @@ from src.products.models import Product, ProductTabs
 from src.products.schemas import (
     AddToCartSchema,
     BestSellersSchema,
+    FreqBoughtSchema,
     HotSectionSchema,
     ProductCardSchema,
     ProductSearchSchema,
-    TabContentSchema, FreqBoughtSchema,
+    TabContentSchema,
 )
 from src.products.services.product_service import ProductService
 from src.products.utils import get_current_user
@@ -37,8 +38,7 @@ class ProductController(ControllerBase):
     paginating and getting related entities of products.
     """
 
-    def __init__(self, product_service: ProductService,
-                 order_service: OrderService):
+    def __init__(self, product_service: ProductService, order_service: OrderService):
         """
         Use this method to inject external services to ProductController.
 
@@ -122,13 +122,13 @@ class ProductController(ControllerBase):
             },
         },
     )
-    def add_product_to_cart(self,
-                            request: HttpRequest,
-                            product_id: int,
-                            body: AddToCartSchema,
-                            accept_lang:
-                            LangEnum = Header(alias='Accept-Language'),
-                            ) -> MessageOutSchema:
+    def add_product_to_cart(
+        self,
+        request: HttpRequest,
+        product_id: int,
+        body: AddToCartSchema,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> MessageOutSchema:
         """
         Add product to user's cart
 
@@ -144,8 +144,7 @@ class ProductController(ControllerBase):
           - **500**: Internal server error if an unexpected error occurs.
         """
 
-        result = self.product_service.add_product_to_cart(
-            product_id=product_id, request=request, body=body)
+        result = self.product_service.add_product_to_cart(product_id=product_id, request=request, body=body)
         return result
 
     @http_post(
@@ -199,18 +198,17 @@ class ProductController(ControllerBase):
             },
             "responses": {
                 500: {
-                    "description": "Internal server error if"
-                                   " an unexpected error occurs.",
+                    "description": "Internal server error if" " an unexpected error occurs.",
                 },
             },
         },
     )
-    def freqbot_to_cart(self,
-                        request: HttpRequest,
-                        freqbot_id: int,
-                        accept_lang:
-                        LangEnum = Header(alias='Accept-Language'),
-                        ) -> QuerySet:
+    def freqbot_to_cart(
+        self,
+        request: HttpRequest,
+        freqbot_id: int,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> QuerySet:
         """
         Add Frequently bought item to cart.
 
@@ -228,8 +226,7 @@ class ProductController(ControllerBase):
         #     request.session.save()
         #     user = request.session.session_key
         # cart = self.order_service.get_my_cart(user)
-        result = self.product_service.freqbot_to_cart(freqbot_id,
-                                                      request=request)
+        result = self.product_service.freqbot_to_cart(freqbot_id, request=request)
         return result
 
     @http_get(
@@ -252,19 +249,19 @@ class ProductController(ControllerBase):
                     },
                 },
                 500: {
-                    "description": "Internal server error if"
-                                   " an unexpected error occurs.",
+                    "description": "Internal server error if" " an unexpected error occurs.",
                 },
             },
         },
     )
-    def get_hot_products(self, request: HttpRequest,
-                         page: int,
-                         page_size: int,
-                         game_id: int = None,
-                         accept_lang:
-                         LangEnum = Header(alias='Accept-Language'),
-                         ) -> dict:
+    def get_hot_products(
+        self,
+        request: HttpRequest,
+        page: int,
+        page_size: int,
+        game_id: int = None,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> dict:
         """
         Get all products with tag hot and makes pagination of records.
 
@@ -302,17 +299,18 @@ class ProductController(ControllerBase):
                     },
                 },
                 500: {
-                    "description": "Internal server error if"
-                                   " an unexpected error occurs.",
+                    "description": "Internal server error if" " an unexpected error occurs.",
                 },
             },
         },
     )
-    def get_bestsellers(self, request: HttpRequest, page: int,
-                        page_size: int,
-                        accept_lang:
-                        LangEnum = Header(alias='Accept-Language'),
-                        ) -> dict:
+    def get_bestsellers(
+        self,
+        request: HttpRequest,
+        page: int,
+        page_size: int,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> dict:
         """
         Endpoint gets all products ordered by bought_count field.
 
@@ -337,16 +335,16 @@ class ProductController(ControllerBase):
         openapi_extra={
             "responses": {
                 500: {
-                    "description": "Internal server error if"
-                                   " an unexpected error occurs.",
+                    "description": "Internal server error if" " an unexpected error occurs.",
                 },
             },
         },
     )
-    def frequently_bought(self, request: HttpRequest,
-                          accept_lang:
-                          LangEnum = Header(alias='Accept-Language'),
-                          ) -> QuerySet:
+    def frequently_bought(
+        self,
+        request: HttpRequest,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> QuerySet:
         """
         Endpoint gets all products ordered by bought_count field.
 
@@ -400,10 +398,12 @@ class ProductController(ControllerBase):
             },
         },
     )
-    def get_tab_content(self, request: HttpRequest, tab_id: int,
-                        accept_lang:
-                        LangEnum = Header(alias='Accept-Language'),
-                        ) -> ProductTabs:
+    def get_tab_content(
+        self,
+        request: HttpRequest,
+        tab_id: int,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> ProductTabs:
         """
         Get tab's content for product's page by tab id .
 
@@ -445,12 +445,13 @@ class ProductController(ControllerBase):
             },
         },
     )
-    def search_products(self, request: HttpRequest,
-                        search_line: str,
-                        game_id: int = None,
-                        accept_lang:
-                        LangEnum = Header(alias='Accept-Language'),
-                        ) -> QuerySet:
+    def search_products(
+        self,
+        request: HttpRequest,
+        search_line: str,
+        game_id: int = None,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> QuerySet:
         """
         Get records of products searched by search_line.
 
@@ -507,11 +508,12 @@ class ProductController(ControllerBase):
             },
         },
     )
-    def get_product_by_id(self, request: HttpRequest,
-                          product_id: int,
-                          accept_lang:
-                          LangEnum = Header(alias='Accept-Language'),
-                          ) -> Product:
+    def get_product_by_id(
+        self,
+        request: HttpRequest,
+        product_id: int,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> Product:
         """
         Gets info for product's card page.
 

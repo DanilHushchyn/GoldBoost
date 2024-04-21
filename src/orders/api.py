@@ -5,10 +5,11 @@
 from typing import Optional
 
 from django.http import HttpRequest
+from ninja import Header
 from ninja_extra import http_delete, http_get, http_post
 from ninja_extra.controllers.base import ControllerBase, api_controller
 from ninja_extra.throttling.decorator import throttle
-from ninja_extra.throttling.model import UserRateThrottle, DynamicRateThrottle, BaseThrottle
+from ninja_extra.throttling.model import BaseThrottle, DynamicRateThrottle, UserRateThrottle
 from ninja_jwt.authentication import JWTAuth
 
 from src.main.models import PromoCode
@@ -17,10 +18,8 @@ from src.main.utils import LangEnum
 from src.orders.models import Cart
 from src.orders.schemas import CartOutSchema
 from src.orders.services.order_service import OrderService
-from src.users.schemas import (MessageOutSchema,
-                               CabinetOrdersSection, OrdersItemSchema)
+from src.users.schemas import CabinetOrdersSection, MessageOutSchema, OrdersItemSchema
 from src.users.utils import OptionalJWTAuth
-from ninja import Header
 
 
 @api_controller("/orders/", tags=["Orders"], permissions=[])
@@ -80,10 +79,11 @@ class OrderController(ControllerBase):
             },
         },
     )
-    def get_my_cart(self, request: HttpRequest,
-                    accept_lang:
-                    LangEnum = Header(alias='Accept-Language'),
-                    ) -> Cart:
+    def get_my_cart(
+        self,
+        request: HttpRequest,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> Cart:
         """
         Get  user's cart.
 
@@ -164,10 +164,12 @@ class OrderController(ControllerBase):
             },
         },
     )
-    def delete_cart_item(self, request: HttpRequest, item_id: int,
-                         accept_lang:
-                         LangEnum = Header(alias='Accept-Language'),
-                         ) -> Cart:
+    def delete_cart_item(
+        self,
+        request: HttpRequest,
+        item_id: int,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> Cart:
         """
         Delete cart's item.
 
@@ -177,8 +179,7 @@ class OrderController(ControllerBase):
           - **404**: ERROR: Not Found.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        result = self.order_service.delete_cart_item(request=request,
-                                                     item_id=item_id)
+        result = self.order_service.delete_cart_item(request=request, item_id=item_id)
         return result
 
     @http_post(
@@ -238,10 +239,12 @@ class OrderController(ControllerBase):
             },
         },
     )
-    def create_order(self, request: HttpRequest, promo_code: str | None = None,
-                     accept_lang:
-                     LangEnum = Header(alias='Accept-Language'),
-                     ) -> OrderOutSchema:
+    def create_order(
+        self,
+        request: HttpRequest,
+        promo_code: str | None = None,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> OrderOutSchema:
         """
         Create order.
 
@@ -326,10 +329,12 @@ class OrderController(ControllerBase):
             },
         },
     )
-    def check_promo_code(self, request: HttpRequest, promo_code: str,
-                         accept_lang:
-                         LangEnum = Header(alias='Accept-Language'),
-                         ) -> PromoCode:
+    def check_promo_code(
+        self,
+        request: HttpRequest,
+        promo_code: str,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> PromoCode:
         """
         Check promo code.
 
@@ -405,10 +410,12 @@ class OrderController(ControllerBase):
             },
         },
     )
-    def repeat_order(self, request: HttpRequest, number: str,
-                     accept_lang:
-                     LangEnum = Header(alias='Accept-Language'),
-                     ) -> MessageOutSchema:
+    def repeat_order(
+        self,
+        request: HttpRequest,
+        number: str,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> MessageOutSchema:
         """
         Repeat order.
 
@@ -462,11 +469,13 @@ class OrderController(ControllerBase):
             },
         },
     )
-    def get_my_orders(self, request: HttpRequest,
-                      page: int, page_size: int,
-                      accept_lang:
-                      LangEnum = Header(alias='Accept-Language'),
-                      ) -> dict:
+    def get_my_orders(
+        self,
+        request: HttpRequest,
+        page: int,
+        page_size: int,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> dict:
         """
         Get user's orders.
 
@@ -477,9 +486,11 @@ class OrderController(ControllerBase):
           - **422**: ERROR: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        result = self.order_service.get_my_orders(user_id=request.user.id,
-                                                  page=page,
-                                                  page_size=page_size, )
+        result = self.order_service.get_my_orders(
+            user_id=request.user.id,
+            page=page,
+            page_size=page_size,
+        )
         return result
 
     @http_get(
@@ -523,11 +534,12 @@ class OrderController(ControllerBase):
             },
         },
     )
-    def get_order_detail(self, request: HttpRequest,
-                         number: int,
-                         accept_lang:
-                         LangEnum = Header(alias='Accept-Language'),
-                         ) -> dict:
+    def get_order_detail(
+        self,
+        request: HttpRequest,
+        number: int,
+        accept_lang: LangEnum = Header(alias="Accept-Language"),
+    ) -> dict:
         """
         Get user's order detail.
 
@@ -538,6 +550,5 @@ class OrderController(ControllerBase):
           - **422**: ERROR: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        result = self.order_service.get_order_detail(user_id=request.user.id,
-                                                     number=number)
+        result = self.order_service.get_order_detail(user_id=request.user.id, number=number)
         return result
