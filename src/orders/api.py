@@ -83,6 +83,7 @@ class OrderController(ControllerBase):
         self,
         request: HttpRequest,
         accept_lang: LangEnum = Header(alias="Accept-Language"),
+
     ) -> Cart:
         """
         Get  user's cart.
@@ -92,16 +93,6 @@ class OrderController(ControllerBase):
           - **401**: ERROR: Unauthorized.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        # print(request.session.session_key)
-        # if not request.auth.is_anonymous:
-        #     user = request.auth
-        # else:
-        #     # request.session.save()
-        #     user = request.session.session_key
-        #     if user is None:
-        #         request.session.save()
-        #         user = request.session.session_key
-
         result = self.order_service.get_my_cart(
             request=request,
         )

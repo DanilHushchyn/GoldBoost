@@ -276,7 +276,8 @@ class ProductController(ControllerBase):
           - **500**: Internal server error if an unexpected error occurs.
         """
 
-        result = self.product_service.get_hot_products(game_id=game_id, page=page, page_size=page_size)
+        result = self.product_service.get_hot_products(
+            game_id=game_id, page=page, page_size=page_size)
         return result
 
     @http_get(

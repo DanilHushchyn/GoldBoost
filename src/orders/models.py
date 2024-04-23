@@ -53,7 +53,7 @@ class Cart(models.Model):
     """
 
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
-    session_key = models.CharField(max_length=500, null=True)
+    session_key = models.CharField(max_length=500, null=True, unique=True)
 
     class Meta:
         db_table = "carts"

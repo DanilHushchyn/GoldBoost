@@ -16,21 +16,61 @@ Including another URLconf
     path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from datetime import datetime, timedelta
+
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.db.models import Sum
 from django.http import HttpRequest, HttpResponse
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.utils.translation import gettext as _
 from ninja.errors import AuthenticationError, ValidationError
 from ninja_extra import NinjaExtraAPI, status
-
+from django.views.generic import ListView, View
 from config import settings
 from src.games.api import CatalogController, GamesController
 from src.main.api import MainController
 from src.orders.api import OrderController
+from src.orders.models import Order
 from src.products.api import ProductController
 from src.users.api import AuthController, CustomTokenObtainPairController, UsersController
+from django.shortcuts import render
 
+from src.users.models import User
+
+
+class StatisticView(View):
+    template_name = 'admin/myapp/views/my_custom_template.html'
+
+    def get(self, request):
+        context = {}
+        last_7_days = datetime.now() - timedelta(days=7)
+        total_users = User.objects.count()
+        user_notified = User.objects.filter(notify_me=True).count()
+        total_orders = (Order.objects
+                        .filter(date_created__gte=last_7_days, status='COMPLETED'))
+
+        total_income = total_orders.aggregate(total=Sum('total_price'))['total']
+        context['total_users'] = total_users
+        context['notify_me_percent'] = int((user_notified / total_users) * 100)
+        context['total_orders'] = total_orders.count()
+        context['total_income'] = total_income
+        return render(request, self.template_name, context)
+
+
+_admin_site_get_urls = admin.site.get_urls
+
+
+# def get_urls():
+#     urls = _admin_site_get_urls()
+#     urls += [
+#         path('my_custom_view/',
+#              admin.site.admin_view(StatistcView.as_view()), name='my_custom_view')
+#     ]
+#     return urls
+#
+#
+# admin.site.get_urls = get_urls
 main_api = NinjaExtraAPI()
 
 
@@ -79,6 +119,7 @@ main_api.register_controllers(GamesController)
 main_api.register_controllers(CatalogController)
 main_api.register_controllers(MainController)
 urlpatterns = [
+    path('admin/statistic/', StatisticView.as_view(template_name='auth/index.html')),
     path("admin/", admin.site.urls),
     path("api/", main_api.urls),
     # path("accounts/", include('allauth.urls')),

@@ -1,53 +1,581 @@
+{% load i18n static unfold %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+{% capture as branding silent %}{% block branding %}{% endblock %}{% endcapture %}
+{% capture as pretitle silent %}{% block pretitle %}{% endblock %}{% endcapture %}
+{% capture as content_title silent %}{% block content_title %}{% if title %}{{ title }}{% endif %}{% endblock %}{% endcapture %}
+{% capture as content_subtitle silent %}{% block content_subtitle %}{% if subtitle %}{{ subtitle }}{% endif %}{% endblock %}{% endcapture %}
+{% capture as nav_global silent %}{% block nav-global %}{% endblock %}{% endcapture %}
+{% capture as nav_global_side silent %}{% block nav-global-side %}{% endblock %}{% endcapture %}
+{% capture as actions_items silent %}{% block actions-items %}{% endblock %}{% endcapture %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" dir="{{ LANGUAGE_BIDI|yesno:"rtl,ltr,auto" }}" {% if theme %}class="{{ theme }}"{% else %}x-data="{ adminTheme: $persist('auto').as('adminTheme') }" x-bind:class="{'dark': adminTheme === 'dark' || (adminTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)}" x-cloak{% endif %}>
+
 <head>
-  <meta name="google-signin-client_id"
-        content="624596912501-9j2qvij4p1rpvfh2aauiv0qjd8chi9r4.apps.googleusercontent.com">
+    <title>{% block title %}{% endblock %}</title>
 
+    <link href="{% static "unfold/fonts/inter/styles.css" %}" rel="stylesheet">
+    <link href="{% static "unfold/fonts/material-symbols/styles.css" %}" rel="stylesheet">
+
+    {% for style in styles %}
+        <link href="{{ style }}" rel="stylesheet">
+    {% endfor %}
+
+    <link href="{% static 'unfold/css/styles.css' %}" rel="stylesheet">
+
+    <script src="{% static 'unfold/js/alpine.persist.js' %}" defer></script>
+    <script src="{% static 'unfold/js/alpine.js' %}" defer></script>
+    <script src="{% static 'unfold/js/htmx.js' %}"></script>
+    <script src="{% static 'unfold/js/chart.js' %}"></script>
+    {% for script in scripts %}
+        <script src="{{ script }}"></script>
+    {% endfor %}
+
+    {% block extrastyle %}{% endblock %}
+
+    {% block extrahead %}{% endblock %}
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script src="{% static 'unfold/js/app.js' %}"></script>
+
+    {% block responsive %}
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    {% endblock %}
+
+    {% block blockbots %}
+        <meta name="robots" content="NONE,NOARCHIVE">
+    {% endblock %}
+    <style>
+            html {
+                --color-primary-50: 250 245 255;
+
+                --color-primary-100: 243 232 255;
+
+                --color-primary-200: 233 213 255;
+
+                --color-primary-300: 216 180 254;
+
+                --color-primary-400: 192 132 252;
+
+                --color-primary-500: 168 85 247;
+
+                --color-primary-600: 147 51 234;
+
+                --color-primary-700: 126 34 206;
+
+                --color-primary-800: 107 33 168;
+
+                --color-primary-900: 88 28 135;
+
+                --color-primary-950: 59 7 100;
+            }
+    </style>
 </head>
-<body>
-<div id="my-signin2"></div>
-<script>
-    function onSuccess(googleUser) {
-        console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
-        var profile = googleUser.getBasicProfile();
-        console.log("ID: " + profile.getId());
-        console.log('Full Name: ' + profile.getName());
-        console.log("Image URL: " + profile.getImageUrl());
-        console.log("Email: " + profile.getEmail());
 
-        var id_token = googleUser.getAuthResponse().id_token;
-        console.log("ID Token: " + id_token);
+<body class="antialiased bg-white font-sans text-gray-500 dark:bg-gray-900 dark:text-gray-400 {% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}" data-admin-utc-offset="{% now "Z" %}" x-data="{ sidebarMobileOpen: false, sidebarDesktopOpen: {% if request.session.toggle_sidebar == False %}false{% else %}true{% endif %} }">
+    {% block base %}
+    {% component "unfold/components/title.html" %}
+        <h1 class="text-center" style="padding-top: 20px;">STATISTICS</h1>
+    {% endcomponent %}
+    <div class="p-4 lg:p-12">
+        <div id="content" class="container mx-auto colM">
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://localhost:8000/api/v1/auth/google');
-        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8"');
-        xhr.onload = function () {
-            console.log('Signed in as: ' + xhr.responseText);
-        };
-        xhr.send(JSON.stringify({
-            'token':id_token, "picture": profile.getImageUrl(), "email": profile.getEmail()
-        })
-        );
+            <div class="mx-auto">
+                <div class="flex  flex-row gap-4">
+                    <nav class="flex gap-2 mb-8  rounded text-sm dark:bg-white/[.04]">
+                        <a href="/admin" style="font-size: 16px;" class="flex flex-row font-medium items-center px-2.5 py-1 rounded  bg-white shadow-sm text-gray-700 hover:bg-white dark:bg-gray-900 dark:hover:bg-gray-900 dark:text-white">
+                          <span class="material-symbols-outlined" style="margin-right: 10px;">
+                            arrow_back
+                          </span>
+                            Dashboard
+                        </a>
+                    </nav>
+                </div>
+                <div class="flex  flex-row gap-8 mb-8 flex-col lg:flex-row">
+                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/3">
+                        <div class="flex-grow relative">
+                            <p class="leading-relaxed mb-0 text-sm">
+                                Total orders
+                            </p>
+                            <div class="font-medium text-2xl text-gray-700 dark:text-gray-200">
+                                {{ total_orders }}
+                            </div>
+                            <div class="absolute right-0 top-0">
+                                <span class="inline-block font-semibold leading-normal px-2 py-1 rounded text-xxs uppercase whitespace-nowrap bg-primary-100 text-primary-500 dark:bg-primary-500/20">
+                                    Last 7 days
+                                </span>
+                            </div>
+                        </div>
+                        <div class="border-t flex items-center -mb-6 -mx-6 mt-6 pb-2 pt-2 px-6 text-sm dark:border-gray-800">
+                            <strong class="text-green-600 font-medium">+3.14%</strong>&nbsp;progress from last week
+                        </div>
+                    </div>
+                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/3">
 
-    }
 
-    function onFailure(error) {
-        console.log(error);
-    }
+                        <div class="flex-grow relative">
+                                <p class="leading-relaxed mb-0 text-sm">
+                                    Total income
+                                </p>
+                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200">
+                                    {{total_income}}
+                                </div>
+                                <div class="absolute right-0 top-0">
+                                    <span class="inline-block font-semibold leading-normal px-2 py-1 rounded text-xxs uppercase whitespace-nowrap bg-primary-100 text-primary-500 dark:bg-primary-500/20">
+                                        Last 7 days
+                                    </span>
+                                </div>
+                        </div>
+                        <div class="border-t flex items-center -mb-6 -mx-6 mt-6 pb-2 pt-2 px-6 text-sm dark:border-gray-800">
+                            <strong class="text-green-600 font-medium">+3.14%</strong>&nbsp;progress from last week
+                        </div>
+                    </div>
+                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/3">
+                        <div class="flex-grow relative">
+                                <p class="leading-relaxed mb-0 text-sm">
+                                    Total users
+                                </p>
+                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200">
+                                    {{ total_users }}
+                                </div>
+{#                                <div class="absolute right-0 top-0">#}
+{#                                    <span class="inline-block font-semibold leading-normal px-2 py-1 rounded text-xxs uppercase whitespace-nowrap bg-primary-100 text-primary-500 dark:bg-primary-500/20">#}
+{#                                        Last 7 days#}
+{#                                    </span>#}
+{#                                </div>#}
+                        </div>
+                        <div class="border-t flex items-center -mb-6 -mx-6 mt-6 pb-2 pt-2 px-6 text-sm dark:border-gray-800">
+                            <strong class="text-green-600 font-medium">+3.14%</strong>&nbsp;progress from last week
+                        </div>
+                    </div>
+                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/3">
+                        <div class="flex-grow relative">
+                                <p class="leading-relaxed mb-0 text-sm">
+                                    Notify me
+                                </p>
+                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200">
+                                    {{ notify_me_percent }}%
+                                </div>
+{#                                <div class="absolute right-0 top-0">#}
+{#                                    <span class="inline-block font-semibold leading-normal px-2 py-1 rounded text-xxs uppercase whitespace-nowrap bg-primary-100 text-primary-500 dark:bg-primary-500/20">#}
+{#                                        Last 7 days#}
+{#                                    </span>#}
+{#                                </div>#}
+                        </div>
+                        <div class="border-t flex items-center -mb-6 -mx-6 mt-6 pb-2 pt-2 px-6 text-sm dark:border-gray-800">
+                            <strong class="text-green-600 font-medium">+3.14%</strong>&nbsp;progress from last week
+                        </div>
+                    </div>
+                </div>
+                <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 mb-8">
+                    <h2 class="border-b font-medium mb-6 -mt-2 -mx-6 pb-4 px-6 text-sm text-gray-700 dark:text-gray-200 dark:border-gray-800">
+                        Product performance in last 28 days
+                    </h2>
+                    <div class="flex-grow relative">
 
-    function renderButton() {
-        gapi.signin2.render('my-signin2', {
-            'scope': 'profile email',
-            'width': 240,
-            'height': 50,
-            'longtitle': true,
-            'theme': 'dark',
-            'onsuccess': onSuccess,
-            'onfailure': onFailure
-        });
-    }
-</script>
-<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+                        <div class="relative w-full">
+                          <canvas class="chart" data-type="bar" data-value="{&quot;labels&quot;: [&quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;], &quot;datasets&quot;: [{&quot;label&quot;: &quot;Example 1&quot;, &quot;type&quot;: &quot;line&quot;, &quot;data&quot;: [22, 14, 11, 8, 14, 15, 9, 23, 17, 12, 20, 8, 9, 6, 12, 10, 7, 5, 7, 14, 3, 20, 11, 4, 10, 19, 16], &quot;backgroundColor&quot;: &quot;#f0abfc&quot;, &quot;borderColor&quot;: &quot;#f0abfc&quot;}, {&quot;label&quot;: &quot;Example 2&quot;, &quot;data&quot;: [[1, 27], [1, 17], [1, 16], [1, 13], [1, 18], [1, 20], [1, 12], [1, 26], [1, 21], [1, 16], [1, 24], [1, 12], [1, 13], [1, 10], [1, 16], [1, 15], [1, 12], [1, 8], [1, 12], [1, 18], [1, 8], [1, 23], [1, 14], [1, 9], [1, 14], [1, 22], [1, 20]], &quot;backgroundColor&quot;: &quot;#9333ea&quot;}, {&quot;label&quot;: &quot;Example 3&quot;, &quot;data&quot;: [[-1, -14], [-1, -19], [-1, -20], [-1, -23], [-1, -19], [-1, -19], [-1, -17], [-1, -18], [-1, -14], [-1, -18], [-1, -14], [-1, -12], [-1, -22], [-1, -14], [-1, -9], [-1, -8], [-1, -23], [-1, -10], [-1, -16], [-1, -17], [-1, -11], [-1, -21], [-1, -8], [-1, -24], [-1, -24], [-1, -10], [-1, -14]], &quot;backgroundColor&quot;: &quot;#f43f5e&quot;}]}" height="320" style="display: block; box-sizing: border-box; height: 320px; width: 1471px;" width="1471"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex  flex-row gap-8 mb-8 flex-col lg:flex-row">
+
+
+                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/2">
+
+                        <h2 class="border-b font-medium mb-6 -mt-2 -mx-6 pb-4 px-6 text-sm text-gray-700 dark:text-gray-200 dark:border-gray-800">
+                            The most trending products in last 2 weeks
+                        </h2>
+
+                        <div class="flex-grow relative">
+
+                            <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800">
+                                <div class="flex-grow relative">
+                                    <div class="font-medium text-2xl text-gray-700 dark:text-gray-200 mb-2">
+                                        $1,234,567.89
+                                    </div>
+                                    <p class="leading-relaxed mb-0 text-sm">
+                                        Total revenue between
+                                        <span class="font-medium text-gray-700 dark:text-white">1 - 31 October</span>.
+                                            Increase
+                                        <span class="text-green-600 font-medium">+3.14%</span>
+                                        comparing to previous month
+                                        <span class="font-medium text-gray-700 dark:text-white">1 - 30 September</span>.
+                                        <a href="#" class="text-primary-500 underline">View detailed analytics.</a>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <hr class="bg-gray-200 dark:border-gray-800 my-8">
+
+
+                            <div class="flex  flex-col gap-8">
+                                <div class="">
+                                    <div class="flex flex-row mb-2.5 text-sm">
+                                        <h3 class="text-sm">
+                                            Social marketing e-book
+                                        </h3>
+                                        <strong class="font-semibold ml-auto text-gray-700 dark:text-gray-200">
+                                             $1,234.56
+                                        </strong>
+                                    </div>
+                                    <div class="bg-gray-200 flex flex-row h-1 rounded overflow-hidden dark:bg-white/10">
+                                        <div class="bg-primary-500 h-1 rounded-full" style="width: 13%"></div>
+                                    </div>
+                                </div>
+                                <div class="{% if class %}{{ class }}{% endif %}">
+                                    <div class="flex flex-row mb-2.5 text-sm">
+                                            <h3 class="text-sm">
+                                                title
+                                            </h3>
+                                            <strong class="font-semibold ml-auto text-gray-700 dark:text-gray-200">
+                                                description
+                                            </strong>
+                                    </div>
+                                    <div class="bg-gray-200 flex flex-row h-1 rounded overflow-hidden dark:bg-white/10">
+                                            <div class="bg-primary-500 h-1 rounded-full" style="width: 71%;color: #3b0764"></div>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div class="flex flex-row mb-2.5 text-sm">
+                                        <h3 class="text-sm">
+                                            Development coaching
+                                        </h3>
+                                        <strong class="font-semibold ml-auto text-gray-700 dark:text-gray-200">
+                                             $1,234.56
+                                        </strong>
+                                    </div>
+                                    <div class="bg-gray-200 flex flex-row h-1 rounded overflow-hidden dark:bg-white/10">
+                                        <div class="bg-primary-500 h-1 rounded-full" style="width: 64%"></div>
+                                    </div>
+                                </div>
+
+
+                                <div class="">
+                                    <div class="flex flex-row mb-2.5 text-sm">
+                                        <h3 class="text-sm">
+                                            Product consulting
+                                        </h3>
+                                        <strong class="font-semibold ml-auto text-gray-700 dark:text-gray-200">
+                                             $1,234.56
+                                        </strong>
+                                    </div>
+                                    <div class="bg-gray-200 flex flex-row h-1 rounded overflow-hidden dark:bg-white/10">
+                                        <div class="bg-primary-500 h-1 rounded-full" style="width: 49%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="">
+                                    <div class="flex flex-row mb-2.5 text-sm">
+                                        <h3 class="text-sm">
+                                            Other income
+                                        </h3>
+                                        <strong class="font-semibold ml-auto text-gray-700 dark:text-gray-200">
+                                             $1,234.56
+                                        </strong>
+                                    </div>
+                                    <div class="bg-gray-200 flex flex-row h-1 rounded overflow-hidden dark:bg-white/10">
+                                        <div class="bg-primary-500 h-1 rounded-full" style="width: 37%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex  flex-col gap-8 lg:w-1/2">
+                        <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800">
+                            <div class="flex-grow relative">
+                                <p class="leading-relaxed mb-0 text-sm">
+                                    Last week revenue
+                                </p>
+                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200 mb-8">
+                                    $1,234.56
+                                </div>
+                                <div class="relative w-full">
+                                  <canvas class="chart" data-type="line" data-value="{&quot;labels&quot;: [&quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;], &quot;datasets&quot;: [{&quot;data&quot;: [[1, 14], [1, 26], [1, 8], [1, 25], [1, 8], [1, 12], [1, 20], [1, 21], [1, 25], [1, 12], [1, 15], [1, 18], [1, 19], [1, 9], [1, 18], [1, 13], [1, 20], [1, 27], [1, 23], [1, 12], [1, 15], [1, 20], [1, 18], [1, 26], [1, 13], [1, 25], [1, 25]], &quot;borderColor&quot;: &quot;#9333ea&quot;}]}" style="display: block; box-sizing: border-box; height: 150px; width: 694px;" width="694" height="150"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800">
+                            <div class="flex-grow relative">
+                                <p class="leading-relaxed mb-0 text-sm">
+                                    Last week expenses
+                                </p>
+                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200 mb-8">
+                                    $1,234.56
+                                </div>
+                                <div class="relative w-full">
+                                  <canvas class="chart" data-type="line" data-value="{&quot;labels&quot;: [&quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;], &quot;datasets&quot;: [{&quot;data&quot;: [[-1, -27], [-1, -8], [-1, -19], [-1, -13], [-1, -20], [-1, -23], [-1, -27], [-1, -14], [-1, -13], [-1, -22], [-1, -10], [-1, -25], [-1, -9], [-1, -22], [-1, -11], [-1, -23], [-1, -15], [-1, -25], [-1, -16], [-1, -23], [-1, -10], [-1, -14], [-1, -13], [-1, -24], [-1, -8], [-1, -17], [-1, -9]], &quot;borderColor&quot;: &quot;#f43f5e&quot;}]}" style="display: block; box-sizing: border-box; height: 150px; width: 694px;" width="694" height="150"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    <div id="modal-overlay" class="backdrop-blur-sm bg-opacity-80 bg-gray-900 bottom-0 fixed hidden left-0 mr-1 right-0 top-0 z-50"></div>
 </body>
+
 </html>
+{#{% extends 'unfold/layouts/skeleton.html' %}#}
+{#{% load unfold %}#}
+{##}
+{##}
+{#{% block breadcrumbs %}{% endblock %}#}
+{##}
+{#{% block title %}#}
+{#    {% if subtitle %}#}
+{#        {{ subtitle }} |#}
+{#    {% endif %}#}
+{#    {{ title }} | {{ site_title|default:_('Django site admin') }}#}
+{#{% endblock %}#}
+{##}
+{#{% block branding %}#}
+{#    <h1 id="site-name">#}
+{#        <a href="{% url 'admin:index' %}">#}
+{#            {{ site_header|default:_('Django administration') }}#}
+{#        </a>#}
+{#    </h1>#}
+{#{% endblock %}#}
+{##}
+{#{% block content %}#}
+{##}
+{#    <div class="font-medium text-2xl text-gray-700 dark:text-gray-200{% if class %} {{ class }}{% endif %}">#}
+{#        Hello World#}
+{#    </div>#}
+{#    <div class="relative w-full{% if class %} {{ class }}{% endif %}">#}
+{#        <canvas class="chart" data-type="bar" data-value="{&quot;labels&quot;: [&quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;], &quot;datasets&quot;: [{&quot;label&quot;: &quot;Example 1&quot;, &quot;type&quot;: &quot;line&quot;, &quot;data&quot;: [8, 17, 6, 20, 12, 18, 4, 9, 11, 17, 11, 20, 21, 17, 11, 13, 21, 9, 3, 7, 23, 23, 7, 7, 22, 22, 6], &quot;backgroundColor&quot;: &quot;#f0abfc&quot;, &quot;borderColor&quot;: &quot;#f0abfc&quot;}, {&quot;label&quot;: &quot;Example 2&quot;, &quot;data&quot;: [[1, 13], [1, 21], [1, 11], [1, 25], [1, 15], [1, 23], [1, 9], [1, 13], [1, 16], [1, 20], [1, 15], [1, 23], [1, 24], [1, 20], [1, 15], [1, 17], [1, 25], [1, 14], [1, 8], [1, 12], [1, 27], [1, 27], [1, 11], [1, 12], [1, 27], [1, 26], [1, 10]], &quot;backgroundColor&quot;: &quot;#9333ea&quot;}, {&quot;label&quot;: &quot;Example 3&quot;, &quot;data&quot;: [[-1, -12], [-1, -15], [-1, -19], [-1, -15], [-1, -22], [-1, -22], [-1, -22], [-1, -23], [-1, -8], [-1, -27], [-1, -21], [-1, -23], [-1, -8], [-1, -26], [-1, -23], [-1, -18], [-1, -11], [-1, -25], [-1, -11], [-1, -14], [-1, -8], [-1, -25], [-1, -23], [-1, -24], [-1, -25], [-1, -20], [-1, -19]], &quot;backgroundColor&quot;: &quot;#f43f5e&quot;}]}" height="320" style="display: block; box-sizing: border-box; height: 320px; width: 590px;" width="590"></canvas>    #}
+{#    </div>    #}
+{#    <div class="relative w-full{% if class %} {{ class }}{% endif %}">#}
+{#        <canvas class="chart" data-type="line" data-value="{&quot;labels&quot;: [&quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;], &quot;datasets&quot;: [{&quot;data&quot;: [[1, 10], [1, 12], [1, 16], [1, 21], [1, 13], [1, 24], [1, 19], [1, 19], [1, 25], [1, 27], [1, 21], [1, 10], [1, 16], [1, 20], [1, 25], [1, 23], [1, 21], [1, 8], [1, 11], [1, 8], [1, 24], [1, 18], [1, 22], [1, 24], [1, 18], [1, 14], [1, 27]], &quot;borderColor&quot;: &quot;#9333ea&quot;}]}" style="display: block; box-sizing: border-box; height: 150px; width: 694px;" width="694" height="150"></canvas>#}
+{#    </div>#}
+{#    {% component "unfold/components/title.html" %}#}
+{#        <h1 class="text-center">STATISTICS</h1>#}
+{#    {% endcomponent %}#}
+{#        {% if sidebar_navigation|length > 0 %}#}
+{#            {% include "unfold/helpers/app_list.html" with app_list=available_apps %}#}
+{#        {% else %}#}
+{#            {% include "admin/app_list.html" with app_list=available_apps show_changelinks=False %}#}
+{#        {% endif %}#}
+{##}
+{#    <div class="p-4 lg:p-12">#}
+{#        <div id="content" class="container mx-auto colM">#}
+{##}
+{#            <div class="mx-auto">#}
+{#                <div class="flex  flex-row gap-4">#}
+{#                    <nav class="bg-gray-100 flex gap-2 mb-8 p-1 rounded text-sm dark:bg-white/[.04]">#}
+{#                        <a href="/" class="flex flex-row font-medium items-center px-2.5 py-1 rounded  bg-white shadow-sm text-gray-700 hover:bg-white dark:bg-gray-900 dark:hover:bg-gray-900 dark:text-white">#}
+{#                          Dashboard#}
+{#                        </a>#}
+{#                    </nav>#}
+{#                </div>#}
+{#                <div class="flex  flex-row gap-8 mb-8 flex-col lg:flex-row">#}
+{#                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/3">#}
+{#                        <div class="flex-grow relative">#}
+{#                            <p class="leading-relaxed mb-0 text-sm">#}
+{##}
+{#                                Product A Performance#}
+{#                            </p>#}
+{#                            <div class="font-medium text-2xl text-gray-700 dark:text-gray-200">#}
+{##}
+{#                                $1,234.56#}
+{##}
+{#                            </div>#}
+{#                            <div class="absolute right-0 top-0">#}
+{#                                <span class="inline-block font-semibold leading-normal px-2 py-1 rounded text-xxs uppercase whitespace-nowrap bg-primary-100 text-primary-500 dark:bg-primary-500/20">#}
+{#                                    Last 7 days#}
+{#                                </span>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="border-t flex items-center -mb-6 -mx-6 mt-6 pb-2 pt-2 px-6 text-sm dark:border-gray-800">#}
+{#                            <strong class="text-green-600 font-medium">+3.14%</strong>&nbsp;progress from last week#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/3">#}
+{##}
+{##}
+{#                        <div class="flex-grow relative">#}
+{#                                <p class="leading-relaxed mb-0 text-sm">#}
+{#                                    Product B Performance#}
+{#                                </p>#}
+{#                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200">#}
+{#                                    $1,234.56#}
+{#                                </div>#}
+{#                                <div class="absolute right-0 top-0">#}
+{#                                    <span class="inline-block font-semibold leading-normal px-2 py-1 rounded text-xxs uppercase whitespace-nowrap bg-primary-100 text-primary-500 dark:bg-primary-500/20">#}
+{#                                        Last 7 days#}
+{#                                    </span>#}
+{#                                </div>#}
+{#                        </div>#}
+{#                        <div class="border-t flex items-center -mb-6 -mx-6 mt-6 pb-2 pt-2 px-6 text-sm dark:border-gray-800">#}
+{#                            <strong class="text-green-600 font-medium">+3.14%</strong>&nbsp;progress from last week#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/3">#}
+{#                        <div class="flex-grow relative">#}
+{#                                <p class="leading-relaxed mb-0 text-sm">#}
+{#                                    Product C Performance#}
+{#                                </p>#}
+{#                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200">#}
+{#                                    $1,234.56#}
+{#                                </div>#}
+{#                                <div class="absolute right-0 top-0">#}
+{#                                    <span class="inline-block font-semibold leading-normal px-2 py-1 rounded text-xxs uppercase whitespace-nowrap bg-primary-100 text-primary-500 dark:bg-primary-500/20">#}
+{#                                        Last 7 days#}
+{#                                    </span>#}
+{#                                </div>#}
+{#                        </div>#}
+{#                        <div class="border-t flex items-center -mb-6 -mx-6 mt-6 pb-2 pt-2 px-6 text-sm dark:border-gray-800">#}
+{#                            <strong class="text-green-600 font-medium">+3.14%</strong>&nbsp;progress from last week#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 mb-8">#}
+{#                    <h2 class="border-b font-medium mb-6 -mt-2 -mx-6 pb-4 px-6 text-sm text-gray-700 dark:text-gray-200 dark:border-gray-800">#}
+{#                        Product performance in last 28 days#}
+{#                    </h2>#}
+{#                    <div class="flex-grow relative">#}
+{##}
+{#                        <div class="relative w-full">#}
+{#                          <canvas class="chart" data-type="bar" data-value="{&quot;labels&quot;: [&quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;], &quot;datasets&quot;: [{&quot;label&quot;: &quot;Example 1&quot;, &quot;type&quot;: &quot;line&quot;, &quot;data&quot;: [22, 14, 11, 8, 14, 15, 9, 23, 17, 12, 20, 8, 9, 6, 12, 10, 7, 5, 7, 14, 3, 20, 11, 4, 10, 19, 16], &quot;backgroundColor&quot;: &quot;#f0abfc&quot;, &quot;borderColor&quot;: &quot;#f0abfc&quot;}, {&quot;label&quot;: &quot;Example 2&quot;, &quot;data&quot;: [[1, 27], [1, 17], [1, 16], [1, 13], [1, 18], [1, 20], [1, 12], [1, 26], [1, 21], [1, 16], [1, 24], [1, 12], [1, 13], [1, 10], [1, 16], [1, 15], [1, 12], [1, 8], [1, 12], [1, 18], [1, 8], [1, 23], [1, 14], [1, 9], [1, 14], [1, 22], [1, 20]], &quot;backgroundColor&quot;: &quot;#9333ea&quot;}, {&quot;label&quot;: &quot;Example 3&quot;, &quot;data&quot;: [[-1, -14], [-1, -19], [-1, -20], [-1, -23], [-1, -19], [-1, -19], [-1, -17], [-1, -18], [-1, -14], [-1, -18], [-1, -14], [-1, -12], [-1, -22], [-1, -14], [-1, -9], [-1, -8], [-1, -23], [-1, -10], [-1, -16], [-1, -17], [-1, -11], [-1, -21], [-1, -8], [-1, -24], [-1, -24], [-1, -10], [-1, -14]], &quot;backgroundColor&quot;: &quot;#f43f5e&quot;}]}" height="320" style="display: block; box-sizing: border-box; height: 320px; width: 1471px;" width="1471"></canvas>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="flex  flex-row gap-8 mb-8 flex-col lg:flex-row">#}
+{##}
+{##}
+{#                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/2">#}
+{##}
+{#                        <h2 class="border-b font-medium mb-6 -mt-2 -mx-6 pb-4 px-6 text-sm text-gray-700 dark:text-gray-200 dark:border-gray-800">#}
+{#                            The most trending products in last 2 weeks#}
+{#                        </h2>#}
+{##}
+{#                        <div class="flex-grow relative">#}
+{##}
+{#                            <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800">#}
+{#                                <div class="flex-grow relative">#}
+{#                                    <div class="font-medium text-2xl text-gray-700 dark:text-gray-200 mb-2">#}
+{#                                        $1,234,567.89#}
+{#                                    </div>#}
+{#                                    <p class="leading-relaxed mb-0 text-sm">#}
+{#                                        Total revenue between #}
+{#                                        <span class="font-medium text-gray-700 dark:text-white">1 - 31 October</span>. #}
+{#                                            Increase #}
+{#                                        <span class="text-green-600 font-medium">+3.14%</span> #}
+{#                                        comparing to previous month #}
+{#                                        <span class="font-medium text-gray-700 dark:text-white">1 - 30 September</span>. #}
+{#                                        <a href="#" class="text-primary-500 underline">View detailed analytics.</a>#}
+{#                                    </p>#}
+{#                                </div>#}
+{#                            </div>#}
+{##}
+{#                            <hr class="bg-gray-200 dark:border-gray-800 my-8">#}
+{##}
+{##}
+{#                            <div class="flex  flex-col gap-8">#}
+{#                                <div class="">#}
+{#                                    <div class="flex flex-row mb-2.5 text-sm">#}
+{#                                        <h3 class="text-sm">#}
+{#                                            Social marketing e-book#}
+{#                                        </h3>#}
+{#                                        <strong class="font-semibold ml-auto text-gray-700 dark:text-gray-200">#}
+{#                                             $1,234.56#}
+{#                                        </strong>#}
+{#                                    </div>#}
+{#                                    <div class="bg-gray-200 flex flex-row h-1 rounded overflow-hidden dark:bg-white/10">#}
+{#                                        <div class="bg-primary-500 h-1 rounded-full" style="width: 13%"></div>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                                <div class="">#}
+{#                                    <div class="flex flex-row mb-2.5 text-sm">#}
+{#                                        <h3 class="text-sm">#}
+{#                                            Freelancing tasks#}
+{#                                        </h3>#}
+{#                                        <strong class="font-semibold ml-auto text-gray-700 dark:text-gray-200">#}
+{#                                             $1,234.56#}
+{#                                        </strong>#}
+{#                                    </div>#}
+{#                                    <div class="bg-gray-200 flex flex-row h-1 rounded overflow-hidden dark:bg-white/10">#}
+{#                                        <div class="bg-primary-500 h-1 rounded-full" style="width: 71%"></div>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                                <div class="">#}
+{#                                    <div class="flex flex-row mb-2.5 text-sm">#}
+{#                                        <h3 class="text-sm">#}
+{#                                            Development coaching#}
+{#                                        </h3>#}
+{#                                        <strong class="font-semibold ml-auto text-gray-700 dark:text-gray-200">#}
+{#                                             $1,234.56#}
+{#                                        </strong>#}
+{#                                    </div>#}
+{#                                    <div class="bg-gray-200 flex flex-row h-1 rounded overflow-hidden dark:bg-white/10">#}
+{#                                        <div class="bg-primary-500 h-1 rounded-full" style="width: 64%"></div>#}
+{#                                    </div>#}
+{#                                </div>#}
+{##}
+{##}
+{#                                <div class="">#}
+{#                                    <div class="flex flex-row mb-2.5 text-sm">#}
+{#                                        <h3 class="text-sm">#}
+{#                                            Product consulting#}
+{#                                        </h3>#}
+{#                                        <strong class="font-semibold ml-auto text-gray-700 dark:text-gray-200">#}
+{#                                             $1,234.56#}
+{#                                        </strong>#}
+{#                                    </div>#}
+{#                                    <div class="bg-gray-200 flex flex-row h-1 rounded overflow-hidden dark:bg-white/10">#}
+{#                                        <div class="bg-primary-500 h-1 rounded-full" style="width: 49%"></div>#}
+{#                                    </div>#}
+{#                                </div>#}
+{##}
+{#                                <div class="">#}
+{#                                    <div class="flex flex-row mb-2.5 text-sm">#}
+{#                                        <h3 class="text-sm">#}
+{#                                            Other income#}
+{#                                        </h3>#}
+{#                                        <strong class="font-semibold ml-auto text-gray-700 dark:text-gray-200">#}
+{#                                             $1,234.56#}
+{#                                        </strong>#}
+{#                                    </div>#}
+{#                                    <div class="bg-gray-200 flex flex-row h-1 rounded overflow-hidden dark:bg-white/10">#}
+{#                                        <div class="bg-primary-500 h-1 rounded-full" style="width: 37%"></div>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="flex  flex-col gap-8 lg:w-1/2">#}
+{#                        <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800">#}
+{#                            <div class="flex-grow relative">#}
+{#                                <p class="leading-relaxed mb-0 text-sm">#}
+{#                                    Last week revenue#}
+{#                                </p>#}
+{#                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200 mb-8">#}
+{#                                    $1,234.56#}
+{#                                </div>#}
+{#                                <div class="relative w-full">#}
+{#                                  <canvas class="chart" data-type="line" data-value="{&quot;labels&quot;: [&quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;], &quot;datasets&quot;: [{&quot;data&quot;: [[1, 14], [1, 26], [1, 8], [1, 25], [1, 8], [1, 12], [1, 20], [1, 21], [1, 25], [1, 12], [1, 15], [1, 18], [1, 19], [1, 9], [1, 18], [1, 13], [1, 20], [1, 27], [1, 23], [1, 12], [1, 15], [1, 20], [1, 18], [1, 26], [1, 13], [1, 25], [1, 25]], &quot;borderColor&quot;: &quot;#9333ea&quot;}]}" style="display: block; box-sizing: border-box; height: 150px; width: 694px;" width="694" height="150"></canvas>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800">#}
+{#                            <div class="flex-grow relative">#}
+{#                                <p class="leading-relaxed mb-0 text-sm">#}
+{#                                    Last week expenses#}
+{#                                </p>#}
+{#                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200 mb-8">#}
+{#                                    $1,234.56#}
+{#                                </div>#}
+{#                                <div class="relative w-full">#}
+{#                                  <canvas class="chart" data-type="line" data-value="{&quot;labels&quot;: [&quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;], &quot;datasets&quot;: [{&quot;data&quot;: [[-1, -27], [-1, -8], [-1, -19], [-1, -13], [-1, -20], [-1, -23], [-1, -27], [-1, -14], [-1, -13], [-1, -22], [-1, -10], [-1, -25], [-1, -9], [-1, -22], [-1, -11], [-1, -23], [-1, -15], [-1, -25], [-1, -16], [-1, -23], [-1, -10], [-1, -14], [-1, -13], [-1, -24], [-1, -8], [-1, -17], [-1, -9]], &quot;borderColor&quot;: &quot;#f43f5e&quot;}]}" style="display: block; box-sizing: border-box; height: 150px; width: 694px;" width="694" height="150"></canvas>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#{% endblock %}#}

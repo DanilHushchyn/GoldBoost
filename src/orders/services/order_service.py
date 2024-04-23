@@ -22,6 +22,7 @@ from src.orders.models import Cart, CartItem, Order
 from src.orders.tasks import change_order_status
 from src.products.utils import make_sale, paginate
 from src.users.schemas import MessageOutSchema
+from loguru import logger
 
 User = get_user_model()
 
@@ -33,7 +34,6 @@ class OrderService:
     This class provides methods for ordering, filtering,
     paginating and getting related entities of orders.
     """
-
     @staticmethod
     def get_my_cart(request: HttpRequest) -> Cart:
         """
@@ -46,14 +46,52 @@ class OrderService:
             user = request.auth
             cart, status = Cart.objects.prefetch_related("items", "items__attributes").get_or_create(user=user)
         else:
-            if not request.session.session_key:
+            session_id = request.COOKIES.get('sessionid')
+            if session_id is None:
                 request.session.create()
                 request.session.save()
-            session_id = request.session.session_key
+                session_id = request.session.session_key
             cart, status = Cart.objects.prefetch_related("items", "items__attributes").get_or_create(
                 session_key=session_id
             )
         return cart
+    # @staticmethod
+    # def get_my_cart(request: HttpRequest) -> Cart:
+    #     """
+    #     Gets info for user's cart.
+    #
+    #     :param request:
+    #     :return: Cart model instance
+    #     """
+    #     if not request.auth.is_anonymous:
+    #         user = request.auth
+    #         cart, status = Cart.objects.prefetch_related("items", "items__attributes").get_or_create(user=user)
+    #     else:
+    #         if not request.session.session_key:
+    #             request.session.create()
+    #             request.session.save()
+    #         session_id = request.session.session_key
+    #         session_id = request.COOKIES.get('sessionid')
+    #         session_id2 = request.COOKIES.get('sessionid')
+    #         logger.debug(session_id)
+    #         logger.debug(session_id2)
+    #         if not request.COOKIES.get('sessionid'):
+    #             request.session.create()
+    #             request.session.save()
+    #             session_id = request.session.session_key
+    #             logger.debug(session_id)
+    #
+    #         try:
+    #             cart = (Cart.objects
+    #                     .prefetch_related("items", "items__attributes")
+    #                     .get(session_key=session_id)
+    #                     )
+    #         except Cart.DoesNotExist:
+    #             cart = (Cart.objects
+    #                     .prefetch_related("items", "items__attributes")
+    #                     .create(session_key=session_id)
+    #                     )
+    #     return cart
 
     def delete_cart_item(self, request: HttpRequest, item_id: int) -> MessageOutSchema:
         """
@@ -81,11 +119,11 @@ class OrderService:
 
     @staticmethod
     def finish_order(
-        user: User,
-        order: Order,
-        total_price: float,
-        bonuses: int,
-        promo_code: PromoCode = None,
+            user: User,
+            order: Order,
+            total_price: float,
+            bonuses: int,
+            promo_code: PromoCode = None,
     ) -> None:
         user.bonus_points = user.bonus_points + bonuses
         user.save()

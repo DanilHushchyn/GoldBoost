@@ -2,6 +2,7 @@
 """
     Module contains class for managing users in the site
 """
+import json
 
 from allauth.socialaccount.helpers import complete_social_login
 from allauth.socialaccount.models import SocialAccount, SocialApp, SocialLogin
@@ -218,7 +219,6 @@ class UsersController(ControllerBase):
           - **401**: Unauthorized.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        print(request.headers)
         result = self.user_service.get_my_profile(request.user.id)
         return result
 
@@ -480,7 +480,6 @@ class UsersController(ControllerBase):
           - **401**: Unauthorized.
           - **500**: Internal server error if an unexpected error occurs.
         """
-
         result = self.user_service.get_my_characters(request.user.id)
         return result
 

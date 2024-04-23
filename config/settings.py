@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # django-environ
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, ".env.prod"))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -167,6 +167,12 @@ UNFOLD = {
                         "title": "Orders",
                         "icon": "receipt",
                         "link": f"{env('MEDIA_URL')}/admin/orders/order/",
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": "Statistic",
+                        "icon": "monitoring",
+                        "link": f"{env('MEDIA_URL')}/admin/statistic",
                         "permission": lambda request: request.user.is_superuser,
                     },
                 ],

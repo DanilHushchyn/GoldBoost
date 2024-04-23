@@ -5,6 +5,7 @@ This module contains pydantic schemas for app "users".
 implement logic for encoding and decoding data into python
 object and json
 """
+import json
 from enum import Enum
 from typing import Any, List
 
@@ -84,22 +85,6 @@ class UserUpdatedSchema(ModelSchema):
         ]
 
 
-class CharacterOutSchema(ModelSchema):
-    """
-    Pydantic schema for Characters.
-
-    Purpose of this schema to return user's
-    characters
-    """
-
-    battle_tag: str
-
-    class Meta:
-        model = Character
-        fields = "__all__"
-        exclude = ["user", "date_published"]
-
-
 class Faction(str, Enum):
     Alliance = "Alliance"
     Horde = "Horde"
@@ -116,6 +101,23 @@ class ClassAndSpec(str, Enum):
     Warlock = "Warlock"
     Monk = "Monk"
     Druid = "Druid"
+
+
+class CharacterOutSchema(ModelSchema):
+    """
+    Pydantic schema for Characters.
+
+    Purpose of this schema to return user's
+    characters
+    """
+
+    battle_tag: str
+
+
+    class Meta:
+        model = Character
+        fields = "__all__"
+        exclude = ["user", "date_published"]
 
 
 class CharacterInSchema(ModelSchema):

@@ -24,6 +24,7 @@ https://docs.djangoproject.com/en/stable/ref/contrib/admin/
 
 from django import forms
 from django.contrib import admin
+from django.contrib.admin import AdminSite
 from imagekit.admin import AdminThumbnail
 from unfold.admin import ModelAdmin
 from unfold.contrib.filters.admin import RangeDateTimeFilter, RangeDateFilter
@@ -285,10 +286,14 @@ class PromoCodeAdmin(ModelAdmin):
     """
     list_display = ["code", 'from_date', "until_date",
                     'discount']
-    list_filter = ["from_date", "until_date", "discount",]
+    list_filter = ["from_date", "until_date", "discount", ]
     search_fields = ["code", 'comment']
 
     def has_change_permission(self, request, obj=None):
         return False
 
     form = PromoCodeForm
+
+
+
+
