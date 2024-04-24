@@ -40,7 +40,7 @@ from src.users.models import User
 
 
 class StatisticView(View):
-    template_name = 'admin/myapp/views/my_custom_template.html'
+    template_name = 'auth/index.html'
 
     def get(self, request):
         context = {}
@@ -58,19 +58,6 @@ class StatisticView(View):
         return render(request, self.template_name, context)
 
 
-_admin_site_get_urls = admin.site.get_urls
-
-
-# def get_urls():
-#     urls = _admin_site_get_urls()
-#     urls += [
-#         path('my_custom_view/',
-#              admin.site.admin_view(StatistcView.as_view()), name='my_custom_view')
-#     ]
-#     return urls
-#
-#
-# admin.site.get_urls = get_urls
 main_api = NinjaExtraAPI()
 
 
@@ -119,7 +106,7 @@ main_api.register_controllers(GamesController)
 main_api.register_controllers(CatalogController)
 main_api.register_controllers(MainController)
 urlpatterns = [
-    path('admin/statistic/', StatisticView.as_view(template_name='auth/index.html')),
+    path('admin/statistic/', StatisticView.as_view()),
     path("admin/", admin.site.urls),
     path("api/", main_api.urls),
     # path("accounts/", include('allauth.urls')),

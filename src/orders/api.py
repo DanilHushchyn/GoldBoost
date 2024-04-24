@@ -93,6 +93,7 @@ class OrderController(ControllerBase):
           - **401**: ERROR: Unauthorized.
           - **500**: Internal server error if an unexpected error occurs.
         """
+        print(self.context.request.session.session_key)
         result = self.order_service.get_my_cart(
             request=request,
         )

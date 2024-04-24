@@ -3,6 +3,7 @@
     Module contains class for managing orders on site
 """
 import random
+from typing import Tuple, Any
 
 from django.contrib.auth import get_user_model
 
@@ -34,8 +35,9 @@ class OrderService:
     This class provides methods for ordering, filtering,
     paginating and getting related entities of orders.
     """
+
     @staticmethod
-    def get_my_cart(request: HttpRequest) -> Cart:
+    def get_my_cart(request: HttpRequest) -> tuple[Any, Cart]:
         """
         Gets info for user's cart.
 
@@ -47,14 +49,17 @@ class OrderService:
             cart, status = Cart.objects.prefetch_related("items", "items__attributes").get_or_create(user=user)
         else:
             session_id = request.COOKIES.get('sessionid')
+            # logger.debug(session_id)
             if session_id is None:
                 request.session.create()
                 request.session.save()
                 session_id = request.session.session_key
+
             cart, status = Cart.objects.prefetch_related("items", "items__attributes").get_or_create(
                 session_key=session_id
             )
         return cart
+
     # @staticmethod
     # def get_my_cart(request: HttpRequest) -> Cart:
     #     """
