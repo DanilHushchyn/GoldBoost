@@ -145,11 +145,11 @@ class ProductController(ControllerBase):
         """
 
         result = self.product_service.add_product_to_cart(product_id=product_id, request=request, body=body)
-        res = self.context.response
-        res.headers["Access-Control-Allow-Origin"] = "*"
-        res.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-        res.headers["Access-Control-Allow-Headers"] = "*"
-        res.headers["SameSite"] = "None"
+        # res = self.context.response
+        # res.headers["Access-Control-Allow-Origin"] = "*"
+        # res.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+        # res.headers["Access-Control-Allow-Headers"] = "*"
+        # res.headers["SameSite"] = "None"
         return result
 
     @http_post(
@@ -232,11 +232,11 @@ class ProductController(ControllerBase):
         #     user = request.session.session_key
         # cart = self.order_service.get_my_cart(user)
         result = self.product_service.freqbot_to_cart(freqbot_id, request=request)
-        res = self.context.response
-        res.headers["Access-Control-Allow-Origin"] = "*"
-        res.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-        res.headers["Access-Control-Allow-Headers"] = "*"
-        res.headers["SameSite"] = "None"
+        # res = self.context.response
+        # res.headers["Access-Control-Allow-Origin"] = "*"
+        # res.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+        # res.headers["Access-Control-Allow-Headers"] = "*"
+        # res.headers["SameSite"] = "None"
         return result
 
     @http_get(

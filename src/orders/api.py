@@ -98,9 +98,9 @@ class OrderController(ControllerBase):
             request=request,
         )
         res = self.context.response
-        res.headers["Access-Control-Allow-Origin"] = "*"
-        res.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-        res.headers["Access-Control-Allow-Headers"] = "*"
+        # res.headers["Access-Control-Allow-Origin"] = "*"
+        # res.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+        # res.headers["Access-Control-Allow-Headers"] = "*"
         return result
 
     @http_delete(
