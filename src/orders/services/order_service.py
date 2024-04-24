@@ -37,11 +37,11 @@ class OrderService:
     """
 
     @staticmethod
-    def get_my_cart(request: HttpRequest) -> tuple[Any, Cart]:
+    def get_my_cart(request: HttpRequest) -> Cart:
         """
         Gets info for user's cart.
 
-        :param request:
+        :param request: HttpRequest
         :return: Cart model instance
         """
         if not request.auth.is_anonymous:
@@ -53,7 +53,6 @@ class OrderService:
                 request.session.create()
                 request.session.save()
                 session_id = request.session.session_key
-
             cart, status = Cart.objects.prefetch_related("items", "items__attributes").get_or_create(
                 session_key=session_id
             )

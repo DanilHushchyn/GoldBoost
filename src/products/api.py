@@ -149,6 +149,7 @@ class ProductController(ControllerBase):
         res.headers["Access-Control-Allow-Origin"] = "*"
         res.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, PATCH, DELETE"
         res.headers["Access-Control-Allow-Headers"] = "*"
+        res.headers["SameSite"] = "None"
         return result
 
     @http_post(
@@ -235,6 +236,7 @@ class ProductController(ControllerBase):
         res.headers["Access-Control-Allow-Origin"] = "*"
         res.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, PATCH, DELETE"
         res.headers["Access-Control-Allow-Headers"] = "*"
+        res.headers["SameSite"] = "None"
         return result
 
     @http_get(
