@@ -24,7 +24,7 @@ from src.orders.tasks import change_order_status
 from src.products.utils import make_sale, paginate
 from src.users.schemas import MessageOutSchema
 from loguru import logger
-
+from django.core.cache import cache
 User = get_user_model()
 
 

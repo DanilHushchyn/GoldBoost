@@ -735,6 +735,24 @@ doc = ["markdown-include", "mdx-include (>=1.4.1,<2.0.0)", "mkdocs (>=1.1.2,<2.0
 test = ["click (==8.1.7)", "cryptography", "django-stubs", "freezegun", "pytest", "pytest-asyncio", "pytest-cov", "pytest-django", "python-jose (==3.3.0)", "ruff (==0.1.9)"]
 
 [[package]]
+name = "django-redis"
+version = "5.4.0"
+description = "Full featured redis cache backend for Django."
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "django-redis-5.4.0.tar.gz", hash = "sha256:6a02abaa34b0fea8bf9b707d2c363ab6adc7409950b2db93602e6cb292818c42"},
+    {file = "django_redis-5.4.0-py3-none-any.whl", hash = "sha256:ebc88df7da810732e2af9987f7f426c96204bf89319df4c6da6ca9a2942edd5b"},
+]
+
+[package.dependencies]
+Django = ">=3.2"
+redis = ">=3,<4.0.0 || >4.0.0,<4.0.1 || >4.0.1"
+
+[package.extras]
+hiredis = ["redis[hiredis] (>=3,!=4.0.0,!=4.0.1)"]
+
+[[package]]
 name = "django-unfold"
 version = "0.20.4"
 description = "Modern Django admin theme for seamless interface development"
@@ -1976,4 +1994,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "1dd0877f99d126353289e7bd86d2af28d02abd5e2c424e32d68bcb2fd41e48c3"
+content-hash = "4b3c56ce6109de4b36e7df2c3b033284c3c9668273f4e0cae75db0bedb1ddc32"

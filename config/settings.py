@@ -38,9 +38,14 @@ DEBUG = env("DEBUG")
 ALLOWED_HOSTS = ["*"]
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
         "LOCATION": env("REDIS_URL"),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        "TIMEOUT": 1_209_600 ,  # in seconds: 60 * 15 (15 minutes)
+
     }
 }
 # Application definition
