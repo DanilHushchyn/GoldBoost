@@ -361,10 +361,12 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
    "access-control-allow-origin",
    "content-type",
+   "cookie",
 ]
 CORS_EXPOSE_HEADERS = [
     "access-control-allow-origin",
     "content-type",
+    "cookie",
 ]
 CORS_ORIGIN_ALLOW_ALL = True
 CSRF_TRUSTED_ORIGINS = [
