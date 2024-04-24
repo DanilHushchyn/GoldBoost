@@ -48,8 +48,7 @@ class OrderService:
             user = request.auth
             cart, status = Cart.objects.prefetch_related("items", "items__attributes").get_or_create(user=user)
         else:
-            session_id = request.COOKIES.get('sessionid')
-            # logger.debug(session_id)
+            session_id = request.session.session_key
             if session_id is None:
                 request.session.create()
                 request.session.save()
