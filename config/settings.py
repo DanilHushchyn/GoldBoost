@@ -359,10 +359,12 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
-   "access-control-allow-origin"
+   "access-control-allow-origin",
+   "content-type",
 ]
 CORS_EXPOSE_HEADERS = [
     "access-control-allow-origin",
+    "content-type",
 ]
 CORS_ORIGIN_ALLOW_ALL = True
 CSRF_TRUSTED_ORIGINS = [
