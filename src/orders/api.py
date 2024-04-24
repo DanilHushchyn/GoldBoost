@@ -100,7 +100,6 @@ class OrderController(ControllerBase):
         res = self.context.response
         res.headers["Access-Control-Allow-Origin"] = "*"
         res.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-        # res.headers["Access-Control-Max-Age"] = "1000"
         res.headers["Access-Control-Allow-Headers"] = "*"
         return result
 
