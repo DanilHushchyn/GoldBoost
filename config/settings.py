@@ -88,6 +88,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Change the token expiration time to 30 minut
 # GOOGLE_OAUTH_CLIENT_ID = env("GOOGLE_OAUTH_CLIENT_ID")
 # GOOGLE_OAUTH_CLIENT_SECRET = env("GOOGLE_OAUTH_CLIENT_SECRET")
 # CORS_ALLOW_CREDENTIALS = True
+SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
 SITE_ID = 1
 NINJA_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
@@ -363,12 +367,15 @@ CORS_ALLOW_HEADERS = [
    "content-type",
    "cookie",
    "Secure",
+   "SameSite=None",
 ]
 CORS_EXPOSE_HEADERS = [
     "access-control-allow-origin",
     "content-type",
     "cookie",
     "Secure",
+    "SameSite=None",
+
 ]
 CORS_ORIGIN_ALLOW_ALL = True
 CSRF_TRUSTED_ORIGINS = [
