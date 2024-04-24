@@ -36,18 +36,18 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = ["*"]
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        "LOCATION": env("REDIS_URL"),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
-        "TIMEOUT": 1_209_600 ,  # in seconds: 60 * 15 (15 minutes)
-
-    }
-}
+# SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         "LOCATION": env("REDIS_URL"),
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         },
+#         "TIMEOUT": 1_209_600 ,  # in seconds: 60 * 15 (15 minutes)
+#
+#     }
+# }
 # Application definition
 
 INSTALLED_APPS = [
@@ -357,6 +357,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "VERIFIED_EMAIL": True,
     }
 }
+CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:1337",

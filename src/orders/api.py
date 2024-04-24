@@ -97,6 +97,11 @@ class OrderController(ControllerBase):
         result = self.order_service.get_my_cart(
             request=request,
         )
+        res = self.context.response
+        res.headers["Access-Control-Allow-Origin"] = "*"
+        res.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        # res.headers["Access-Control-Max-Age"] = "1000"
+        res.headers["Access-Control-Allow-Headers"] = "X-Requested-With, Content-Type"
         return result
 
     @http_delete(
