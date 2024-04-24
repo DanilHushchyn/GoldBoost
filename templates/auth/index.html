@@ -43,6 +43,16 @@
     <script>
         axios({
           method: 'get',
+          url: 'http://127.0.0.1:8000/api/orders/my-cart/',
+            headers: {'Accept-Language':'en'},
+
+        }).then((response) => {
+          console.log(response.data);
+        }, (error) => {
+          console.log(error);
+        });
+        axios({
+          method: 'get',
           url: 'https://goodboost-spacelab.avada-media-dev2.od.ua/api/orders/my-cart/',
             headers: {'Accept-Language':'en'},
 
@@ -51,7 +61,7 @@
         }, (error) => {
           console.log(error);
         });
-   
+
     </script>
 
     {% block responsive %}
