@@ -112,7 +112,8 @@ class CharacterOutSchema(ModelSchema):
     """
 
     battle_tag: str
-
+    faction: Faction | None = None
+    class_and_spec: ClassAndSpec | None = None
 
     class Meta:
         model = Character
@@ -130,9 +131,9 @@ class CharacterInSchema(ModelSchema):
 
     battle_tag: str = None
     name: str = None
-    faction: Faction = None
+    faction: Faction | None = None
     additional_info: str = None
-    class_and_spec: ClassAndSpec = None
+    class_and_spec: ClassAndSpec | None = None
     realm: str = None
 
     class Meta:

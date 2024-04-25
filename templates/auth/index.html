@@ -38,32 +38,6 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="{% static 'unfold/js/app.js' %}"></script>
 
-
-
-    <script>
-        axios({
-          method: 'get',
-          url: 'http://127.0.0.1:8000/api/orders/my-cart/',
-            headers: {'Accept-Language':'en'},
-
-        }).then((response) => {
-          console.log(response.data);
-        }, (error) => {
-          console.log(error);
-        });
-        axios({
-          method: 'get',
-          url: 'https://goodboost-spacelab.avada-media-dev2.od.ua/api/orders/my-cart/',
-            headers: {'Accept-Language':'en'},
-
-        }).then((response) => {
-          console.log(response.data);
-        }, (error) => {
-          console.log(error);
-        });
-
-    </script>
-
     {% block responsive %}
         <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
     {% endblock %}

@@ -18,6 +18,7 @@ from src.main.utils import LangEnum
 from src.orders.models import Cart
 from src.orders.schemas import CartOutSchema
 from src.orders.services.order_service import OrderService
+from src.products.utils import paginate
 from src.users.schemas import CabinetOrdersSection, MessageOutSchema, OrdersItemSchema
 from src.users.utils import OptionalJWTAuth
 
@@ -82,9 +83,11 @@ class OrderController(ControllerBase):
     def get_my_cart(
         self,
         request: HttpRequest,
+        page: int,
+        page_size: int,
         accept_lang: LangEnum = Header(alias="Accept-Language"),
 
-    ) -> Cart:
+    ) -> dict:
         """
         Get  user's cart.
 
@@ -93,15 +96,12 @@ class OrderController(ControllerBase):
           - **401**: ERROR: Unauthorized.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        print(self.context.request.session.session_key)
         result = self.order_service.get_my_cart(
             request=request,
         )
-        res = self.context.response
-        # res.headers["Access-Control-Allow-Origin"] = "*"
-        # res.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-        # res.headers["Access-Control-Allow-Headers"] = "*"
-        return result
+
+        return paginate(items=result.items.all(),
+                        page_size=page_size,page=page)
 
     @http_delete(
         "/my-cart/items/{item_id}/",

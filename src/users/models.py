@@ -142,8 +142,8 @@ class Character(models.Model):
         ("Druid", "Druid"),
     )
 
-    battle_tag = models.CharField(max_length=255, default="battle_tag")
-    name = models.CharField(max_length=255, default="name")
+    battle_tag = models.CharField(max_length=255, default="")
+    name = models.CharField(max_length=255, default="")
     faction = models.CharField(max_length=10, choices=FACTION_CHOICES, default="Alliance")
     additional_info = models.TextField(default="")
     class_and_spec = models.CharField(max_length=255, choices=CLASS_SPEC_CHOICES, default="Warrior")

@@ -8,6 +8,7 @@
 import json
 import os
 import random
+from datetime import timedelta
 
 import httpx
 
@@ -39,23 +40,41 @@ from faker.providers import date_time, internet, person
 # print(f"Name: {fake.sentence(nb_words=3)}")
 # print(f"Email: {fake_email}")
 # print(f"Address: {fake_address}")
-headers = {
-    "Accept-Language": "uk",
-    # 'Cookie': 'sessionid=oztrs4ue7rmd2mdfihilc8o28jjj9lc0'
-}
-#
-client = httpx.Client()
-#
-# # print(client.post('http://127.0.0.1:8000/api/products/1/to-cart/', headers=headers, json={
-# #     'quantity': 1,
-# #     'attributes': []
-# # }).json())
-# print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
-# print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
-# print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
-# print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
-# print(client.get(url="https://goodboost-spacelab.avada-media-dev2.od.ua/api/orders/my-cart/", headers=headers).cookies)
+# headers = {
+#     "Accept-Language": "uk",
+#     # 'Cookie': 'sessionid=oztrs4ue7rmd2mdfihilc8o28jjj9lc0'
+# }
+# #
+# client = httpx.Client()
+# #
+# # # print(client.post('http://127.0.0.1:8000/api/products/1/to-cart/', headers=headers, json={
+# # #     'quantity': 1,
+# # #     'attributes': []
+# # # }).json())
+# # print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
+# # print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
+# # print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
+# # print(client.get(url='http://146.190.122.214/api/orders/my-cart/', headers=headers).content)
+# # print(client.get(url="https://goodboost-spacelab.avada-media-dev2.od.ua/api/orders/my-cart/", headers=headers).cookies)
+# # print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
 # print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
-print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
-print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
-print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
+# print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
+# print(client.get(url='http://127.0.0.1:8000/api/orders/my-cart/', headers=headers).content)
+import pendulum
+
+
+import arrow
+# now_in_kiev = pendulum.now()
+# print(now_in_kiev)
+now = arrow.now()
+now_on_last_week = now - timedelta(days=7)
+start_of_current_week = now.floor('week')
+end_of_current_week = now.ceil('week')
+start_of_last_week = now_on_last_week.floor('week')
+end_of_last_week = now_on_last_week.ceil('week')
+print(now)
+print(start_of_current_week)
+print(end_of_current_week)
+print(now_on_last_week)
+print(start_of_last_week)
+print(end_of_last_week)

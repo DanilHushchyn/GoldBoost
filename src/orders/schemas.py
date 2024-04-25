@@ -152,7 +152,7 @@ class CartItemSchema(ModelSchema):
         exclude = ("cart", "product", "freqbot", "date_created")
 
 
-class CartOutSchema(ModelSchema):
+class CartOutSchema(Schema):
     """
     Pydantic schema for Cart in the site.
 
@@ -161,10 +161,13 @@ class CartOutSchema(ModelSchema):
     """
 
     items: List[CartItemSchema]
+    count: int
+    next: bool
+    previous: bool
 
-    class Meta:
-        model = Cart
-        fields = ["id"]
+    # class Meta:
+    #     model = Cart
+    #     fields = ["id"]
 
 
 class CreateOrderInSchema(Schema):

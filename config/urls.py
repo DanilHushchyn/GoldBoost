@@ -37,13 +37,22 @@ from src.users.api import AuthController, CustomTokenObtainPairController, Users
 from django.shortcuts import render
 
 from src.users.models import User
-
+import arrow
 
 class StatisticView(View):
     template_name = 'auth/index.html'
 
     def get(self, request):
         context = {}
+
+        now = arrow.now()
+        now_on_last_week = now - timedelta(days=7)
+        start_of_current_week = now.floor('week')
+        end_of_current_week = now.ceil('week')
+        start_of_last_week = now.floor('week')
+        end_of_last_week = now.ceil('week')
+
+
         last_7_days = datetime.now() - timedelta(days=7)
         total_users = User.objects.count()
         user_notified = User.objects.filter(notify_me=True).count()
