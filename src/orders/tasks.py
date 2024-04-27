@@ -24,6 +24,16 @@ def change_order_status(order_id: int) -> dict:
     if random.choice([True, True, True, False]):
         order.status = "COMPLETED"
         msg = "ORDER COMPLETED"
+        for item in order.items.all():
+            if item.product:
+                bought_count = item.product.bought_count + item.quantity
+                item.product.bought_count = bought_count
+                item.product.save()
+            if item.freqbot:
+                for product in item.freqbot.products.all():
+                    bought_count = product.bought_count + item.quantity
+                    product.bought_count = bought_count
+                    product.save()
     else:
         order.status = "CANCELED"
         msg = "ORDER CANCELED"

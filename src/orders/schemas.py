@@ -100,16 +100,20 @@ class CartItemProductSchema(ModelSchema):
 
     game_logo: str
     game_logo_alt: str
+    sale_price: float | None
+    price: float | None
+    sale_active: bool
+    sale_period: str| None
     attributes: List[AttributeSchema] = []
 
     # sale_price: float | None
 
     @staticmethod
-    def resolve_game_logo(obj):
+    def resolve_game_logo(obj: Product):
         return f"{ABSOLUTE_URL}{obj.catalog_page.game.logo_product.url}"
 
     @staticmethod
-    def resolve_game_logo_alt(obj):
+    def resolve_game_logo_alt(obj: Product):
         return obj.catalog_page.game.logo_product_alt
 
     @staticmethod
@@ -122,6 +126,7 @@ class CartItemProductSchema(ModelSchema):
             "id",
             "title",
             "subtitle",
+            "price",
             "card_img",
             "card_img_alt",
         ]
@@ -136,7 +141,9 @@ class CartItemSchema(ModelSchema):
     """
 
     items: List[CartItemProductSchema]
-    price: float
+    cost: float
+    cost_with_sale: float | None
+    discount: int | None
     bonus_points: int
 
     @staticmethod

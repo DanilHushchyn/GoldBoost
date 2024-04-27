@@ -63,18 +63,23 @@ from faker.providers import date_time, internet, person
 import pendulum
 
 
-import arrow
-# now_in_kiev = pendulum.now()
+# import arrow
+# now_in_kiev = pendulum.now('Europe/Kiev')
 # print(now_in_kiev)
-now = arrow.now()
-now_on_last_week = now - timedelta(days=7)
-start_of_current_week = now.floor('week')
-end_of_current_week = now.ceil('week')
-start_of_last_week = now_on_last_week.floor('week')
-end_of_last_week = now_on_last_week.ceil('week')
-print(now)
-print(start_of_current_week)
-print(end_of_current_week)
-print(now_on_last_week)
-print(start_of_last_week)
-print(end_of_last_week)
+# now = arrow.now()
+# last_week_now = now - timedelta(days=7)
+# print(last_week_now)
+# start_of_week = now.floor('week')
+# end_of_week = now.ceil('week')
+# print(now)
+# print(start_of_week)
+# print(end_of_week)
+
+today = pendulum.now(tz='Europe/Kiev')
+start_current_week = today.start_of('week')
+end_current_week = today.end_of('week')
+start_last_week = start_current_week.subtract(days=7)
+end_last_week = end_current_week.subtract(days=7)
+
+print(end_last_week.diff(start_last_week).in_days())
+print(type(start_last_week))

@@ -74,6 +74,17 @@ class CartItem(models.Model):
         total = product.price
         for attr in self.attributes.all():
             total = total + attr.sub_filter.price
+        # if product.sale_active():
+        #     if product.price_type == "fixed":
+        #         total = product.sale_price()
+        #     else:
+        #         total = make_sale(total, product.sale_percent)
+        return total * self.quantity
+
+    def price_for_product_with_sale(self, product: Product):
+        total = product.price
+        for attr in self.attributes.all():
+            total = total + attr.sub_filter.price
         if product.sale_active():
             if product.price_type == "fixed":
                 total = product.sale_price()
@@ -83,12 +94,29 @@ class CartItem(models.Model):
 
     def price(self):
         if self.product:
+            return self.price_for_product_with_sale(self.product)
+        else:
+            total = 0
+            for product in self.freqbot.products.all():
+                total = total + self.price_for_product_with_sale(product)
+            return make_sale(total, self.freqbot.discount)
+
+    def cost_with_sale(self):
+        return self.price()
+
+    def discount(self):
+        if self.freqbot:
+            return self.freqbot.discount
+        return self.product.sale_percent
+
+    def cost(self):
+        if self.product:
             return self.price_for_product(self.product)
         else:
             total = 0
             for product in self.freqbot.products.all():
                 total = total + self.price_for_product(product)
-            return make_sale(total, self.freqbot.discount)
+            return total
 
     def bonus_points(self):
         if self.product:

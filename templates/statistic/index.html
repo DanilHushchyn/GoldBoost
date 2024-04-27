@@ -1,0 +1,274 @@
+{% load i18n static unfold %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+{% capture as branding silent %}{% block branding %}{% endblock %}{% endcapture %}
+{% capture as pretitle silent %}{% block pretitle %}{% endblock %}{% endcapture %}
+{% capture as content_title silent %}{% block content_title %}{% if title %}{{ title }}{% endif %}{% endblock %}{% endcapture %}
+{% capture as content_subtitle silent %}{% block content_subtitle %}{% if subtitle %}{{ subtitle }}{% endif %}{% endblock %}{% endcapture %}
+{% capture as nav_global silent %}{% block nav-global %}{% endblock %}{% endcapture %}
+{% capture as nav_global_side silent %}{% block nav-global-side %}{% endblock %}{% endcapture %}
+{% capture as actions_items silent %}{% block actions-items %}{% endblock %}{% endcapture %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" dir="{{ LANGUAGE_BIDI|yesno:"rtl,ltr,auto" }}" {% if theme %}class="{{ theme }}"{% else %}x-data="{ adminTheme: $persist('auto').as('adminTheme') }" x-bind:class="{'dark': adminTheme === 'dark' || (adminTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)}" x-cloak{% endif %}>
+
+<head>
+    <title>{% block title %}{% endblock %}</title>
+
+    <link href="{% static "unfold/fonts/inter/styles.css" %}" rel="stylesheet">
+    <link href="{% static "unfold/fonts/material-symbols/styles.css" %}" rel="stylesheet">
+
+    {% for style in styles %}
+        <link href="{{ style }}" rel="stylesheet">
+    {% endfor %}
+
+    <link href="{% static 'unfold/css/styles.css' %}" rel="stylesheet">
+
+    <script src="{% static 'unfold/js/alpine.persist.js' %}" defer></script>
+    <script src="{% static 'unfold/js/alpine.js' %}" defer></script>
+    <script src="{% static 'unfold/js/htmx.js' %}"></script>
+    <script src="{% static 'unfold/js/chart.js' %}"></script>
+    {% for script in scripts %}
+        <script src="{{ script }}"></script>
+    {% endfor %}
+
+    {% block extrastyle %}{% endblock %}
+
+    {% block extrahead %}{% endblock %}
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="{% static 'unfold/js/app.js' %}"></script>
+
+    {% block responsive %}
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    {% endblock %}
+
+    {% block blockbots %}
+        <meta name="robots" content="NONE,NOARCHIVE">
+    {% endblock %}
+    <style>
+            html {
+                --color-primary-50: 250 245 255;
+
+                --color-primary-100: 243 232 255;
+
+                --color-primary-200: 233 213 255;
+
+                --color-primary-300: 216 180 254;
+
+                --color-primary-400: 192 132 252;
+
+                --color-primary-500: 168 85 247;
+
+                --color-primary-600: 147 51 234;
+
+                --color-primary-700: 126 34 206;
+
+                --color-primary-800: 107 33 168;
+
+                --color-primary-900: 88 28 135;
+
+                --color-primary-950: 59 7 100;
+            }
+    </style>
+</head>
+
+<body class="antialiased bg-white font-sans text-gray-500 dark:bg-gray-900 dark:text-gray-400 {% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}" data-admin-utc-offset="{% now "Z" %}" x-data="{ sidebarMobileOpen: false, sidebarDesktopOpen: {% if request.session.toggle_sidebar == False %}false{% else %}true{% endif %} }">
+    {% block base %}
+    {% component "unfold/components/title.html" %}
+        <h1 class="text-center" style="padding-top: 20px;">STATISTICS</h1>
+    {% endcomponent %}
+    <div class="p-4 lg:p-12">
+        <div id="content" class="container mx-auto colM">
+
+            <div class="mx-auto">
+                <div class="flex  flex-row gap-4">
+                    <nav class="flex gap-2 mb-8  rounded text-sm dark:bg-white/[.04]">
+                        <a href="/admin" style="font-size: 16px;" class="flex flex-row font-medium items-center px-2.5 py-1 rounded  bg-white shadow-sm text-gray-700 hover:bg-white dark:bg-gray-900 dark:hover:bg-gray-900 dark:text-white">
+                          <span class="material-symbols-outlined" style="margin-right: 10px;">
+                            arrow_back
+                          </span>
+                            Dashboard
+                        </a>
+                    </nav>
+                </div>
+                <div class="flex  flex-row gap-8 mb-8 flex-col lg:flex-row">
+                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/3">
+                        <div class="flex-grow relative">
+                            <p class="leading-relaxed mb-0 text-sm">
+                                Total orders
+                            </p>
+                            <div class="font-medium text-2xl text-gray-700 dark:text-gray-200">
+                                {{ total_orders }}
+                            </div>
+                            <div class="absolute right-0 top-0">
+                                <span class="inline-block font-semibold leading-normal px-2 py-1 rounded text-xxs uppercase whitespace-nowrap bg-primary-100 text-primary-500 dark:bg-primary-500/20">
+                                    Current week
+                                </span>
+                            </div>
+                        </div>
+                        <div class="border-t flex items-center -mb-6 -mx-6 mt-6 pb-2 pt-2 px-6 text-sm dark:border-gray-800">
+                            <strong class="{% if total_order_progress < 0 %} text-red-600 {% else %} text-green-600 {% endif %} font-medium"> {{ total_order_progress }}%</strong>&nbsp;progress from last week
+                        </div>
+                    </div>
+                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/3">
+                        <div class="flex-grow relative">
+                                <p class="leading-relaxed mb-0 text-sm">
+                                    Total income
+                                </p>
+                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200">
+                                    ${{total_income}}
+                                </div>
+                                <div class="absolute right-0 top-0">
+                                    <span class="inline-block font-semibold leading-normal px-2 py-1 rounded text-xxs uppercase whitespace-nowrap bg-primary-100 text-primary-500 dark:bg-primary-500/20">
+                                        Current week
+                                    </span>
+                                </div>
+                        </div>
+                        <div class="border-t flex items-center -mb-6 -mx-6 mt-6 pb-2 pt-2 px-6 text-sm dark:border-gray-800">
+                            <strong class="{% if total_income_progress < 0 %} text-red-600 {% else %} text-green-600 {% endif %} font-medium"> {{ total_income_progress }}%</strong>&nbsp;progress from last week
+                        </div>
+                    </div>
+                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/3">
+                        <div class="flex-grow relative">
+                                <p class="leading-relaxed mb-0 text-sm">
+                                    Total users
+                                </p>
+                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200">
+                                    {{ total_users }}
+                                </div>
+                                <div class="absolute right-0 top-0">
+                                    <span style="font-size: 25px" class="material-symbols-outlined">
+                                        group
+                                    </span>
+                                </div>
+                        </div>
+{#                        <div class="border-t flex items-center -mb-6 -mx-6 mt-6 pb-2 pt-2 px-6 text-sm dark:border-gray-800">#}
+{#                            <strong class="text-green-600 font-medium">+3.14%</strong>&nbsp;progress from last week#}
+{#                        </div>#}
+                    </div>
+                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/3">
+                        <div class="flex-grow relative">
+                                <p class="leading-relaxed mb-0 text-sm">
+                                    Notify me
+                                </p>
+                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200">
+                                    {{ notify_me_percent }}%
+                                </div>
+                                <div class="absolute right-0 top-0">
+                                    <span style="font-size: 25px" class="material-symbols-outlined">
+                                        notifications
+                                    </span>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex  flex-row gap-8 mb-8 flex-col lg:flex-row">
+
+
+                    <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800 lg:w-1/2">
+
+                        <h2 class="border-b font-medium mb-6 -mt-2 -mx-6 pb-4 px-6 text-sm text-gray-700 dark:text-gray-200 dark:border-gray-800">
+                            The most trending products in last 2 weeks
+                        </h2>
+                        <canvas id="myChart" width="300" height="200"></canvas>
+                    </div>
+                    <div class="flex  flex-col gap-8 lg:w-1/2">
+
+                        <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800">
+                            <div class="flex-grow relative">
+                                <p class="leading-relaxed mb-0 text-sm">
+                                    Current week revenue
+                                </p>
+                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200 mb-8">
+                                    ${{ current_week_icome }}
+                                </div>
+                                <div class="relative w-full">
+                                  <canvas class="chart" data-type="line" data-value="
+                                  {&quot;labels&quot;: 
+                                  [
+                                      {% for day in current_week_days %}
+                                        &quot;{{ day }}&quot;{% if forloop.last %}{% else %},{% endif %}
+                                      {% endfor %}
+                                  ], 
+                                  &quot;datasets&quot;: 
+                                  [
+                                  {
+                                    &quot;data&quot;: 
+                                    [
+                                      {% for i1, i2 in current_week_income_chart %}
+                                        [{{ i1 }}, {{i2}}]{% if forloop.last %}{% else %},{% endif %}
+                                      {% endfor %}
+                                    ], 
+                                    &quot;borderColor&quot;: &quot;#9333ea&quot;
+                                    }]}" style="display: block; box-sizing: border-box; height: 150px; width: 694px;" width="694" height="150">
+                                  </canvas>                                
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border flex flex-col flex-grow p-6 rounded-md shadow-sm dark:border-gray-800">
+                            <div class="flex-grow relative">
+                                <p class="leading-relaxed mb-0 text-sm">
+                                    Last week revenue
+                                </p>
+                                <div class="font-medium text-2xl text-gray-700 dark:text-gray-200 mb-8">
+                                    ${{ last_week_icome }}
+                                </div>
+                                <div class="relative w-full">
+                                  <canvas class="chart" data-type="line" data-value="
+                                  {&quot;labels&quot;: 
+                                  [
+                                      {% for day in last_week_days %}
+                                        &quot;{{ day }}&quot;{% if forloop.last %}{% else %},{% endif %}
+                                      {% endfor %}
+                                  ], 
+                                  &quot;datasets&quot;: 
+                                  [
+                                  {
+                                    &quot;data&quot;: 
+                                    [
+                                      {% for i1, i2 in last_week_income_chart %}
+                                        [{{ i1 }}, {{i2}}]{% if forloop.last %}{% else %},{% endif %}
+                                      {% endfor %}
+                                    ], 
+                                    &quot;borderColor&quot;: &quot;#9333ea&quot;
+                                    }]}" style="display: block; box-sizing: border-box; height: 150px; width: 694px;" width="694" height="150">
+                                  </canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    <div id="modal-overlay" class="backdrop-blur-sm bg-opacity-80 bg-gray-900 bottom-0 fixed hidden left-0 mr-1 right-0 top-0 z-50"></div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+          const ctx = document.getElementById('myChart');
+            var oilData = {
+                labels: [
+                    {% for label,data in trend_chart %}
+                    "{{ label }}",
+                    {% endfor %}
+                ],
+                datasets: [
+                    {
+                        data: [
+                        {% for label,data in trend_chart %}
+                        "{{ data }}",
+                        {% endfor %}
+                        ],
+                    }]
+            };
+          
+           var pieChart = new Chart(ctx, {
+            type: 'pie', 
+            data: oilData,
+          });
+    </script>  
+    </body>
+
+</html>

@@ -19,7 +19,7 @@ from src.orders.models import Cart
 from src.orders.schemas import CartOutSchema
 from src.orders.services.order_service import OrderService
 from src.products.utils import paginate
-from src.users.schemas import CabinetOrdersSection, MessageOutSchema, OrdersItemSchema
+from src.users.schemas import CabinetOrdersSection, MessageOutSchema, OrdersItemSchema, OrdersDetailOutSchema
 from src.users.utils import OptionalJWTAuth
 
 
@@ -81,11 +81,11 @@ class OrderController(ControllerBase):
         },
     )
     def get_my_cart(
-        self,
-        request: HttpRequest,
-        page: int,
-        page_size: int,
-        accept_lang: LangEnum = Header(alias="Accept-Language"),
+            self,
+            request: HttpRequest,
+            page: int,
+            page_size: int,
+            accept_lang: LangEnum = Header(alias="Accept-Language"),
 
     ) -> dict:
         """
@@ -101,7 +101,7 @@ class OrderController(ControllerBase):
         )
 
         return paginate(items=result.items.all(),
-                        page_size=page_size,page=page)
+                        page_size=page_size, page=page)
 
     @http_delete(
         "/my-cart/items/{item_id}/",
@@ -161,10 +161,10 @@ class OrderController(ControllerBase):
         },
     )
     def delete_cart_item(
-        self,
-        request: HttpRequest,
-        item_id: int,
-        accept_lang: LangEnum = Header(alias="Accept-Language"),
+            self,
+            request: HttpRequest,
+            item_id: int,
+            accept_lang: LangEnum = Header(alias="Accept-Language"),
     ) -> Cart:
         """
         Delete cart's item.
@@ -236,10 +236,10 @@ class OrderController(ControllerBase):
         },
     )
     def create_order(
-        self,
-        request: HttpRequest,
-        promo_code: str | None = None,
-        accept_lang: LangEnum = Header(alias="Accept-Language"),
+            self,
+            request: HttpRequest,
+            promo_code: str | None = None,
+            accept_lang: LangEnum = Header(alias="Accept-Language"),
     ) -> OrderOutSchema:
         """
         Create order.
@@ -326,10 +326,10 @@ class OrderController(ControllerBase):
         },
     )
     def check_promo_code(
-        self,
-        request: HttpRequest,
-        promo_code: str,
-        accept_lang: LangEnum = Header(alias="Accept-Language"),
+            self,
+            request: HttpRequest,
+            promo_code: str,
+            accept_lang: LangEnum = Header(alias="Accept-Language"),
     ) -> PromoCode:
         """
         Check promo code.
@@ -407,10 +407,10 @@ class OrderController(ControllerBase):
         },
     )
     def repeat_order(
-        self,
-        request: HttpRequest,
-        number: str,
-        accept_lang: LangEnum = Header(alias="Accept-Language"),
+            self,
+            request: HttpRequest,
+            number: str,
+            accept_lang: LangEnum = Header(alias="Accept-Language"),
     ) -> MessageOutSchema:
         """
         Repeat order.
@@ -466,11 +466,11 @@ class OrderController(ControllerBase):
         },
     )
     def get_my_orders(
-        self,
-        request: HttpRequest,
-        page: int,
-        page_size: int,
-        accept_lang: LangEnum = Header(alias="Accept-Language"),
+            self,
+            request: HttpRequest,
+            page: int,
+            page_size: int,
+            accept_lang: LangEnum = Header(alias="Accept-Language"),
     ) -> dict:
         """
         Get user's orders.
@@ -491,7 +491,7 @@ class OrderController(ControllerBase):
 
     @http_get(
         "/{number}/detail/",
-        response=list[OrdersItemSchema],
+        response=OrdersDetailOutSchema,
         auth=JWTAuth(),
         openapi_extra={
             "responses": {
@@ -531,10 +531,12 @@ class OrderController(ControllerBase):
         },
     )
     def get_order_detail(
-        self,
-        request: HttpRequest,
-        number: int,
-        accept_lang: LangEnum = Header(alias="Accept-Language"),
+            self,
+            request: HttpRequest,
+            number: int,
+            page: int,
+            page_size: int,
+            accept_lang: LangEnum = Header(alias="Accept-Language"),
     ) -> dict:
         """
         Get user's order detail.
@@ -546,5 +548,7 @@ class OrderController(ControllerBase):
           - **422**: ERROR: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        result = self.order_service.get_order_detail(user_id=request.user.id, number=number)
-        return result
+        result = (self.order_service
+                  .get_order_detail(user_id=request.user.id,
+                                    number=number))
+        return paginate(items=result, page_size=page_size, page=page)

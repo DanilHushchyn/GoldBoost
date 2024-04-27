@@ -177,6 +177,7 @@ class OrderService:
                 total_bonuses = total_bonuses + cart_item.bonus_points()
                 total_price = total_price + cart_item.price()
             for cart_item in cart.items.filter(freqbot=None):
+
                 order_item = OrderItem.objects.create(
                     order=order, product=cart_item.product, quantity=cart_item.quantity, cost=cart_item.price()
                 )
@@ -220,7 +221,7 @@ class OrderService:
         return paginate(items=orders, page=page, page_size=page_size)
 
     @staticmethod
-    def get_order_detail(user_id: int, number: int) -> dict:
+    def get_order_detail(user_id: int, number: int) -> QuerySet:
         """
         Get user's order by order's number.
         :param number: number of order

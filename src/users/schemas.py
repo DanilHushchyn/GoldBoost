@@ -283,6 +283,13 @@ class OrdersItemSchema(ModelSchema):
         exclude = ["order", "product", "id", "freqbot", "date_created"]
 
 
+class OrdersDetailOutSchema(Schema):
+    items: List[OrdersItemSchema]
+    count: int
+    next: bool
+    previous: bool
+
+
 class CabinetOrdersSchema(ModelSchema):
     """
     Pydantic schema for return orders to cabinet.
