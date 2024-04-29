@@ -154,7 +154,9 @@ class Product(models.Model):
         of two fields, sale_from and sale_until
         """
         current_datetime = timezone.now()
-        if self.sale_until and self.sale_from and self.sale_until > current_datetime > self.sale_from:
+        if (self.sale_until and self.sale_from and self.sale_percent
+                and self.sale_until > current_datetime > self.sale_from
+        ):
             return True
         return False
 

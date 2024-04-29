@@ -442,6 +442,13 @@ class FreqBoughtForm(forms.ModelForm):
             raise forms.ValidationError(msg)
         return products
 
+    def clean_discount(self):
+        discount = self.cleaned_data["discount"]
+        if discount < 1:
+            msg = "Min value is 1"
+            raise forms.ValidationError(msg)
+        return discount
+
     class Meta:
         model = FreqBought
         fields = [

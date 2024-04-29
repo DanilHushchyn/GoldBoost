@@ -104,10 +104,19 @@ class CartItem(models.Model):
     def cost_with_sale(self):
         return self.price()
 
-    def discount(self):
+    def sale_active(self):
+        if self.freqbot:
+            return True
+        if self.product.sale_active():
+            return True
+        return False
+
+    def sale_percent(self):
         if self.freqbot:
             return self.freqbot.discount
-        return self.product.sale_percent
+        if self.sale_active():
+            return self.product.sale_percent
+        return 0
 
     def cost(self):
         if self.product:

@@ -58,44 +58,6 @@ class OrderService:
             )
         return cart
 
-    # @staticmethod
-    # def get_my_cart(request: HttpRequest) -> Cart:
-    #     """
-    #     Gets info for user's cart.
-    #
-    #     :param request:
-    #     :return: Cart model instance
-    #     """
-    #     if not request.auth.is_anonymous:
-    #         user = request.auth
-    #         cart, status = Cart.objects.prefetch_related("items", "items__attributes").get_or_create(user=user)
-    #     else:
-    #         if not request.session.session_key:
-    #             request.session.create()
-    #             request.session.save()
-    #         session_id = request.session.session_key
-    #         session_id = request.COOKIES.get('sessionid')
-    #         session_id2 = request.COOKIES.get('sessionid')
-    #         logger.debug(session_id)
-    #         logger.debug(session_id2)
-    #         if not request.COOKIES.get('sessionid'):
-    #             request.session.create()
-    #             request.session.save()
-    #             session_id = request.session.session_key
-    #             logger.debug(session_id)
-    #
-    #         try:
-    #             cart = (Cart.objects
-    #                     .prefetch_related("items", "items__attributes")
-    #                     .get(session_key=session_id)
-    #                     )
-    #         except Cart.DoesNotExist:
-    #             cart = (Cart.objects
-    #                     .prefetch_related("items", "items__attributes")
-    #                     .create(session_key=session_id)
-    #                     )
-    #     return cart
-
     def delete_cart_item(self, request: HttpRequest, item_id: int) -> MessageOutSchema:
         """
         Delete cart's item it's by id.
@@ -199,9 +161,12 @@ class OrderService:
             self.finish_order(
                 user=user, order=order, promo_code=promo_code, total_price=total_price, bonuses=total_bonuses
             )
+            # clean user's cart
+            cart.items.all().delete()
             if user.subscribe_sale_active:
                 user.subscribe_sale_active = False
                 user.save()
+        cart.items.all().delete()
         return OrderOutSchema(message=_("Order issued successfully"), auth_user=auth_user)
 
     @staticmethod

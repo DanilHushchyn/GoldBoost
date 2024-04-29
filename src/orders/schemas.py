@@ -23,10 +23,15 @@ class AttributeSchema(ModelSchema):
 
     title: str
     subtitle: str
+    price: float
 
     @staticmethod
     def resolve_title(obj):
         return obj.sub_filter.filter.title
+
+    @staticmethod
+    def resolve_price(obj):
+        return obj.sub_filter.price
 
     @staticmethod
     def resolve_subtitle(obj):
@@ -101,6 +106,7 @@ class CartItemProductSchema(ModelSchema):
     game_logo: str
     game_logo_alt: str
     sale_price: float | None
+    sale_percent: float | None
     price: float | None
     sale_active: bool
     sale_period: str| None
@@ -143,8 +149,11 @@ class CartItemSchema(ModelSchema):
     items: List[CartItemProductSchema]
     cost: float
     cost_with_sale: float | None
-    discount: int | None
+    sale_active: bool
+    sale_percent: int | None
     bonus_points: int
+
+
 
     @staticmethod
     def resolve_items(obj: CartItem):
