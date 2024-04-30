@@ -177,6 +177,9 @@ class CartOutSchema(Schema):
     """
 
     items: List[CartItemSchema]
+    total_bonuses: int
+    # total_items: int
+    total_price: float
     count: int
     next: bool
     previous: bool

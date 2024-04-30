@@ -84,6 +84,18 @@ class OrderService:
         return num
 
     @staticmethod
+    def calc_total(cart: Cart) -> [float, float, int]:
+        total_price = 0
+        total_bonuses = 0
+        for cart_item in cart.items.filter(product=None):
+            total_bonuses = total_bonuses + cart_item.bonus_points()
+            total_price = total_price + cart_item.price()
+        for cart_item in cart.items.filter(freqbot=None):
+            total_bonuses = total_bonuses + cart_item.bonus_points()
+            total_price = total_price + cart_item.price()
+        return total_bonuses, total_price, cart.items.count()
+
+    @staticmethod
     def finish_order(
             user: User,
             order: Order,
@@ -241,13 +253,13 @@ class OrderService:
             condition1 = item.freqbot and item.freqbot.is_deleted
             condition2 = item.product and item.product.is_deleted
             if condition1 or condition2:
-                raise HttpError(404, _("Cannot repeat order, " 
-                                       "some products does " 
+                raise HttpError(404, _("Cannot repeat order, "
+                                       "some products does "
                                        "not exists nowadays"))
             for attr in item.attributes.all():
                 if attr.subfilter is None or attr.subfilter.filter.product.id != item.product.id:
-                    raise HttpError(404, _("Cannot repeat order, " 
-                                           "some products does " 
+                    raise HttpError(404, _("Cannot repeat order, "
+                                           "some products does "
                                            "not exists nowadays"))
 
         kwargs = model_to_dict(
@@ -309,7 +321,7 @@ class OrderService:
         try:
             promo_code = PromoCode.objects.get(code=code)
         except PromoCode.DoesNotExist:
-            raise HttpError(404, _("Not Found: No PromoCode matches " 
+            raise HttpError(404, _("Not Found: No PromoCode matches "
                                    "the given query."))
         current_datetime = timezone.now().date()
         if not (promo_code.until_date >=

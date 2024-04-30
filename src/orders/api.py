@@ -96,12 +96,16 @@ class OrderController(ControllerBase):
           - **401**: ERROR: Unauthorized.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        result = self.order_service.get_my_cart(
+        cart = self.order_service.get_my_cart(
             request=request,
         )
-
-        return paginate(items=result.items.all(),
-                        page_size=page_size, page=page)
+        bonuses, price, count = self.order_service.calc_total(cart)
+        result = paginate(items=cart.items.all(),
+                          page_size=page_size, page=page)
+        result['total_bonuses'] = bonuses
+        result['total_price'] = price
+        # result['total_items'] = count
+        return result
 
     @http_delete(
         "/my-cart/items/{item_id}/",
