@@ -76,6 +76,7 @@ class StatisticView(SuperUserRequiredMixin, View):
             income = filtered_orders.aggregate(price=Sum('total_price'))['price']
             if income is None:
                 income = 0
+            income = round(income, 2)
             week_icome = week_icome + income
             week_income_chart.append([1, income])
             date = start.add(days=item)
@@ -140,18 +141,18 @@ class StatisticView(SuperUserRequiredMixin, View):
         for product in trend_products:
             trend_chart.append([product.title, product.bought_count])
         context['trend_chart'] = trend_chart
-        context['current_week_icome'] = current_week_icome
+        context['current_week_icome'] = round(current_week_icome, 2)
         context['current_week_days'] = current_week_days
         context['current_week_income_chart'] = current_week_income_chart
-        context['last_week_icome'] = last_week_icome
+        context['last_week_icome'] = round(last_week_icome, 2)
         context['last_week_days'] = last_week_days
         context['last_week_income_chart'] = last_week_income_chart
         context['total_users'] = total_users
         context['total_orders'] = orders_current_week.count()
-        context['total_order_progress'] = orders_progress
+        context['total_order_progress'] = round(orders_progress, 2)
         context['notify_me_percent'] = int((user_notified / total_users) * 100)
-        context['total_income'] = income_current_week
-        context['total_income_progress'] = income_progress
+        context['total_income'] = round(income_current_week, 2)
+        context['total_income_progress'] = round(income_progress, 2)
         return render(request, self.template_name, context)
 
 
