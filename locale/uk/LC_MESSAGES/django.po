@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-04 08:55+0300\n"
+"POT-Creation-Date: 2024-04-30 14:06+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: config/urls.py:41
+#: config/urls.py:165
 msgid "Unauthorized"
 msgstr "Не авторизований"
 
@@ -25,16 +25,12 @@ msgstr "Не авторизований"
 msgid "Not Found: No Game matches the given query."
 msgstr "Не знайдено: жодна гра не відповідає заданому запиту."
 
-#: src/games/services/games_service.py:93
-#: src/games/services/games_service.py:109
+#: src/games/services/games_service.py:91
+#: src/games/services/games_service.py:105
 msgid "Not Found: No CatalogPage matches the given query."
 msgstr "Не знайдено: жодна сторінка каталогу не відповідає заданому запиту."
 
-#: src/games/services/games_service.py:114
-msgid "Not found section WorthLook for this catalog's page"
-msgstr "Не знайдено розділ WorthLook для цієї сторінки каталогу"
-
-#: src/games/services/games_service.py:155
+#: src/games/services/games_service.py:147
 msgid "Not Found: No CatalogTab matches the given query."
 msgstr "Не знайдено: жодна вкладка каталогу не відповідає заданому запиту."
 
@@ -50,63 +46,73 @@ msgstr "СКАСОВАНО"
 msgid "COMPLETED"
 msgstr "ВИКОНАНО"
 
-#: src/orders/services/order_service.py:66
+#: src/orders/services/order_service.py:74
 msgid "Not Found: No CartItem matches the given query."
 msgstr "Не знайдено: жоден елемент корзини не відповідає заданому запиту."
 
-#: src/orders/services/order_service.py:69
+#: src/orders/services/order_service.py:76
 msgid "Cart items has been deleted successfully"
 msgstr "Товари кошика успішно видалено"
 
-#: src/orders/services/order_service.py:152
+#: src/orders/services/order_service.py:124
 msgid "Your cart is empty"
 msgstr "Ваш кошик порожній"
 
-#: src/orders/services/order_service.py:174
+#: src/orders/services/order_service.py:128
+msgid ""
+"Here is a text that will describe the possible cause of the error and "
+"options for solving it."
+msgstr ""
+"Ось текст, який описуватиме можливу причину помилки та "
+"варіанти її вирішення."
+
+#: src/orders/services/order_service.py:183
 msgid "Order issued successfully"
 msgstr "Замовлення виконано успішно"
 
-#: src/orders/services/order_service.py:188
+#: src/orders/services/order_service.py:199
+#: src/orders/services/order_service.py:220
 #: src/users/services/user_service.py:33 src/users/services/user_service.py:50
 #: src/users/services/user_service.py:72 src/users/services/user_service.py:88
 msgid "Not Found: No User matches the given query."
 msgstr "Не знайдено: жоден користувач не відповідає заданому запиту."
 
-#: src/orders/services/order_service.py:205
+#: src/orders/services/order_service.py:223
+#: src/orders/services/order_service.py:238
 msgid "Not Found: No Order matches the given query."
 msgstr "Не знайдено: жодне замовлення не відповідає заданому запиту."
 
-#: src/orders/services/order_service.py:210
-#: src/orders/services/order_service.py:217
+#: src/orders/services/order_service.py:244
+#: src/orders/services/order_service.py:249
 msgid "Cannot repeat order, some products does not exists nowadays"
 msgstr "Неможливо повторити замовлення, деяких товарів зараз немає"
 
-#: src/orders/services/order_service.py:260
+#: src/orders/services/order_service.py:296
 msgid "Order repeated successfully"
 msgstr "Замовлення повторено успішно"
 
-#: src/orders/services/order_service.py:277
+#: src/orders/services/order_service.py:312
 msgid "Not Found: No PromoCode matches the given query."
 msgstr "Не знайдено: жоден промо код не відповідає заданому запиту."
 
-#: src/orders/services/order_service.py:285
+#: src/orders/services/order_service.py:318
 msgid "Promo code has been expired"
 msgstr "Термін дії промокоду закінчився"
 
-#: src/orders/services/order_service.py:287
+#: src/orders/services/order_service.py:320
 msgid "Promo code has been already used"
 msgstr "Промокод вже використано"
 
-#: src/products/services/product_service.py:47
-#: src/products/services/product_service.py:104
+#: src/products/services/product_service.py:45
+#: src/products/services/product_service.py:107
 msgid "Not Found: No Product matches the given query."
 msgstr "Не знайдено: жоден продукт не відповідає заданому запиту."
 
-#: src/products/services/product_service.py:66
+#: src/products/services/product_service.py:58
 msgid "Sub filters has been chosen incorrectly "
 msgstr "Підфільтри вибрано неправильно"
 
-#: src/products/services/product_service.py:84
+#: src/products/services/product_service.py:89
 msgid "Product added to cart successfully"
 msgstr "Товар успішно додано в кошик"
 
@@ -114,57 +120,58 @@ msgstr "Товар успішно додано в кошик"
 msgid "Not Found: No ProductTabs matches the given query."
 msgstr "Не знайдено: жодна вкладка продукту не відповідає заданому запиту."
 
-#: src/products/services/product_service.py:192
+#: src/products/services/product_service.py:189
 msgid "Not Found: No FreqBought matches the given query."
 msgstr "Не знайдено: жодена колекція не відповідає заданому запиту."
 
-#: src/products/services/product_service.py:196
+#: src/products/services/product_service.py:197
 msgid "Freqbot element added to cart successfully"
 msgstr "Колекцію успішно додано в кошик"
 
-#: src/users/services/auth_service.py:35
+#: src/users/services/auth_service.py:42
 msgid "This email already in use"
 msgstr "Ця електронна адреса вже використовується"
 
-#: src/users/services/auth_service.py:51
+#: src/users/services/auth_service.py:58
 msgid "Please confirm your registration. We have send letter to your email"
 msgstr ""
 "Будь ласка, підтвердьте свою реєстрацію. Ми надіслали листа на вашу "
 "електронну пошту"
 
-#: src/users/services/auth_service.py:70
+#: src/users/services/auth_service.py:123
 msgid "Email has already been confirmed"
 msgstr "Електронна пошта вже підтверджена"
 
-#: src/users/services/auth_service.py:73
+#: src/users/services/auth_service.py:126
 msgid "Email has been confirmed successfully"
 msgstr "Електронна пошта успішно підтверджена"
 
-#: src/users/services/auth_service.py:75 src/users/services/auth_service.py:117
-#: src/users/services/auth_service.py:119
-#: src/users/services/auth_service.py:144
-#: src/users/services/auth_service.py:146
+#: src/users/services/auth_service.py:128
+#: src/users/services/auth_service.py:170
+#: src/users/services/auth_service.py:172
+#: src/users/services/auth_service.py:197
+#: src/users/services/auth_service.py:199
 msgid "Invalid link"
 msgstr "Недійсне посилання"
 
-#: src/users/services/auth_service.py:90
+#: src/users/services/auth_service.py:143
 msgid "There is not user registered with that email"
 msgstr "Немає зареєстрованого користувача з такою електронною адресою"
 
-#: src/users/services/auth_service.py:94
+#: src/users/services/auth_service.py:147
 msgid "Please confirm reset password. We have send instructions to your email"
 msgstr ""
 "Підтвердьте скидання пароля. Ми надіслали інструкції на вашу електронну пошту"
 
-#: src/users/services/auth_service.py:121
+#: src/users/services/auth_service.py:174
 msgid "Passwords aren't the same"
 msgstr "Паролі не однакові"
 
-#: src/users/services/auth_service.py:129
+#: src/users/services/auth_service.py:182
 msgid "Password reset successfully."
 msgstr "Пароль скинуто успішно."
 
-#: src/users/services/auth_service.py:148
+#: src/users/services/auth_service.py:201
 msgid "Promo code is valid."
 msgstr "Промокод дійсний."
 
@@ -192,3 +199,6 @@ msgstr "Ця пошта вже використовується"
 #: src/users/services/user_service.py:160
 msgid "You are successfully subscribed"
 msgstr "Ви успішно підписані"
+
+#~ msgid "Not found section WorthLook for this catalog's page"
+#~ msgstr "Не знайдено розділ WorthLook для цієї сторінки каталогу"

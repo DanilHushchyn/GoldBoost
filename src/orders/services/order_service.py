@@ -25,6 +25,7 @@ from src.products.utils import make_sale, paginate
 from src.users.schemas import MessageOutSchema
 from loguru import logger
 from django.core.cache import cache
+
 User = get_user_model()
 
 
@@ -110,7 +111,8 @@ class OrderService:
         order.save()
         change_order_status.delay(order_id=order.id)
 
-    def create_order(self, request: HttpRequest, code: str | None = None) -> OrderOutSchema:
+    def create_order(self, request: HttpRequest, code: str | None = None) \
+            -> OrderOutSchema:
         """
         Create order for user.
 
@@ -121,6 +123,14 @@ class OrderService:
         if cart.items.count() <= 0:
             raise HttpError(400, _("Your cart is empty"))
         auth_user = False
+
+        if random.choice([True, False, False]):
+            raise HttpError(400, _(""
+                                   "Here is a text that will "
+                                   "describe the possible "
+                                   "cause of the error and options "
+                                   "for solving it."))
+
         user = request.auth
         if isinstance(user, User):
             auth_user = True
@@ -134,14 +144,16 @@ class OrderService:
             )
             for cart_item in cart.items.filter(product=None):
                 OrderItem.objects.create(
-                    order=order, freqbot=cart_item.freqbot, quantity=cart_item.quantity, cost=cart_item.price()
+                    order=order, freqbot=cart_item.freqbot,
+                    quantity=cart_item.quantity, cost=cart_item.price()
                 )
                 total_bonuses = total_bonuses + cart_item.bonus_points()
                 total_price = total_price + cart_item.price()
             for cart_item in cart.items.filter(freqbot=None):
 
                 order_item = OrderItem.objects.create(
-                    order=order, product=cart_item.product, quantity=cart_item.quantity, cost=cart_item.price()
+                    order=order, product=cart_item.product,
+                    quantity=cart_item.quantity, cost=cart_item.price()
                 )
                 for attr in cart_item.attributes.all():
                     OrderItemAttribute.objects.create(
@@ -159,7 +171,8 @@ class OrderService:
             order.total_bonuses = total_bonuses
             order.save()
             self.finish_order(
-                user=user, order=order, promo_code=promo_code, total_price=total_price, bonuses=total_bonuses
+                user=user, order=order, promo_code=promo_code,
+                total_price=total_price, bonuses=total_bonuses
             )
             # clean user's cart
             cart.items.all().delete()
@@ -167,7 +180,8 @@ class OrderService:
                 user.subscribe_sale_active = False
                 user.save()
         cart.items.all().delete()
-        return OrderOutSchema(message=_("Order issued successfully"), auth_user=auth_user)
+        return OrderOutSchema(message=_("Order issued successfully"),
+                              auth_user=auth_user)
 
     @staticmethod
     def get_my_orders(user_id: int, page: int, page_size: int) -> dict:
@@ -181,7 +195,9 @@ class OrderService:
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            raise HttpError(404, _("Not Found: No User matches" " the given query."))
+            raise HttpError(404,
+                            _("Not Found: No User matches "
+                              "the given query."))
         orders = user.order_set.all()
         return paginate(items=orders, page=page, page_size=page_size)
 
@@ -195,12 +211,17 @@ class OrderService:
         """
         try:
             user = User.objects.get(id=user_id)
-            order = Order.objects.prefetch_related("items").get(user=user, number=number)
+            order = (Order.objects
+                     .prefetch_related("items")
+                     .get(user=user, number=number))
 
         except User.DoesNotExist:
-            raise HttpError(404, _("Not Found: No User matches" " the given query."))
+            raise HttpError(404,
+                            _("Not Found: No User matches "
+                              "the given query."))
         except Order.DoesNotExist:
-            raise HttpError(404, _("Not Found: No Order matches" " the given query."))
+            raise HttpError(404, _("Not Found: No Order matches "
+                                   "the given query."))
         return order.items.all()
 
     def repeat_order(self, user: User, number: str) -> MessageOutSchema:
@@ -220,10 +241,14 @@ class OrderService:
             condition1 = item.freqbot and item.freqbot.is_deleted
             condition2 = item.product and item.product.is_deleted
             if condition1 or condition2:
-                raise HttpError(404, _("Cannot repeat order, " "some products does " "not exists nowadays"))
+                raise HttpError(404, _("Cannot repeat order, " 
+                                       "some products does " 
+                                       "not exists nowadays"))
             for attr in item.attributes.all():
                 if attr.subfilter is None or attr.subfilter.filter.product.id != item.product.id:
-                    raise HttpError(404, _("Cannot repeat order, " "some products does " "not exists nowadays"))
+                    raise HttpError(404, _("Cannot repeat order, " 
+                                           "some products does " 
+                                           "not exists nowadays"))
 
         kwargs = model_to_dict(
             order,
@@ -235,11 +260,18 @@ class OrderService:
             ],
         )
 
-        new_order = Order.objects.create(**kwargs, user=user, status="IN PROGRESS", number=self.create_number())
+        new_order = Order.objects.create(**kwargs,
+                                         user=user,
+                                         status="IN PROGRESS",
+                                         number=self.create_number())
         total_bonuses = 0
         total_price = 0
         for item in order.items.all():
-            kwargs = model_to_dict(item, exclude=["id", "order", "freqbot", "date_created", "product"])
+            kwargs = model_to_dict(item, exclude=["id",
+                                                  "order",
+                                                  "freqbot",
+                                                  "date_created",
+                                                  "product"])
             new_order_item = OrderItem.objects.create(
                 **kwargs,
                 order=new_order,
@@ -247,7 +279,9 @@ class OrderService:
                 freqbot=item.freqbot,
             )
             for attr in item.attributes.all():
-                kwargs = model_to_dict(attr, exclude=["id", "subfilter", "order_item"])
+                kwargs = model_to_dict(attr, exclude=["id",
+                                                      "subfilter",
+                                                      "order_item"])
                 OrderItemAttribute.objects.create(
                     **kwargs,
                     subfilter=attr.subfilter,
@@ -257,7 +291,8 @@ class OrderService:
             new_order_item.save()
             total_price = total_price + new_order_item.price()
             total_bonuses = total_bonuses + new_order_item.bonus_points()
-        self.finish_order(user=user, order=new_order, promo_code=None, total_price=total_price, bonuses=total_bonuses)
+        self.finish_order(user=user, order=new_order, promo_code=None,
+                          total_price=total_price, bonuses=total_bonuses)
         return MessageOutSchema(message=_("Order repeated successfully"))
 
     @staticmethod
@@ -274,9 +309,12 @@ class OrderService:
         try:
             promo_code = PromoCode.objects.get(code=code)
         except PromoCode.DoesNotExist:
-            raise HttpError(404, _("Not Found: No PromoCode matches" " the given query."))
+            raise HttpError(404, _("Not Found: No PromoCode matches " 
+                                   "the given query."))
         current_datetime = timezone.now().date()
-        if not (promo_code.until_date >= current_datetime >= promo_code.from_date):
+        if not (promo_code.until_date >=
+                current_datetime >=
+                promo_code.from_date):
             raise HttpError(403, _("Promo code has been expired"))
         if user.promo_codes.filter(code=code).exists():
             raise HttpError(410, _("Promo code has been already used"))
