@@ -46,6 +46,7 @@ from src.games.models import (
     WorthLook,
     WorthLookItem,
 )
+from src.main.admin import ImageAndSvgField
 from src.products.admin import ProductAdmin
 
 
@@ -84,7 +85,10 @@ class GameForm(forms.ModelForm):
         model = Game
         fields = "__all__"
         exclude = ["logo_filter_alt", "logo_product_alt", "is_deleted"]
-
+        field_classes = {
+            'logo_filter': ImageAndSvgField,
+            'logo_product': ImageAndSvgField,
+        }
 
 class CalendarItemForm(forms.ModelForm):
     class Meta:
