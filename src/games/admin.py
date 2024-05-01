@@ -90,6 +90,7 @@ class GameForm(forms.ModelForm):
             'logo_product': ImageAndSvgField,
         }
 
+
 class CalendarItemForm(forms.ModelForm):
     class Meta:
         model = CalendarBlockItem
@@ -271,6 +272,16 @@ class GameAdminClass(ModelAdmin):
             game.save()
 
 
+class TeamForm(forms.ModelForm):
+    class Meta:
+        model = Team
+        fields = "__all__"
+        field_classes = {
+            'team_img': ImageAndSvgField,
+        }
+
+
 @admin.register(Team)
 class TeamAdminClass(ModelAdmin):
     exclude = ["team_img_alt"]
+    form = TeamForm

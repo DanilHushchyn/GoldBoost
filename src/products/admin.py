@@ -46,6 +46,7 @@ from unfold.widgets import (
     UnfoldAdminTextInputWidget,
 )
 
+from src.main.admin import ImageAndSvgField
 from src.products.models import Filter, FreqBought, Product, ProductTabs, SubFilter, Tag
 
 IS_POPUP_VAR = "_popup"
@@ -79,6 +80,10 @@ class ProductForm(forms.ModelForm):
             "bought_count",
             "is_deleted",
         ]
+        field_classes = {
+            'card_img': ImageAndSvgField,
+            'image': ImageAndSvgField,
+        }
 
     def clean_price(self):
         price = self.cleaned_data["price"]
@@ -430,10 +435,13 @@ class FreqBoughtForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        instance = getattr(self, "instance", None)
         self.fields["products"].queryset = Product.objects.filter(price_type="fixed")
+        if instance and instance.pk:
+            self.fields["products"].disabled = True
+
 
     def clean_products(self):
         products = self.cleaned_data["products"]
@@ -457,7 +465,10 @@ class FreqBoughtForm(forms.ModelForm):
             "products",
             "discount",
         ]
-        widgets = {"products": FilteredSelectMultiple(verbose_name="Products with fixed price", is_stacked=True)}
+        widgets = {
+            "products": FilteredSelectMultiple(verbose_name="Products with fixed price",
+                                               is_stacked=True)
+        }
 
 
 @admin.register(FreqBought)

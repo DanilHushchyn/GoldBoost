@@ -82,6 +82,7 @@ class ImageAndSvgField(ImageField):
         except et.ParseError:
             return False
 
+
 # Register your models here.
 
 
@@ -97,7 +98,9 @@ class NewsForm(forms.ModelForm):
         model = News
         fields = "__all__"
         exclude = ["title", "image_alt", "description"]
-
+        field_classes = {
+            'image': ImageAndSvgField,
+        }
 
 @admin.register(News)
 class NewsAdminClass(ModelAdmin):
@@ -157,6 +160,7 @@ class WhyChooseUsForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+
     # icon = ImageAndSvgField()
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -174,6 +178,7 @@ class WhyChooseUsForm(forms.ModelForm):
         field_classes = {
             'icon': ImageAndSvgField,
         }
+
 
 @admin.register(WhyChooseUs)
 class WhyChooseUsAdminClass(ModelAdmin):
@@ -226,6 +231,9 @@ class InstaForm(forms.ModelForm):
         exclude = [
             "img_alt",
         ]
+        field_classes = {
+            'img': ImageAndSvgField,
+        }
 
 
 @admin.register(Insta)
@@ -338,7 +346,3 @@ class PromoCodeAdmin(ModelAdmin):
         return False
 
     form = PromoCodeForm
-
-
-
-
