@@ -4,8 +4,6 @@ $(document).ready(function() {
     let images = $('input[type="file"]')
     images.attr('accept','.svg,.png,.jpeg,.jpg,.webp')
     $(images).on('change', function() {
-      //this.files[0].size gets the size of your file.
-      // alert(this.files[0].size);
       if (this.files[0].size>1000000){
           alert('File size have to be not more than 1MB')
           $(this).val(null)
@@ -16,6 +14,9 @@ $(document).ready(function() {
     });
     $("[summernote='true']").each(function() {
         console.log('hello123')
+        // Do something with each element
+        // Do something with each element
+        // Do something with each element
         // Do something with each element
         $(this).summernote({
             lang: 'ru-RU',
