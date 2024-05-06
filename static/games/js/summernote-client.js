@@ -1,6 +1,7 @@
 
 
 $(document).ready(function() {
+    alert('just check')
     let images = $('input[type="file"]')
     images.attr('accept','.svg,.png,.jpeg,.jpg,.webp')
     $(images).on('change', function() {
