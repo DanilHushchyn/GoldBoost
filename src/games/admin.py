@@ -50,8 +50,35 @@ from src.main.admin import ImageAndSvgField
 from src.products.admin import ProductAdmin
 
 
+class WorthLookItemForm(forms.ModelForm):
+    image_alt_en = forms.CharField(max_length=50,
+                                   min_length=1,
+                                   help_text='max: 50, min: 1',
+                                   widget=UnfoldAdminTextInputWidget(attrs={}))
+    image_alt_uk = forms.CharField(max_length=50,
+                                   min_length=1,
+                                   help_text='max: 50, min: 1',
+                                   widget=UnfoldAdminTextInputWidget(attrs={}))
+
+    class Meta:
+        model = WorthLookItem
+        fields = "__all__"
+
+
+class WorthLookForm(forms.ModelForm):
+    title = forms.CharField(max_length=50,
+                            min_length=1,
+                            help_text='max: 50, min: 1',
+                            widget=UnfoldAdminTextInputWidget(attrs={}))
+
+    class Meta:
+        model = WorthLook
+        fields = "__all__"
+
+
 class WorthLookItemInline(TabularInline):
     model = WorthLookItem
+    form = WorthLookItemForm
     exclude = ["image_alt"]
     extra = 0
 
@@ -59,12 +86,34 @@ class WorthLookItemInline(TabularInline):
 @admin.register(WorthLook)
 class WorthLookCarouselItem(ModelAdmin):
     model = WorthLook
+    form = WorthLookForm
     inlines = [
         WorthLookItemInline,
     ]
 
 
 class GameForm(forms.ModelForm):
+    name = forms.CharField(max_length=50,
+                           min_length=1,
+                           help_text='max: 50, min: 1',
+                           widget=UnfoldAdminTextInputWidget(attrs={}))
+    logo_filter_alt_en = forms.CharField(max_length=50,
+                                         min_length=1,
+                                         help_text='max: 50, min: 1',
+                                         widget=UnfoldAdminTextInputWidget(attrs={}))
+    logo_filter_alt_uk = forms.CharField(max_length=50,
+                                         min_length=1,
+                                         help_text='max: 50, min: 1',
+                                         widget=UnfoldAdminTextInputWidget(attrs={}))
+    logo_product_alt_en = forms.CharField(max_length=50,
+                                          min_length=1,
+                                          help_text='max: 50, min: 1',
+                                          widget=UnfoldAdminTextInputWidget(attrs={}))
+    logo_product_alt_uk = forms.CharField(max_length=50,
+                                          min_length=1,
+                                          help_text='max: 50, min: 1',
+                                          widget=UnfoldAdminTextInputWidget(attrs={}))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["logo_filter_alt_en"].required = True
@@ -77,6 +126,10 @@ class GameForm(forms.ModelForm):
         starts_with_uppercase = data[0].isupper()
         if starts_with_uppercase is not True:
             msg = "The string have to start with an uppercase letter"
+            raise ValidationError(msg)
+
+        if not self.instance.pk and Game.objects.filter(name=data).exists():
+            msg = "Game with this name already exists"
             raise ValidationError(msg)
 
         return data
@@ -113,9 +166,33 @@ class CalendarBlockItemInline(TabularInline):
     extra = 0
 
 
+class CalendarBlockForm(forms.ModelForm):
+    title_en = forms.CharField(max_length=50,
+                               min_length=1,
+                               help_text='max: 50, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    title_uk = forms.CharField(max_length=50,
+                               min_length=1,
+                               help_text='max: 50, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    subtitle_en = forms.CharField(max_length=100,
+                                  min_length=1,
+                                  help_text='max: 100, min: 1',
+                                  widget=UnfoldAdminTextInputWidget(attrs={}))
+    subtitle_uk = forms.CharField(max_length=100,
+                                  min_length=1,
+                                  help_text='max: 100, min: 1',
+                                  widget=UnfoldAdminTextInputWidget(attrs={}))
+
+    class Meta:
+        model = CalendarBlock
+        fields = "__all__"
+
+
 @admin.register(CalendarBlock)
 class CalendarBlockModelAdmin(ModelAdmin):
     model = CalendarBlock
+    form = CalendarBlockForm
     list_display = [
         "title",
         "subtitle",
@@ -132,8 +209,20 @@ class CalendarBlockModelAdmin(ModelAdmin):
     ]
 
 
+class CalendarCommonForm(forms.ModelForm):
+    title = forms.CharField(max_length=100,
+                            min_length=1,
+                            help_text='max: 100, min: 1',
+                            widget=UnfoldAdminTextInputWidget(attrs={}))
+
+    class Meta:
+        model = Calendar
+        fields = "__all__"
+
+
 @admin.register(Calendar)
 class CalendarAdminClass(ModelAdmin):
+    form = CalendarCommonForm
     search_fields = ["title"]
 
 
@@ -144,6 +233,22 @@ class CatalogTabsForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+    title_en = forms.CharField(max_length=20,
+                               min_length=1,
+                               help_text='max: 20, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    title_uk = forms.CharField(max_length=20,
+                               min_length=1,
+                               help_text='max: 20, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    content_en = forms.CharField(max_length=2000,
+                                 min_length=100,
+                                 help_text='max: 2000, min: 100',
+                                 widget=UnfoldAdminTextareaWidget(attrs={"summernote": "true"}))
+    content_uk = forms.CharField(max_length=2000,
+                                 min_length=100,
+                                 help_text='max: 2000, min: 100',
+                                 widget=UnfoldAdminTextareaWidget(attrs={"summernote": "true"}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -190,6 +295,23 @@ class CatalogTabsInline(TabularInline):
 
 
 class CatalogPageForm(forms.ModelForm):
+    title_en = forms.CharField(max_length=30,
+                               min_length=1,
+                               help_text='max: 30, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    title_uk = forms.CharField(max_length=30,
+                               min_length=1,
+                               help_text='max: 30, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    description_en = forms.CharField(max_length=500,
+                                     min_length=1,
+                                     help_text='max: 500, min: 1',
+                                     widget=UnfoldAdminTextareaWidget(attrs={}))
+    description_uk = forms.CharField(max_length=500,
+                                     min_length=1,
+                                     help_text='max: 500, min: 1',
+                                     widget=UnfoldAdminTextareaWidget(attrs={}))
+
     class Meta:
         model = CatalogPage
         fields = "__all__"
@@ -273,6 +395,15 @@ class GameAdminClass(ModelAdmin):
 
 
 class TeamForm(forms.ModelForm):
+    team_img_alt_en = forms.CharField(max_length=50,
+                                      min_length=1,
+                                      help_text='max: 50, min: 1',
+                                      widget=UnfoldAdminTextInputWidget(attrs={}))
+    team_img_alt_uk = forms.CharField(max_length=50,
+                                      min_length=1,
+                                      help_text='max: 50, min: 1',
+                                      widget=UnfoldAdminTextInputWidget(attrs={}))
+
     class Meta:
         model = Team
         fields = "__all__"

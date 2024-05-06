@@ -93,6 +93,30 @@ class NewsForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+    description_en = forms.CharField(max_length=500,
+                                     min_length=100,
+                                     help_text='max: 500, min: 100',
+                                     widget=UnfoldAdminTextareaWidget(attrs={}))
+    description_uk = forms.CharField(max_length=500,
+                                     min_length=100,
+                                     help_text='max: 500, min: 100',
+                                     widget=UnfoldAdminTextareaWidget(attrs={}))
+    title_en = forms.CharField(max_length=65,
+                               min_length=1,
+                               help_text='max: 65, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    title_uk = forms.CharField(max_length=65,
+                               min_length=1,
+                               help_text='max: 65, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    image_alt_en = forms.CharField(max_length=65,
+                                   min_length=1,
+                                   help_text='max: 65, min: 1',
+                                   widget=UnfoldAdminTextInputWidget(attrs={}))
+    image_alt_uk = forms.CharField(max_length=65,
+                                   min_length=1,
+                                   help_text='max: 65, min: 1',
+                                   widget=UnfoldAdminTextInputWidget(attrs={}))
 
     class Meta:
         model = News
@@ -101,6 +125,7 @@ class NewsForm(forms.ModelForm):
         field_classes = {
             'image': ImageAndSvgField,
         }
+
 
 @admin.register(News)
 class NewsAdminClass(ModelAdmin):
@@ -123,6 +148,27 @@ class ReviewForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+
+    author_en = forms.CharField(max_length=100,
+                                min_length=1,
+                                help_text='max: 100, min: 1',
+                                widget=UnfoldAdminTextInputWidget(attrs={}))
+    author_uk = forms.CharField(max_length=100,
+                                min_length=1,
+                                help_text='max: 100, min: 1',
+                                widget=UnfoldAdminTextInputWidget(attrs={}))
+    comment_en = forms.CharField(max_length=500,
+                                 min_length=100,
+                                 help_text='max: 500, min: 100',
+                                 widget=UnfoldAdminTextareaWidget(attrs={}))
+    comment_uk = forms.CharField(max_length=500,
+                                 min_length=100,
+                                 help_text='max: 500, min: 100',
+                                 widget=UnfoldAdminTextareaWidget(attrs={}))
+    source_of_review = forms.CharField(max_length=65,
+                                       min_length=1,
+                                       help_text='max: 65, min: 1',
+                                       widget=UnfoldAdminTextareaWidget(attrs={}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -160,6 +206,30 @@ class WhyChooseUsForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+    title_en = forms.CharField(max_length=13,
+                               min_length=1,
+                               help_text='max: 13, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    title_uk = forms.CharField(max_length=13,
+                               min_length=1,
+                               help_text='max: 13, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    icon_alt_en = forms.CharField(max_length=100,
+                                  min_length=1,
+                                  help_text='max: 100, min: 1',
+                                  widget=UnfoldAdminTextInputWidget(attrs={}))
+    icon_alt_uk = forms.CharField(max_length=100,
+                                  min_length=1,
+                                  help_text='max: 100, min: 1',
+                                  widget=UnfoldAdminTextInputWidget(attrs={}))
+    description_en = forms.CharField(max_length=160,
+                                     min_length=10,
+                                     help_text='max: 160, min: 10',
+                                     widget=UnfoldAdminTextareaWidget(attrs={}))
+    description_uk = forms.CharField(max_length=160,
+                                     min_length=10,
+                                     help_text='max: 160, min: 10',
+                                     widget=UnfoldAdminTextareaWidget(attrs={}))
 
     # icon = ImageAndSvgField()
     def __init__(self, *args, **kwargs):
@@ -193,7 +263,7 @@ class WhyChooseUsAdminClass(ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         # Disable delete permission for all instances
-        if WhyChooseUs.objects.count() <= 3:
+        if WhyChooseUs.objects.count() < 3:
             # If an instance already exists,
             # prevent creation of another instance
             return False
@@ -203,7 +273,7 @@ class WhyChooseUsAdminClass(ModelAdmin):
 
     def has_add_permission(self, request):
         # Check if any instance already exists
-        if WhyChooseUs.objects.count() >= 6:
+        if WhyChooseUs.objects.count() >= 3:
             # If an instance already exists,
             # prevent creation of another instance
             return False
@@ -219,6 +289,14 @@ class InstaForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+    img_alt_en = forms.CharField(max_length=100,
+                                 min_length=1,
+                                 help_text='max: 100, min: 1',
+                                 widget=UnfoldAdminTextInputWidget(attrs={}))
+    img_alt_uk = forms.CharField(max_length=100,
+                                 min_length=1,
+                                 help_text='max: 100, min: 1',
+                                 widget=UnfoldAdminTextInputWidget(attrs={}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -249,7 +327,7 @@ class InstaAdminClass(ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         # Disable delete permission for all instances
-        if Insta.objects.count() <= 6:
+        if Insta.objects.count() < 6:
             # If an instance already exists,
             # prevent creation of another instance
             return False
@@ -276,11 +354,61 @@ class SettingsForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+    instagram_nickname = forms.CharField(max_length=30,
+                                         min_length=1,
+                                         help_text='max: 30, min: 1',
+                                         widget=UnfoldAdminTextInputWidget(attrs={}))
+    header_top_text_en = forms.CharField(max_length=100,
+                                         min_length=1,
+                                         help_text='max: 100, min: 1',
+                                         widget=UnfoldAdminTextInputWidget(attrs={}))
+    header_top_text_uk = forms.CharField(max_length=100,
+                                         min_length=1,
+                                         help_text='max: 100, min: 1',
+                                         widget=UnfoldAdminTextInputWidget(attrs={}))
+    footer_bottom_text = forms.CharField(max_length=100,
+                                         min_length=1,
+                                         help_text='max: 100, min: 1',
+                                         widget=UnfoldAdminTextInputWidget(attrs={}))
+    footer_description_en = forms.CharField(max_length=500,
+                                            min_length=1,
+                                            help_text='max: 500, min: 1',
+                                            widget=UnfoldAdminTextareaWidget(attrs={}))
+    footer_description_uk = forms.CharField(max_length=500,
+                                            min_length=1,
+                                            help_text='max: 500, min: 1',
+                                            widget=UnfoldAdminTextareaWidget(attrs={}))
+    address1_en = forms.CharField(max_length=100,
+                                  min_length=1,
+                                  help_text='max: 100, min: 1',
+                                  widget=UnfoldAdminTextareaWidget(attrs={}))
+    address1_uk = forms.CharField(max_length=100,
+                                  min_length=1,
+                                  help_text='max: 100, min: 1',
+                                  widget=UnfoldAdminTextareaWidget(attrs={}))
+    address2_en = forms.CharField(max_length=100,
+                                  min_length=1,
+                                  help_text='max: 100, min: 1',
+                                  widget=UnfoldAdminTextareaWidget(attrs={}))
+    address2_uk = forms.CharField(max_length=100,
+                                  min_length=1,
+                                  help_text='max: 100, min: 1',
+                                  widget=UnfoldAdminTextareaWidget(attrs={}))
+    subscribe_form_text_en = forms.CharField(max_length=100,
+                                             min_length=1,
+                                             help_text='max: 100, min: 1',
+                                             widget=UnfoldAdminTextInputWidget(attrs={}))
+    subscribe_form_text_uk = forms.CharField(max_length=100,
+                                             min_length=1,
+                                             help_text='max: 100, min: 1',
+                                             widget=UnfoldAdminTextInputWidget(attrs={}))
 
     class Meta:
         model = Setting
         fields = "__all__"
-        exclude = ["header_top_text", "address1", "address2", "subscribe_form_text", "footer_description"]
+        exclude = ["header_top_text", "address1",
+                   "address2", "subscribe_form_text",
+                   "footer_description"]
 
 
 @admin.register(Setting)
@@ -316,6 +444,10 @@ class PromoCodeForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+    code = forms.CharField(max_length=100,
+                           min_length=1,
+                           help_text='max: 100, min: 1',
+                           widget=UnfoldAdminTextInputWidget(attrs={}))
 
     class Meta:
         model = PromoCode

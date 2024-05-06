@@ -71,5 +71,5 @@ class MainService:
         :return: dict which contains parameters for pagination
         :rtype: dict
         """
-        items = News.objects.all()
+        items = News.objects.select_related('game').all()
         return paginate(items=items, page=page, page_size=page_size)

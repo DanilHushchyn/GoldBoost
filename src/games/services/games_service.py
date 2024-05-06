@@ -22,10 +22,10 @@ class GameService:
 
     @staticmethod
     def get_games_carousel(
-        game_id: int,
-        page: int,
-        page_size: int,
-        catalog_id: int = None,
+            game_id: int,
+            page: int,
+            page_size: int,
+            catalog_id: int = None,
     ) -> dict:
         """
         Gets all products for game carousel.
@@ -38,7 +38,12 @@ class GameService:
         :param catalog_id: filter by related to game catalog_page
         :return: dict for pagination
         """
-        items = Product.objects.filter(catalog_page__game=game_id)
+        items = (Product.objects
+        .select_related('tag')
+        .prefetch_related('catalog_page__game',
+                          'filters__subfilters')
+        .filter(
+            catalog_page__game=game_id))
         if catalog_id:
             items = items.filter(catalog_page=catalog_id)
         for item in items:
@@ -55,10 +60,15 @@ class GameService:
         also related queryset of filters(root catalog_pages)
         :return: Game queryset
         """
-        pr2 = Prefetch("catalog_pages", queryset=CatalogPage.objects.filter(parent=None), to_attr="items")
+        # pr = Prefetch("catalog_pages", queryset=CatalogPage.objects.filter(parent=None), to_attr="items")
+        pr2 = Prefetch("catalog_pages",
+                       queryset=CatalogPage.objects.filter(parent=None),
+                       to_attr="items")
         objects = Game.objects.prefetch_related(pr2).all()
         for obj in objects:
-            if not Product.objects.filter(catalog_page__game=obj).exists():
+            if not (Product.objects
+                    .filter(catalog_page__game=obj)
+                    .exists()):
                 objects = objects.exclude(id=obj.id)
         return objects
 
@@ -74,7 +84,9 @@ class GameService:
             Game.objects.get(id=game_id)
         except Game.DoesNotExist:
             raise HttpError(404, _("Not Found: No Game matches" " the given query."))
-        pages = CatalogPage.objects.prefetch_related("items").filter(game_id=game_id, parent=None)
+        pages = (CatalogPage.objects
+                 .prefetch_related("items")
+                 .filter(game_id=game_id, parent=None))
         return pages
 
     @staticmethod
@@ -103,7 +115,9 @@ class GameService:
             page = CatalogPage.objects.get(id=page_id)
         except CatalogPage.DoesNotExist:
             raise HttpError(404, _("Not Found: No CatalogPage matches" " the given query."))
-        items = WorthLookItem.objects.filter(carousel__catalogpage=page)
+        items = (WorthLookItem.objects
+                 .prefetch_related('catalog_page__products')
+                 .filter(carousel__catalogpage=page))
         return items
 
     @staticmethod
@@ -129,7 +143,9 @@ class GameService:
         :rtype: QuerySet
         :return: TabItem's queryset
         """
-        items = CalendarBlockItem.objects.filter(block=block_id)
+        items = (CalendarBlockItem.objects
+                 .select_related('team1', 'team2')
+                 .filter(block=block_id))
         return items
 
     @staticmethod

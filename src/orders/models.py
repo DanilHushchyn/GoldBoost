@@ -124,7 +124,10 @@ class CartItem(models.Model):
         else:
             total = 0
             for product in self.freqbot.products.all():
-                total = total + self.price_for_product(product)
+                if self.sale_active():
+                    total = total + self.price_for_product_with_sale(product)
+                else:
+                    total = total + self.price_for_product(product)
             return total
 
     def bonus_points(self):

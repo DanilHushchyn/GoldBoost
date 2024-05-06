@@ -104,7 +104,6 @@ class OrderController(ControllerBase):
                           page_size=page_size, page=page)
         result['total_bonuses'] = bonuses
         result['total_price'] = price
-        # result['total_items'] = count
         return result
 
     @http_delete(
@@ -255,7 +254,8 @@ class OrderController(ControllerBase):
           - **422**: Error: Unprocessable Entity.
           - **500**: Internal server error if an unexpected error occurs.
         """
-        result = self.order_service.create_order(request=request, code=promo_code)
+        result = self.order_service.create_order(request=request,
+                                                 code=promo_code)
         return result
 
     @http_get(

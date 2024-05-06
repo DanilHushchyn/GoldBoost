@@ -58,6 +58,46 @@ class ProductForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+    description_en = forms.CharField(max_length=1000,
+                                     min_length=100,
+                                     help_text='max: 1000, min: 100',
+                                     widget=UnfoldAdminTextareaWidget(attrs={}))
+    description_uk = forms.CharField(max_length=1000,
+                                     min_length=100,
+                                     help_text='max: 1000, min: 100',
+                                     widget=UnfoldAdminTextareaWidget(attrs={}))
+    title_en = forms.CharField(max_length=70,
+                               min_length=1,
+                               help_text='max: 70, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    title_uk = forms.CharField(max_length=70,
+                               min_length=1,
+                               help_text='max: 70, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    subtitle_en = forms.CharField(max_length=70,
+                                  min_length=1,
+                                  help_text='max: 70, min: 1',
+                                  widget=UnfoldAdminTextInputWidget(attrs={}))
+    subtitle_uk = forms.CharField(max_length=70,
+                                  min_length=1,
+                                  help_text='max: 70, min: 1',
+                                  widget=UnfoldAdminTextInputWidget(attrs={}))
+    card_img_alt_en = forms.CharField(max_length=70,
+                                      min_length=1,
+                                      help_text='max: 70, min: 1',
+                                      widget=UnfoldAdminTextInputWidget(attrs={}))
+    card_img_alt_uk = forms.CharField(max_length=70,
+                                      min_length=1,
+                                      help_text='max: 70, min: 1',
+                                      widget=UnfoldAdminTextInputWidget(attrs={}))
+    image_alt_en = forms.CharField(max_length=70,
+                                   min_length=1,
+                                   help_text='max: 70, min: 1',
+                                   widget=UnfoldAdminTextInputWidget(attrs={}))
+    image_alt_uk = forms.CharField(max_length=70,
+                                   min_length=1,
+                                   help_text='max: 70, min: 1',
+                                   widget=UnfoldAdminTextInputWidget(attrs={}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -114,6 +154,18 @@ class TagForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+    name_en = forms.CharField(max_length=20,
+                              min_length=1,
+                              help_text='max: 20, min: 1',
+                              widget=UnfoldAdminTextInputWidget(attrs={}))
+    name_uk = forms.CharField(max_length=20,
+                              min_length=1,
+                              help_text='max: 20, min: 1',
+                              widget=UnfoldAdminTextInputWidget(attrs={}))
+    color = forms.CharField(max_length=70,
+                            min_length=1,
+                            help_text='max: 70, min: 1',
+                            widget=UnfoldAdminTextInputWidget(attrs={}))
 
     class Meta:
         model = Tag
@@ -213,6 +265,14 @@ class FilterForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+    title_en = forms.CharField(max_length=70,
+                               min_length=1,
+                               help_text='max: 70, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    title_uk = forms.CharField(max_length=70,
+                               min_length=1,
+                               help_text='max: 70, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -263,6 +323,14 @@ class SubFilterForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+    title_en = forms.CharField(max_length=30,
+                               min_length=1,
+                               help_text='max: 30, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    title_uk = forms.CharField(max_length=30,
+                               min_length=1,
+                               help_text='max: 30, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -348,6 +416,22 @@ class ProductTabsForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+    title_en = forms.CharField(max_length=20,
+                               min_length=1,
+                               help_text='max: 20, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    title_uk = forms.CharField(max_length=20,
+                               min_length=1,
+                               help_text='max: 20, min: 1',
+                               widget=UnfoldAdminTextInputWidget(attrs={}))
+    content_en = forms.CharField(max_length=2000,
+                                 min_length=100,
+                                 help_text='max: 2000, min: 100',
+                                 widget=UnfoldAdminTextareaWidget(attrs={"summernote": "true"}))
+    content_uk = forms.CharField(max_length=2000,
+                                 min_length=100,
+                                 help_text='max: 2000, min: 100',
+                                 widget=UnfoldAdminTextareaWidget(attrs={"summernote": "true"}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -435,13 +519,17 @@ class FreqBoughtForm(forms.ModelForm):
     This class defines the appearance for form in
     admin panel django
     """
+    title = forms.CharField(max_length=100,
+                            min_length=1,
+                            help_text='max: 100, min: 1',
+                            widget=UnfoldAdminTextInputWidget(attrs={}))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         instance = getattr(self, "instance", None)
         self.fields["products"].queryset = Product.objects.filter(price_type="fixed")
         if instance and instance.pk:
             self.fields["products"].disabled = True
-
 
     def clean_products(self):
         products = self.cleaned_data["products"]

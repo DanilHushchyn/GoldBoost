@@ -47,16 +47,28 @@ class OrderService:
         """
         if not request.auth.is_anonymous:
             user = request.auth
-            cart, status = Cart.objects.prefetch_related("items", "items__attributes").get_or_create(user=user)
+            cart, status = (Cart.objects
+                            .prefetch_related(
+                                "items__product__catalog_page__game",
+                                "items__attributes__sub_filter__filter",
+                                "items__freqbot__products__catalog_page__game",
+                            )
+                            .get_or_create(user=user))
         else:
             session_id = request.session.session_key
             if session_id is None:
                 request.session.create()
                 request.session.save()
                 session_id = request.session.session_key
-            cart, status = Cart.objects.prefetch_related("items", "items__attributes").get_or_create(
-                session_key=session_id
-            )
+            cart, status = (Cart.objects
+                            .prefetch_related(
+                                "items__product__catalog_page__game",
+                                "items__attributes__sub_filter__filter",
+                                "items__freqbot__products__catalog_page__game",
+                            )
+                            .get_or_create(
+                                session_key=session_id
+                            ))
         return cart
 
     def delete_cart_item(self, request: HttpRequest, item_id: int) -> MessageOutSchema:
@@ -87,10 +99,18 @@ class OrderService:
     def calc_total(cart: Cart) -> [float, float, int]:
         total_price = 0
         total_bonuses = 0
-        for cart_item in cart.items.filter(product=None):
+        items = (cart.items
+                 .select_related('product')
+                 .prefetch_related('freqbot__products')
+                 .prefetch_related('product__filters__subfilters')
+                 .prefetch_related('attributes__sub_filter')
+                 .all()
+                 )
+        for cart_item in items.filter(product=None):
             total_bonuses = total_bonuses + cart_item.bonus_points()
             total_price = total_price + cart_item.price()
-        for cart_item in cart.items.filter(freqbot=None):
+
+        for cart_item in items.filter(freqbot=None):
             total_bonuses = total_bonuses + cart_item.bonus_points()
             total_price = total_price + cart_item.price()
         return total_bonuses, total_price, cart.items.count()
@@ -154,14 +174,21 @@ class OrderService:
             order = Order.objects.create(
                 status="IN PROGRESS", user_id=user.id, number=self.create_number(), total_price=0
             )
-            for cart_item in cart.items.filter(product=None):
+            for cart_item in (cart.items
+                              .select_related('freqbot')
+                              .prefetch_related('attributes__sub_filter',
+                                                'freqbot__products')
+                              .filter(product=None)):
                 OrderItem.objects.create(
                     order=order, freqbot=cart_item.freqbot,
                     quantity=cart_item.quantity, cost=cart_item.price()
                 )
                 total_bonuses = total_bonuses + cart_item.bonus_points()
                 total_price = total_price + cart_item.price()
-            for cart_item in cart.items.filter(freqbot=None):
+            for cart_item in (cart.items
+                              .select_related('product')
+                              .prefetch_related('attributes__sub_filter__filter')
+                              .filter(freqbot=None)):
 
                 order_item = OrderItem.objects.create(
                     order=order, product=cart_item.product,
@@ -210,7 +237,13 @@ class OrderService:
             raise HttpError(404,
                             _("Not Found: No User matches "
                               "the given query."))
-        orders = user.order_set.all()
+        # Order.objects.prefetch_related('items__product__filters')
+        orders = (Order.objects
+                  .prefetch_related('items__attributes__subfilter__filter')
+                  .prefetch_related('items__product__filters')
+                  .prefetch_related('items__freqbot')
+                  .filter(user=user))
+        # orders = user.order_set.all()
         return paginate(items=orders, page=page, page_size=page_size)
 
     @staticmethod
@@ -224,7 +257,9 @@ class OrderService:
         try:
             user = User.objects.get(id=user_id)
             order = (Order.objects
-                     .prefetch_related("items")
+                     .prefetch_related("items__attributes")
+                     .prefetch_related("items__freqbot")
+                     .prefetch_related("items__product__catalog_page__game")
                      .get(user=user, number=number))
 
         except User.DoesNotExist:
@@ -245,7 +280,11 @@ class OrderService:
         """
 
         try:
-            order = Order.objects.prefetch_related("items", "items__attributes").get(number=number)
+            order = (Order.objects
+                     .prefetch_related("items__attributes__subfilter__filter__product")
+                     .prefetch_related("items__product",
+                                       "items__freqbot")
+                     .get(number=number))
         except Order.DoesNotExist:
             raise HttpError(404, _("Not Found: No Order matches" " the given query."))
 

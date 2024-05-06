@@ -209,10 +209,11 @@ class WorthLookItemSchema(ModelSchema):
 
     @staticmethod
     def resolve_offers(obj):
-        count = (Product.objects
-                 .filter(catalog_page=obj.catalog_page)
-                 .count())
-        return count
+        # count = (Product.objects
+        #          .filter(catalog_page=obj.catalog_page)
+        #          .count())
+        # print(obj.catalog_page.products.count())
+        return obj.catalog_page.products.count()
 
     class Meta:
         model = WorthLookItem

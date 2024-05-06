@@ -274,7 +274,9 @@ class OrdersItemSchema(ModelSchema):
         if obj.product:
             obj.product.attributes = obj.attributes
             return [obj.product]
-        products = Product.objects.get_history().filter(freqbought=obj.freqbot)
+        products = (Product.objects.get_history()
+                    .select_related('catalog_page__game')
+                    .filter(freqbought=obj.freqbot))
         return products
 
     class Meta:

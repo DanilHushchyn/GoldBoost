@@ -76,14 +76,37 @@ class Product(models.Model):
         if self.price_type == 'range':
             price_to = self.price
             if self.filters.count():
-                for item in self.filters.prefetch_related("subfilters").all():
+                for item in self.filters.all():
                     if item.type == "CheckBox":
-                        price_to = price_to + item.subfilters.aggregate(Sum("price", default=0))["price__sum"]
+                        for sub in item.subfilters.all():
+                            price_to = price_to + sub.price
                     else:
-                        price_to = price_to + item.subfilters.aggregate(Max("price", default=0))["price__max"]
+                        max_price = 0
+                        for sub in item.subfilters.all():
+                            if sub.price > max_price:
+                                max_price = sub.price
+                        price_to = price_to + max_price
                 return price_to
             return self.price
         return None
+
+    # def price_to(self) -> float | None:
+    #     """
+    #     Method calculate max price for product with price type range.
+    #
+    #     Calculating includes all filters and fundamental price
+    #     """
+    #     if self.price_type == 'range':
+    #         price_to = self.price
+    #         if self.filters.count():
+    #             for item in self.filters.all():
+    #                 if item.type == "CheckBox":
+    #                     price_to = price_to + item.subfilters.aggregate(Sum("price", default=0))["price__sum"]
+    #                 else:
+    #                     price_to = price_to + item.subfilters.aggregate(Max("price", default=0))["price__max"]
+    #             return price_to
+    #         return self.price
+    #     return None
 
     def price_from(self) -> float | None:
         """
@@ -94,13 +117,34 @@ class Product(models.Model):
         if self.price_type == 'range':
             price_from = self.price
             if self.filters.count():
-                for item in self.filters.prefetch_related("subfilters").all():
+                for item in self.filters.all():
                     if item.type != "CheckBox":
-                        price_from = price_from + item.subfilters.aggregate(Min("price", default=0))["price__min"]
+                        min_price = 0
+                        for key, sub in enumerate(item.subfilters.all()):
+                            if key == 0:
+                                min_price = sub.price
+                            if sub.price < min_price:
+                                min_price = sub.price
+                        price_from = price_from + min_price
                 return price_from
             return self.price
         return None
 
+    # def price_from(self) -> float | None:
+    #     """
+    #     Method calculate min price for product with price type range.
+    #
+    #     Calculating includes all filters and fundamental price
+    #     """
+    #     if self.price_type == 'range':
+    #         price_from = self.price
+    #         if self.filters.count():
+    #             for item in self.filters.all():
+    #                 if item.type != "CheckBox":
+    #                     price_from = price_from + item.subfilters.aggregate(Min("price", default=0))["price__min"]
+    #             return price_from
+    #         return self.price
+    #     return None
     def sale_price_to(self) -> float | None:
         """
         Method calculates max price for product with price type range.
@@ -111,14 +155,38 @@ class Product(models.Model):
         if self.sale_active() and self.price_type == 'range':
             price_to = self.price
             if self.filters.count():
-                for item in self.filters.prefetch_related("subfilters").all():
+                for item in self.filters.all():
                     if item.type == "CheckBox":
-                        price_to = price_to + item.subfilters.aggregate(Sum("price", default=0))["price__sum"]
+                        for sub in item.subfilters.all():
+                            price_to = price_to + sub.price
                     else:
-                        price_to = price_to + item.subfilters.aggregate(Max("price", default=0))["price__max"]
+                        max_price = 0
+                        for sub in item.subfilters.all():
+                            if sub.price > max_price:
+                                max_price = sub.price
+                        price_to = price_to + max_price
                 return make_sale(price_to, self.sale_percent)
             return self.sale_price()
         return None
+
+    # def sale_price_to(self) -> float | None:
+    #     """
+    #     Method calculates max price for product with price type range.
+    #
+    #     Calculating includes all filters, fundamental price
+    #     and ability of sale if sale exists
+    #     """
+    #     if self.sale_active() and self.price_type == 'range':
+    #         price_to = self.price
+    #         if self.filters.count():
+    #             for item in self.filters.all():
+    #                 if item.type == "CheckBox":
+    #                     price_to = price_to + item.subfilters.aggregate(Sum("price", default=0))["price__sum"]
+    #                 else:
+    #                     price_to = price_to + item.subfilters.aggregate(Max("price", default=0))["price__max"]
+    #             return make_sale(price_to, self.sale_percent)
+    #         return self.sale_price()
+    #     return None
 
     def sale_price_from(self) -> float | None:
         """
@@ -130,12 +198,37 @@ class Product(models.Model):
         if self.sale_active() and self.price_type == 'range':
             price_from = self.price
             if self.filters.count():
-                for item in self.filters.prefetch_related("subfilters").all():
+                for item in self.filters.all():
                     if item.type != "CheckBox":
-                        price_from = price_from + item.subfilters.aggregate(Min("price", default=0))["price__min"]
+                        min_price = 0
+                        for key, sub in enumerate(item.subfilters.all()):
+                            if key == 0:
+                                min_price = sub.price
+                            if sub.price < min_price:
+                                min_price = sub.price
+                        price_from = price_from + min_price
                 return make_sale(price_from, self.sale_percent)
             return self.sale_price()
         return None
+
+    # def sale_price_from(self) -> float | None:
+    #     """
+    #     Method calculates min price for product with price type range.
+    #
+    #     Calculating includes all filters, fundamental price and ability
+    #     of sale if sale exists
+    #     """
+    #     if self.sale_active() and self.price_type == 'range':
+    #         price_from = self.price
+    #         if self.filters.count():
+    #             for item in self.filters.all():
+    #                 if item.type != "CheckBox":
+    #                     price_from = price_from + item.subfilters.aggregate(Min("price", default=0))["price__min"]
+    #             return make_sale(price_from, self.sale_percent)
+    #         return self.sale_price()
+    #     return None
+
+
 
     def sale_price(self) -> float | None:
         """

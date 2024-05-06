@@ -36,19 +36,7 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = ["*"]
-# SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         "LOCATION": env("REDIS_URL"),
-#         'OPTIONS': {
-#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-#         },
-#         "TIMEOUT": 1_209_600 ,  # in seconds: 60 * 15 (15 minutes)
-#
-#     }
-# }
-# Application definition
+
 
 INSTALLED_APPS = [
     "unfold",
@@ -64,6 +52,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.postgres",
+    "debug_toolbar",
     "corsheaders",
     "imagekit",
     "django_extensions",
@@ -85,9 +74,6 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "users.User"
 PASSWORD_RESET_TIMEOUT = 1800  # 30 minutes
 ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Change the token expiration time to 30 minutes
-# GOOGLE_OAUTH_CLIENT_ID = env("GOOGLE_OAUTH_CLIENT_ID")
-# GOOGLE_OAUTH_CLIENT_SECRET = env("GOOGLE_OAUTH_CLIENT_SECRET")
-# CORS_ALLOW_CREDENTIALS = True
 SESSION_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
@@ -331,6 +317,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -338,6 +325,11 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # Add the account middleware:
     "allauth.account.middleware.AccountMiddleware",
+]
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
 ]
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {

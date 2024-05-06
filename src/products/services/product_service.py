@@ -29,7 +29,9 @@ class ProductService:
     """
 
     @staticmethod
-    def add_product_to_cart(product_id: int, request: HttpRequest, body: AddToCartSchema) -> MessageOutSchema:
+    def add_product_to_cart(product_id: int,
+                            request: HttpRequest,
+                            body: AddToCartSchema) -> MessageOutSchema:
         """
         Gets info for product's card page.
 
@@ -40,14 +42,18 @@ class ProductService:
         :return: Product model's instance with related filters
         """
         try:
-            product = Product.objects.prefetch_related("filters__subfilters").get(id=product_id)
+            product = (Product.objects
+                       .select_related('catalog_page__game')
+                       .get(id=product_id))
         except Product.DoesNotExist:
             raise HttpError(404, _("Not Found: No Product" " matches the given query."))
         cart = OrderService().get_my_cart(request=request)
         if product.price_type == "range":
             attributes = set(body.attributes)
             for subfilter_id in attributes:
-                get_object_or_404(SubFilter, id=subfilter_id, filter__product=product_id)
+                get_object_or_404(SubFilter,
+                                  id=subfilter_id,
+                                  filter__product=product_id)
             filters = product.filters.exclude(type__in=["CheckBox"])
             for flt in filters:
                 count = flt.subfilters.filter(id__in=attributes).count()
@@ -97,12 +103,11 @@ class ProductService:
         :param product_id: id of Product model's instance
         :return: Product model's instance with related filters
         """
-        pr_filters = Prefetch(
-            "filters",
-            queryset=Filter.objects.all(),
-        )
+
         try:
-            product = Product.objects.prefetch_related(pr_filters).get(id=product_id)
+            product = (Product.objects
+                       .prefetch_related("filters__subfilters")
+                       .get(id=product_id))
         except Product.DoesNotExist:
             raise HttpError(404, _("Not Found: No Product matches" " the given query."))
         return product

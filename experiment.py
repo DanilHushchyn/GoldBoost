@@ -75,11 +75,32 @@ import pendulum
 # print(start_of_week)
 # print(end_of_week)
 
-today = pendulum.now(tz='Europe/Kiev')
-start_current_week = today.start_of('week')
-end_current_week = today.end_of('week')
-start_last_week = start_current_week.subtract(days=7)
-end_last_week = end_current_week.subtract(days=7)
 
-print(end_last_week.diff(start_last_week).in_days())
-print(type(start_last_week))
+
+
+
+
+
+
+# class Product(models.Model):
+#     title = models.CharField(max_length=255)
+#     subtitle = models.CharField(max_length=255)
+#
+#
+# class Filter(models.Model):
+#     title = models.CharField(max_length=255)
+#     product = models.ForeignKey("Product",
+#                                 on_delete=models.CASCADE,
+#                                 null=True,
+#                                 blank=True,
+#                                 related_name="filters")
+#
+#
+# class SubFilter(models.Model):
+#     title = models.CharField(max_length=255)
+#     filter = models.ForeignKey("Filter",
+#                                on_delete=models.CASCADE,
+#                                related_name="subfilters",
+#                                null=True)
+
+

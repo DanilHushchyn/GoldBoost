@@ -26,15 +26,15 @@ class AttributeSchema(ModelSchema):
     price: float
 
     @staticmethod
-    def resolve_title(obj):
+    def resolve_title(obj: Attribute):
         return obj.sub_filter.filter.title
 
     @staticmethod
-    def resolve_price(obj):
+    def resolve_price(obj: Attribute):
         return obj.sub_filter.price
 
     @staticmethod
-    def resolve_subtitle(obj):
+    def resolve_subtitle(obj: Attribute):
         return obj.sub_filter.title
 
     class Meta:
@@ -109,10 +109,8 @@ class CartItemProductSchema(ModelSchema):
     sale_percent: float | None
     price: float | None
     sale_active: bool
-    sale_period: str| None
+    sale_period: str | None
     attributes: List[AttributeSchema] = []
-
-    # sale_price: float | None
 
     @staticmethod
     def resolve_game_logo(obj: Product):
@@ -153,8 +151,6 @@ class CartItemSchema(ModelSchema):
     sale_percent: int | None
     bonus_points: int
 
-
-
     @staticmethod
     def resolve_items(obj: CartItem):
         if obj.product:
@@ -178,15 +174,10 @@ class CartOutSchema(Schema):
 
     items: List[CartItemSchema]
     total_bonuses: int
-    # total_items: int
     total_price: float
     count: int
     next: bool
     previous: bool
-
-    # class Meta:
-    #     model = Cart
-    #     fields = ["id"]
 
 
 class CreateOrderInSchema(Schema):

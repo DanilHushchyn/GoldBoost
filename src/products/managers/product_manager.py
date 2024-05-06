@@ -6,6 +6,7 @@ These Managers implement most frequently used methods
 for selecting data in models
 """
 from django.db import models
+from django.db.models import Prefetch, prefetch_related_objects
 
 
 class ProductManager(models.Manager):
@@ -24,15 +25,33 @@ class ProductManager(models.Manager):
     def hot_all(self, game_id: int = None):
         if game_id:
             objects = (
-                self.get_queryset().select_related("catalog_page__game").filter(tag_id=1, catalog_page__game=game_id)
+                self.get_queryset()
+                .select_related("catalog_page__game", 'tag')
+                .prefetch_related('filters__subfilters')
+                .filter(tag_id=1,
+                        catalog_page__game=game_id)
             )
 
         else:
-            objects = self.get_queryset().select_related("catalog_page__game").filter(tag_id=1)
+            objects = (self.get_queryset()
+                       .select_related("catalog_page__game", 'tag')
+                       .prefetch_related('filters__subfilters')
+                       .filter(tag_id=1))
         return objects
 
     def bestsellers(self):
-        objects = self.get_queryset().order_by("-bought_count")
+        # from src.products.models import Filter, SubFilter
+        # fs = Prefetch(
+        #     "filters",
+        #     queryset=Filter.objects.prefetch_related(
+        #         Prefetch('subfilters', queryset=SubFilter.objects.all(),)
+        #     ).all(),
+        # )
+        objects = (self.get_queryset()
+                   .select_related('catalog_page__game', 'tag')
+                   .prefetch_related('filters__subfilters')
+                   .order_by("-bought_count")
+                   )
         return objects
 
 

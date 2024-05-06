@@ -16,19 +16,17 @@ Including another URLconf
     path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from datetime import datetime, timedelta
-
 import pendulum
 from pendulum.datetime import DateTime
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.db.models import Sum, QuerySet
 from django.http import HttpRequest, HttpResponse
-from django.urls import include, path, re_path
+from django.urls import include, path
 from django.utils.translation import gettext as _
 from ninja.errors import AuthenticationError, ValidationError
 from ninja_extra import NinjaExtraAPI, status
-from django.views.generic import ListView, View
+from django.views.generic import View
 from config import settings
 from src.games.api import CatalogController, GamesController
 from src.main.api import MainController
@@ -36,12 +34,13 @@ from src.orders.api import OrderController
 from src.orders.models import Order
 from src.products.api import ProductController
 from src.products.models import Product
-from src.users.api import AuthController, CustomTokenObtainPairController, UsersController
+from src.users.api import (AuthController,
+                           CustomTokenObtainPairController,
+                           UsersController)
 from django.shortcuts import render
-
 from src.users.models import User
-import arrow
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        UserPassesTestMixin)
 
 
 class SuperUserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -64,7 +63,8 @@ class StatisticView(SuperUserRequiredMixin, View):
         return ((first_number / second_number) * 100) - 100
 
     @staticmethod
-    def chart_calc(start: DateTime, num_days: int, orders: QuerySet) -> (float, [], []):
+    def chart_calc(start: DateTime, num_days: int,
+                   orders: QuerySet) -> (float, [], []):
         week_days = []
         week_income_chart = []
         week_icome = 0
@@ -141,18 +141,18 @@ class StatisticView(SuperUserRequiredMixin, View):
         for product in trend_products:
             trend_chart.append([product.title, product.bought_count])
         context['trend_chart'] = trend_chart
-        context['current_week_icome'] = round(current_week_icome, 2)
+        context['current_week_icome'] = 0 if current_week_icome is None else round(current_week_icome, 2)
         context['current_week_days'] = current_week_days
         context['current_week_income_chart'] = current_week_income_chart
-        context['last_week_icome'] = round(last_week_icome, 2)
+        context['last_week_icome'] = 0 if last_week_icome is None else round(last_week_icome, 2)
         context['last_week_days'] = last_week_days
         context['last_week_income_chart'] = last_week_income_chart
         context['total_users'] = total_users
         context['total_orders'] = orders_current_week.count()
-        context['total_order_progress'] = round(orders_progress, 2)
+        context['total_order_progress'] = 0 if orders_progress is None else round(orders_progress, 2)
         context['notify_me_percent'] = int((user_notified / total_users) * 100)
-        context['total_income'] = round(income_current_week, 2)
-        context['total_income_progress'] = round(income_progress, 2)
+        context['total_income'] = 0 if income_current_week is None else round(income_current_week, 2)
+        context['total_income_progress'] = 0 if income_progress is None else round(income_progress, 2)
         return render(request, self.template_name, context)
 
 
@@ -169,7 +169,8 @@ def user_unauthorized(request, exc):
 
 
 @main_api.exception_handler(ValidationError)
-def http_exceptions_handler(request: HttpRequest, exc: ValidationError) -> HttpResponse:
+def http_exceptions_handler(request: HttpRequest, exc: ValidationError) \
+        -> HttpResponse:
     """
     Handle all Validation errors.
     """
@@ -189,7 +190,8 @@ def http_exceptions_handler(request: HttpRequest, exc: ValidationError) -> HttpR
     return main_api.create_response(
         request,
         data={
-            "error": {"status": status.HTTP_422_UNPROCESSABLE_ENTITY, "details": error_list},
+            "error": {"status": status.HTTP_422_UNPROCESSABLE_ENTITY,
+                      "details": error_list},
         },
         status=status.HTTP_422_UNPROCESSABLE_ENTITY,
     )
@@ -210,4 +212,8 @@ urlpatterns = [
     # path("accounts/", include('allauth.urls')),
 ]
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
+    urlpatterns += [
+        path("__debug__/", include("debug_toolbar.urls")),
+    ]
