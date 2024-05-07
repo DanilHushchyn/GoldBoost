@@ -248,6 +248,9 @@ class WhyChooseUsForm(forms.ModelForm):
         field_classes = {
             'icon': ImageAndSvgField,
         }
+        widgets = {
+            'icon': UnfoldAdminImageFieldWidget(attrs={'accept': '.svg,.png,.jpeg,.jpg,.webp'})
+        }
 
 
 @admin.register(WhyChooseUs)

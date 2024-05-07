@@ -129,7 +129,6 @@ UNFOLD = {
         lambda request: static("games/js/jquery-3.7.1.js"),
         lambda request: static("games/js/summernote-lite.js"),
         lambda request: static("games/js/summernote-client.js"),
-        lambda request: static("games/js/image_validation.js"),
     ],
     "COLORS": {
         "primary": {
