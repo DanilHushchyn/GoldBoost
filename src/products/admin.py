@@ -301,19 +301,19 @@ class FilterForm(forms.ModelForm):
             "order": UnfoldAdminTextInputWidget(attrs={}),
         }
 
-    def clean_type(self):
-        type = self.cleaned_data["type"]
-        if type == "Slider":
-            msg = (
-                f"If you want type Slider. \n"
-                f"Firstly remove all current "
-                f"sub filters and left old filter type, "
-                f"than return to set type Slider and new subfilters."
-            )
-            for sub in self.instance.subfilters.all():
-                if len(sub.title_en) > 2 or len(sub.title_en) > 2 or sub.price > 9999:
-                    raise forms.ValidationError(msg)
-        return type
+    # def clean_type(self):
+    #     type = self.cleaned_data["type"]
+    #     if type == "Slider":
+    #         msg = (
+    #             f"If you want type Slider. \n"
+    #             f"Firstly remove all current "
+    #             f"sub filters and left old filter type, "
+    #             f"than return to set type Slider and new subfilters."
+    #         )
+    #         for sub in self.instance.subfilters.all():
+    #             if len(sub.title_en) > 2 or len(sub.title_en) > 2 or sub.price > 9999:
+    #                 raise forms.ValidationError(msg)
+    #     return type
 
 
 class SubFilterForm(forms.ModelForm):
@@ -341,26 +341,7 @@ class SubFilterForm(forms.ModelForm):
             self.fields["title_en"].widget.attrs["readonly"] = True
             self.fields["title_uk"].widget.attrs["readonly"] = True
 
-    def clean_title_en(self):
-        title_en = self.cleaned_data["title_en"]
-        if len(title_en) > 2 and self.instance.filter.type == "Slider":
-            msg = "Max length is 2"
-            raise forms.ValidationError(msg)
-        return title_en
 
-    def clean_title_uk(self):
-        title_uk = self.cleaned_data["title_uk"]
-        if len(title_uk) > 2 and self.instance.filter.type == "Slider":
-            msg = "Max length is 2"
-            raise forms.ValidationError(msg)
-        return title_uk
-
-    def clean_price(self):
-        price = self.cleaned_data["price"]
-        if price > 9999 and self.instance.filter.type == "Slider":
-            msg = "Max value is 9999"
-            raise forms.ValidationError(msg)
-        return price
 
     class Meta:
         model = SubFilter
@@ -384,9 +365,15 @@ class SubFilterInline(TabularInline):
     """
 
     model = SubFilter
-    extra = 1
+    extra = 0
     max_num = 10
+    min_num = 1
     form = SubFilterForm
+
+    def has_delete_permission(self, request, obj: Filter = None):
+        if obj and obj.subfilters.count() <= 1:
+            return False
+        return True
 
 
 @admin.register(Filter)
@@ -536,6 +523,9 @@ class FreqBoughtForm(forms.ModelForm):
         if len(products) < 2:
             msg = "You have to choose minimum 2 products"
             raise forms.ValidationError(msg)
+        if len(products) > 6:
+            msg = "You can choose maximum 6 products"
+            raise forms.ValidationError(msg)
         return products
 
     def clean_discount(self):
@@ -585,3 +575,8 @@ class FreqBoughtAdmin(ModelAdmin):
         obj.is_deleted = True
         obj.save()
         return True
+
+    def has_add_permission(self, request, obj: FreqBought = None):
+        if FreqBought.objects.count() < 4:
+            return True
+        return False

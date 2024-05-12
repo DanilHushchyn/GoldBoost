@@ -13,6 +13,7 @@ from datetime import timedelta
 
 from django.db import models
 from django.db.models import Max, Min, Sum
+from django.forms import forms
 from django.utils import timezone
 
 from src.games.models import CatalogPage
@@ -228,8 +229,6 @@ class Product(models.Model):
     #         return self.sale_price()
     #     return None
 
-
-
     def sale_price(self) -> float | None:
         """
         Method calculates min price for product with price fixed range.
@@ -368,6 +367,27 @@ class SubFilter(models.Model):
         verbose_name = "SubFilter"
         verbose_name_plural = "SubFilters"
         db_table = "sub_filters"
+
+    def clean(self):
+
+        if self.filter.type == 'Slider':
+            msg = (
+                "If you want type Slider. "
+                "Field title_en: Max length is 2. "
+                "Field title_uk: Max length is 2. "
+                "Field price: Max value is 9999. "
+            )
+
+            if (len(self.title_en) > 2 or
+                    len(self.title_uk) > 2 or
+                    self.price > 9999):
+                raise forms.ValidationError(msg)
+
+    def delete(self, *args, **kwargs):
+        if self.filter.subfilters.count() <= 1:
+            self.filter.delete()
+            return
+        super().delete(*args, **kwargs)
 
 
 class ProductTabs(models.Model):
