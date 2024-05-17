@@ -377,6 +377,10 @@ class SubFilter(models.Model):
                 "Field title_uk: Max length is 2. "
                 "Field price: Max value is 9999. "
             )
+            if (self.title_en is None or
+                    self.title_uk is None or
+                    self.price is None):
+                raise forms.ValidationError(msg)
 
             if (len(self.title_en) > 2 or
                     len(self.title_uk) > 2 or
