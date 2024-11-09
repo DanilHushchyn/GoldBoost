@@ -74,10 +74,10 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "users.User"
 PASSWORD_RESET_TIMEOUT = 1800  # 30 minutes
 ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Change the token expiration time to 30 minutes
-SESSION_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = 'None'
+# SESSION_COOKIE_SAMESITE = "None"
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SAMESITE = "None"
 SITE_ID = 1
 NINJA_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
@@ -168,7 +168,6 @@ UNFOLD = {
                         "icon": "people",
                         "link": f"{env('MEDIA_URL')}/admin/users/user/",
                         "permission": lambda request: request.user.is_superuser,
-
                     },
                     {
                         "title": "Orders",

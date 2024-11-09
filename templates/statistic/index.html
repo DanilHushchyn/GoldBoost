@@ -184,24 +184,24 @@
                                 </div>
                                 <div class="relative w-full">
                                   <canvas class="chart" data-type="line" data-value="
-                                  {&quot;labels&quot;: 
+                                  {&quot;labels&quot;:
                                   [
                                       {% for day in current_week_days %}
                                         &quot;{{ day }}&quot;{% if forloop.last %}{% else %},{% endif %}
                                       {% endfor %}
-                                  ], 
-                                  &quot;datasets&quot;: 
+                                  ],
+                                  &quot;datasets&quot;:
                                   [
                                   {
-                                    &quot;data&quot;: 
+                                    &quot;data&quot;:
                                     [
                                       {% for i1, i2 in current_week_income_chart %}
                                         [{{ i1 }}, {{i2}}]{% if forloop.last %}{% else %},{% endif %}
                                       {% endfor %}
-                                    ], 
+                                    ],
                                     &quot;borderColor&quot;: &quot;#9333ea&quot;
                                     }]}" style="display: block; box-sizing: border-box; height: 150px; width: 694px;" width="694" height="150">
-                                  </canvas>                                
+                                  </canvas>
                                 </div>
                             </div>
                         </div>
@@ -215,21 +215,21 @@
                                 </div>
                                 <div class="relative w-full">
                                   <canvas class="chart" data-type="line" data-value="
-                                  {&quot;labels&quot;: 
+                                  {&quot;labels&quot;:
                                   [
                                       {% for day in last_week_days %}
                                         &quot;{{ day }}&quot;{% if forloop.last %}{% else %},{% endif %}
                                       {% endfor %}
-                                  ], 
-                                  &quot;datasets&quot;: 
+                                  ],
+                                  &quot;datasets&quot;:
                                   [
                                   {
-                                    &quot;data&quot;: 
+                                    &quot;data&quot;:
                                     [
                                       {% for i1, i2 in last_week_income_chart %}
                                         [{{ i1 }}, {{i2}}]{% if forloop.last %}{% else %},{% endif %}
                                       {% endfor %}
-                                    ], 
+                                    ],
                                     &quot;borderColor&quot;: &quot;#9333ea&quot;
                                     }]}" style="display: block; box-sizing: border-box; height: 150px; width: 694px;" width="694" height="150">
                                   </canvas>
@@ -263,13 +263,13 @@
                         ],
                     }]
             };
-          
+
            var pieChart = new Chart(ctx, {
-            type: 'pie', 
+            type: 'pie',
             data: oilData,
           });
 
-    </script>  
+    </script>
     </body>
 
 </html>
