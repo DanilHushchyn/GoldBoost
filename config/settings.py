@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # django-environ
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, ".env.prod"))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -121,7 +121,12 @@ NINJA_EXTRA = {
 UNFOLD = {
     "SITE_TITLE": "GoldBoost",
     "SITE_HEADER": "GoldBoost",
+    "ENVIRONMENT": "src.main.utils.environment_callback",
+    # "DASHBOARD_CALLBACK": "src.main.views.dashboard_callback",
     "SITE_URL": "/",
+    "LOGIN": {
+        "image": lambda request: static("games/imgs/login-bg.jpg"),
+    },
     "STYLES": [
         lambda request: static("games/css/summernote-lite.css"),
     ],
@@ -163,6 +168,7 @@ UNFOLD = {
                         "icon": "people",
                         "link": f"{env('MEDIA_URL')}/admin/users/user/",
                         "permission": lambda request: request.user.is_superuser,
+
                     },
                     {
                         "title": "Orders",

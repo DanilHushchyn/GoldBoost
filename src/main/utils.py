@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import random
 from enum import Enum
 
 from ninja.testing.client import NinjaResponse, TestClient
@@ -10,6 +11,8 @@ import jsonschema
 from loguru import logger
 from ninja_extra import status
 from ninja_extra.exceptions import APIException
+
+from config import settings
 
 
 class LangEnum(Enum):
@@ -55,3 +58,19 @@ def make_request(request_str: str, schema, client: TestClient,
     except jsonschema.exceptions.ValidationError as e:
         is_valid = False
     return response, is_valid
+
+
+
+def environment_callback(request):
+    if settings.DEBUG:
+        return ["Development", "info"]
+
+    return ["Production", "warning"]
+
+
+def badge_callback(request):
+    return f"+{random.randint(1, 99)}"
+
+
+def permission_callback(request):
+    return True
