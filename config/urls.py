@@ -19,16 +19,19 @@ Including another URLconf
 import os
 
 import pendulum
-from pendulum.datetime import DateTime
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.db.models import Sum, QuerySet
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import QuerySet, Sum
 from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render
 from django.urls import include, path
 from django.utils.translation import gettext as _
+from django.views.generic import View
 from ninja.errors import AuthenticationError, ValidationError
 from ninja_extra import NinjaExtraAPI, status
-from django.views.generic import View
+from pendulum.datetime import DateTime
+
 from config import settings
 from src.games.api import CatalogController, GamesController
 from src.main.api import MainController
@@ -36,23 +39,17 @@ from src.orders.api import OrderController
 from src.orders.models import Order
 from src.products.api import ProductController
 from src.products.models import Product
-from src.users.api import (AuthController,
-                           CustomTokenObtainPairController,
-                           UsersController)
-from django.shortcuts import render
+from src.users.api import AuthController, CustomTokenObtainPairController, UsersController
 from src.users.models import User
-from django.contrib.auth.mixins import (LoginRequiredMixin,
-                                        UserPassesTestMixin)
 
 
 class SuperUserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
     def test_func(self):
         return self.request.user.is_superuser
 
 
 class StatisticView(SuperUserRequiredMixin, View):
-    template_name = 'statistic/index.html'
+    template_name = "statistic/index.html"
 
     @staticmethod
     def progress_calc(first_number: int, second_number: int) -> float:
@@ -65,17 +62,16 @@ class StatisticView(SuperUserRequiredMixin, View):
         return ((first_number / second_number) * 100) - 100
 
     @staticmethod
-    def chart_calc(start: DateTime, num_days: int,
-                   orders: QuerySet) -> (float, [], []):
+    def chart_calc(start: DateTime, num_days: int, orders: QuerySet) -> (float, [], []):
         week_days = []
         week_income_chart = []
         week_icome = 0
         date = start
         for item in range(1, num_days + 2):
-            day = date.format('DD dddd')
+            day = date.format("DD dddd")
             week_days.append(day)
             filtered_orders = orders.filter(date_created__date=date.date())
-            income = filtered_orders.aggregate(price=Sum('total_price'))['price']
+            income = filtered_orders.aggregate(price=Sum("total_price"))["price"]
             if income is None:
                 income = 0
             income = round(income, 2)
@@ -87,48 +83,39 @@ class StatisticView(SuperUserRequiredMixin, View):
     def get(self, request):
         context = {}
 
-        today = pendulum.now(tz='Europe/Kiev')
-        start_current_week = today.start_of('week')
-        end_current_week = today.end_of('week')
+        today = pendulum.now(tz="Europe/Kiev")
+        start_current_week = today.start_of("week")
+        end_current_week = today.end_of("week")
         start_last_week = start_current_week.subtract(days=7)
         end_last_week = end_current_week.subtract(days=7)
         total_users = User.objects.count()
         user_notified = User.objects.filter(notify_me=True).count()
-        orders_last_week = (Order.objects
-        .filter(
-            date_created__range=[start_last_week,
-                                 end_last_week],
-            status='COMPLETED'))
-        orders_current_week = (Order.objects
-        .filter(
-            date_created__range=[start_current_week, end_current_week],
-            status='COMPLETED'))
-        orders_progress = self.progress_calc(orders_current_week.count(),
-                                             orders_last_week.count())
+        orders_last_week = Order.objects.filter(
+            date_created__range=[start_last_week, end_last_week], status="COMPLETED"
+        )
+        orders_current_week = Order.objects.filter(
+            date_created__range=[start_current_week, end_current_week], status="COMPLETED"
+        )
+        orders_progress = self.progress_calc(orders_current_week.count(), orders_last_week.count())
 
-        income_current_week = orders_current_week.aggregate(price=Sum('total_price'))['price']
-        income_last_week = orders_last_week.aggregate(price=Sum('total_price'))['price']
-        income_progress = self.progress_calc(income_current_week,
-                                             income_last_week)
+        income_current_week = orders_current_week.aggregate(price=Sum("total_price"))["price"]
+        income_last_week = orders_last_week.aggregate(price=Sum("total_price"))["price"]
+        income_progress = self.progress_calc(income_current_week, income_last_week)
 
         num_days = end_last_week.diff(start_last_week).in_days()
-        last_week_icome, last_week_days, last_week_income_chart = (
-            self.chart_calc(start=start_last_week,
-                            num_days=num_days,
-                            orders=orders_last_week))
+        last_week_icome, last_week_days, last_week_income_chart = self.chart_calc(
+            start=start_last_week, num_days=num_days, orders=orders_last_week
+        )
 
         num_days = today.diff(start_current_week).in_days()
-        current_week_icome, current_week_days, current_week_income_chart = (
-            self.chart_calc(start=start_current_week,
-                            num_days=num_days,
-                            orders=orders_current_week))
+        current_week_icome, current_week_days, current_week_income_chart = self.chart_calc(
+            start=start_current_week, num_days=num_days, orders=orders_current_week
+        )
 
-        #pie Chart
-        orders_2_last_week = (Order.objects
-                              .prefetch_related('items')
-                              .filter(date_created__range=
-                                      [start_last_week, end_current_week],
-                                      status='COMPLETED'))
+        # pie Chart
+        orders_2_last_week = Order.objects.prefetch_related("items").filter(
+            date_created__range=[start_last_week, end_current_week], status="COMPLETED"
+        )
         list_ids = set()
         for order in orders_2_last_week:
             order: Order
@@ -142,19 +129,19 @@ class StatisticView(SuperUserRequiredMixin, View):
         trend_chart = []
         for product in trend_products:
             trend_chart.append([product.title, product.bought_count])
-        context['trend_chart'] = trend_chart
-        context['current_week_icome'] = 0 if current_week_icome is None else round(current_week_icome, 2)
-        context['current_week_days'] = current_week_days
-        context['current_week_income_chart'] = current_week_income_chart
-        context['last_week_icome'] = 0 if last_week_icome is None else round(last_week_icome, 2)
-        context['last_week_days'] = last_week_days
-        context['last_week_income_chart'] = last_week_income_chart
-        context['total_users'] = total_users
-        context['total_orders'] = orders_current_week.count()
-        context['total_order_progress'] = 0 if orders_progress is None else round(orders_progress, 2)
-        context['notify_me_percent'] = int((user_notified / total_users) * 100)
-        context['total_income'] = 0 if income_current_week is None else round(income_current_week, 2)
-        context['total_income_progress'] = 0 if income_progress is None else round(income_progress, 2)
+        context["trend_chart"] = trend_chart
+        context["current_week_icome"] = 0 if current_week_icome is None else round(current_week_icome, 2)
+        context["current_week_days"] = current_week_days
+        context["current_week_income_chart"] = current_week_income_chart
+        context["last_week_icome"] = 0 if last_week_icome is None else round(last_week_icome, 2)
+        context["last_week_days"] = last_week_days
+        context["last_week_income_chart"] = last_week_income_chart
+        context["total_users"] = total_users
+        context["total_orders"] = orders_current_week.count()
+        context["total_order_progress"] = 0 if orders_progress is None else round(orders_progress, 2)
+        context["notify_me_percent"] = int((user_notified / total_users) * 100)
+        context["total_income"] = 0 if income_current_week is None else round(income_current_week, 2)
+        context["total_income_progress"] = 0 if income_progress is None else round(income_progress, 2)
         return render(request, self.template_name, context)
 
 
@@ -171,8 +158,7 @@ def user_unauthorized(request, exc):
 
 
 @main_api.exception_handler(ValidationError)
-def http_exceptions_handler(request: HttpRequest, exc: ValidationError) \
-        -> HttpResponse:
+def http_exceptions_handler(request: HttpRequest, exc: ValidationError) -> HttpResponse:
     """
     Handle all Validation errors.
     """
@@ -192,8 +178,7 @@ def http_exceptions_handler(request: HttpRequest, exc: ValidationError) \
     return main_api.create_response(
         request,
         data={
-            "error": {"status": status.HTTP_422_UNPROCESSABLE_ENTITY,
-                      "details": error_list},
+            "error": {"status": status.HTTP_422_UNPROCESSABLE_ENTITY, "details": error_list},
         },
         status=status.HTTP_422_UNPROCESSABLE_ENTITY,
     )
@@ -211,31 +196,36 @@ main_api.register_controllers(MainController)
 
 def return_text_file(request):
     # Define the path to your text file
-    file_path = os.path.join('C7375380888E8ABE294C1F6B312A1A4F.txt')
+    file_path = os.path.join("C7375380888E8ABE294C1F6B312A1A4F.txt")
 
     # Check if the file exists
     if not os.path.exists(file_path):
         return HttpResponse("File not found.", status=404)
 
     # Open the file and read its content
-    with open(file_path, 'r') as file:
+    with open(file_path, "r") as file:
         content = file.read()
 
     # Create an HTTP response with the content of the file
-    response = HttpResponse(content, content_type='text/plain')
-    response['Content-Disposition'] = 'attachment; filename="C7375380888E8ABE294C1F6B312A1A4F.txt"'
+    response = HttpResponse(content, content_type="text/plain")
+    response["Content-Disposition"] = 'attachment; filename="C7375380888E8ABE294C1F6B312A1A4F.txt"'
 
     return response
+
+
 urlpatterns = [
-    path('admin/statistic/', StatisticView.as_view()),
+    path("admin/statistic/", StatisticView.as_view()),
     path("admin/", admin.site.urls),
     path("api/", main_api.urls),
-    path(".well-known/pki-validation/C7375380888E8ABE294C1F6B312A1A4F.txt", return_text_file),
+    # path(".well-known/pki-validation/C7375380888E8ABE294C1F6B312A1A4F.txt", return_text_file),
+
     # path("accounts/", include('allauth.urls')),
 ]
+from .settings import BASE_DIR
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL,
-                          document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static("/.well-known/", document_root=os.path.join(BASE_DIR, ".well-known"))
+
     urlpatterns += [
         path("__debug__/", include("debug_toolbar.urls")),
     ]
