@@ -16,6 +16,8 @@ Including another URLconf
     path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import os
+
 import pendulum
 from pendulum.datetime import DateTime
 from django.conf.urls.static import static
@@ -205,10 +207,30 @@ main_api.register_controllers(AuthController)
 main_api.register_controllers(GamesController)
 main_api.register_controllers(CatalogController)
 main_api.register_controllers(MainController)
+
+
+def return_text_file(request):
+    # Define the path to your text file
+    file_path = os.path.join('C7375380888E8ABE294C1F6B312A1A4F.txt')
+
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        return HttpResponse("File not found.", status=404)
+
+    # Open the file and read its content
+    with open(file_path, 'r') as file:
+        content = file.read()
+
+    # Create an HTTP response with the content of the file
+    response = HttpResponse(content, content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename="C7375380888E8ABE294C1F6B312A1A4F.txt"'
+
+    return response
 urlpatterns = [
     path('admin/statistic/', StatisticView.as_view()),
     path("admin/", admin.site.urls),
     path("api/", main_api.urls),
+    path(".well-known/pki-validation/C7375380888E8ABE294C1F6B312A1A4F.txt", return_text_file),
     # path("accounts/", include('allauth.urls')),
 ]
 if settings.DEBUG:
